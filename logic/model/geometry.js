@@ -1,4 +1,5 @@
-var Montage = require("montage/core/core").Montage;
+var Montage = require("montage/core/core").Montage,
+    HALF_PI = Math.PI / 180.0;
 
 /**
  *
@@ -19,6 +20,30 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
     }
 
 }, {
+
+    /**
+     * Converts a value in degrees to radians
+     * @method
+     * @param {number} degrees
+     * @returns {number} radians
+     */
+    toRadians: {
+        value: function (degrees) {
+            return degrees * HALF_PI;
+        }
+    },
+
+    /**
+     * Converts a value in radians to degrees
+     * @method
+     * @param {number} radians
+     * @returns {number} degrees
+     */
+    toDegrees: {
+        value: function (radians) {
+            return radians * 57.29577951308233; // 180 divided by PI;
+        }
+    },
 
     /**
      * Returns a newly initialized geometry with the specified coordinates.
