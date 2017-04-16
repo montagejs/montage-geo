@@ -102,9 +102,10 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
     },
 
     /**
-     * Returns the feature in this collection with the specified id.
+     * Delete the feature in this collection with the specified id.
      * @method
      * @param {string|number} id
+     * @returns {Feature|undefined}
      */
     delete: {
         value: function (id) {

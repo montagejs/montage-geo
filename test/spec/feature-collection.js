@@ -42,14 +42,12 @@ describe("A FeatureCollection", function () {
 
     it("can remove a feature", function () {
         var collection = FeatureCollection.withFeatures();
-
         collection.add(lahaina);
         expect(collection.size).toBe(1);
         collection.remove(lahaina);
         expect(collection.size).toBe(0);
         expect(collection.has(lahaina)).toBe(false);
         expect(collection.get(42)).toBe(undefined);
-
     });
 
     it("can add multiple features", function () {

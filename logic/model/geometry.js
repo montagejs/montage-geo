@@ -9,7 +9,7 @@ var Montage = require("montage/core/core").Montage,
  * @class
  * @extends external:Montage
  */
-exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
+var Geometry = exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
 
     /**
      * The points, curves and surfaces that describe this geometry.
@@ -20,6 +20,20 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
     }
 
 }, {
+
+    isInteresectingLines: {
+        value: function (x1, y1, x2, y2, x3, y3, x4, y4) {
+            return Geometry.orientation(x1, y1, x3, y3, x4, y4) !== Geometry.orientation(x2, y2, x3, y3, x4, y4) &&
+                Geometry.orientation(x1, y1, x2, y2, x3, y3) !== Geometry.orientation(x1, y1, x2, y2, x4, y4);
+        }
+    },
+
+    orientation: {
+        value: function (tx1, ty1, tx2, ty2, tx3, ty3) {
+            var clockWise = ((ty3 - ty1) * (tx2 - tx1)) - ((ty2 - ty1) * (tx3 - tx1));
+            return clockWise > 0 ? true : clockWise < 0 ? false : true;
+        }
+    },
 
     /**
      * Converts a value in degrees to radians
