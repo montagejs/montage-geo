@@ -1,5 +1,5 @@
-var Monage = require("montage/core/core").Montage,
-    Geometry = require("logic/model/geometry").Geometry;
+var Montage = require("montage/core/core").Montage,
+    LineString = require("logic/model/line-string").LineString;
 
 /**
  *
@@ -149,6 +149,11 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         }
     },
 
+    toSegments: {
+        value: function () {
+        }
+    },
+
     /**
      *
      * Determines whether or not the bounds intersects,
@@ -175,8 +180,8 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             var type = geometry.type;
             return  type === "Point" ?              this._containsPoint(geometry) :
                     type === "MultiPoint" ?         this._containsMultiPoint(geometry) :
-                    type === "LineString" ?         this._containsLineString(geometry) :
-                    type === "MultiLineString" ?    this._containsMultiLineString(geometry) :
+                    type === "LineString" ?         geometry.intersects(this.toSegments()) :
+                    type === "MultiLineString" ?    geometry.intersects(this.toSegments()) :
                     type === "Polygon" ?            this._containsPolygon(geometry) :
                     type === "MultiPolygon" ?       this._containsPolygon(geometry) :
                                                     false;
@@ -198,52 +203,52 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         }
     },
 
-    _containsLineString: {
+    _intersect: {
         value: function (geometry) {
             return this._containsLineStringPositions(geometry.coordinates);
         }
     },
 
-    _containsLineStringPositions: {
-        value: function (positions) {
-            var doesContain, extentPoints,
-                point1, point2, point3, point4,
-                i, length, j, a, b;
-
-            doesContain = geometry.coordinates.some(function (position) {
-                return this._containsPosition(position);
-            });
-
-            if (!doesContain) {
-                extentPoints = [
-                    [this.xMax, this.yMin],
-                    [this.xMin, this.yMin],
-                    [this.xMin, this.yMax],
-                    [this.xMax, this.yMax]
-                ];
-                for (i = 0, length = positions.length, j = length - 1; i < length; j = i++) {
-                    point3 = positions[i];
-                    point4 = positions[j];
-                    for (a = 0; a < 4; a += 1) {
-                        b = a + 1;
-                        if (b === 4) {
-                            b = 0;
-                        }
-                        point1 = extentPoints[a];
-                        point2 = extentPoints[b];
-                        doesContain = Geometry.isInteresectingLines(
-                            point1[0], point1[1],
-                            point2[0], point2[1],
-                            point3[0], point3[1],
-                            point4[0], point4[1]
-                        );
-                    }
-                }
-            }
-            return doesContain;
-
-        }
-    },
+    // _containsLineStringPositions: {
+    //     value: function (positions) {
+    //         var doesContain, extentPoints,
+    //             point1, point2, point3, point4,
+    //             i, length, j, a, b;
+    //
+    //         doesContain = geometry.coordinates.some(function (position) {
+    //             return this._containsPosition(position);
+    //         });
+    //
+    //         if (!doesContain) {
+    //             extentPoints = [
+    //                 [this.xMax, this.yMin],
+    //                 [this.xMin, this.yMin],
+    //                 [this.xMin, this.yMax],
+    //                 [this.xMax, this.yMax]
+    //             ];
+    //             for (i = 0, length = positions.length, j = length - 1; i < length; j = i++) {
+    //                 point3 = positions[i];
+    //                 point4 = positions[j];
+    //                 for (a = 0; a < 4; a += 1) {
+    //                     b = a + 1;
+    //                     if (b === 4) {
+    //                         b = 0;
+    //                     }
+    //                     point1 = extentPoints[a];
+    //                     point2 = extentPoints[b];
+    //                     doesContain = Geometry.isInteresectingLines(
+    //                         point1[0], point1[1],
+    //                         point2[0], point2[1],
+    //                         point3[0], point3[1],
+    //                         point4[0], point4[1]
+    //                     );
+    //                 }
+    //             }
+    //         }
+    //         return doesContain;
+    //
+    //     }
+    // },
 
     _containsMultiLineString: {
         value: function (geometry) {
