@@ -17,12 +17,12 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
      */
     xMax: {
         get: function () {
-            return this._yMin;
+            return this._xMax;
         },
         set: function (y) {
-            this._yMin = y;
+            this._xMax = y;
             if (this._box) {
-                this._box[1] = x;
+                this._box[2] = x;
             }
         }
     },
@@ -151,6 +151,16 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
 
     toSegments: {
         value: function () {
+            var southEast = [this.xMax, this.yMin],
+                southWest = [this.xMin, this.yMin],
+                northWest = [this.xMin, this.yMax],
+                northEast = [this.xMax, this.yMax];
+            return [
+                LineString.withCoordinates([southEast, southWest]),
+                LineString.withCoordinates([southWest, northWest]),
+                LineString.withCoordinates([northWest, northEast]),
+                LineString.withCoordinates([northEast, southEast])
+            ];
         }
     },
 
@@ -203,11 +213,11 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         }
     },
 
-    _intersect: {
-        value: function (geometry) {
-            return this._containsLineStringPositions(geometry.coordinates);
-        }
-    },
+    // _intersect: {
+    //     value: function (geometry) {
+    //         return this._containsLineStringPositions(geometry.coordinates);
+    //     }
+    // },
 
     // _containsLineStringPositions: {
     //     value: function (positions) {
@@ -273,6 +283,21 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
                     longitude >= this.xMin &&
                     latitude <= this.yMax &&
                     latitude >= this.yMin;
+        }
+    }
+
+}, {
+
+    withCoordinates: {
+        value: function (xMin, yMin, xMax, yMax, projection) {
+            var bounds = new this(),
+                minimums = projection ? projection.inverseProjectPoint([xMin, yMin]) : [xMin, yMin],
+                maximums = projection ? projection.inverseProjectPoint([xMax, yMax]) : [xMax, yMax];
+            bounds.xMin = minimums[0];
+            bounds.yMin = minimums[1];
+            bounds.xMax = maximums[0];
+            bounds.yMax = maximums[1];
+            return bounds;
         }
     }
 

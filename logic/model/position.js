@@ -4,16 +4,37 @@ var Montage = require("montage/core/core").Montage;
  *
  * A position represents a physical location on the Earth.
  *
+ * Position is a JavaScript Object subclass rather than a Montage subclass
+ * so positions can be as lightweight as possible: They need to be
+ * lightweight because many will be created and there's no benefit for them
+ * to be derived from the Montage prototype because they don't use any of the
+ * Montage class functionality.
+ *
  * @class
- * @extends external:Montage
+ * @extends Object
  */
-exports.Position = Montage.specialize(/** @lends Montage.prototype */ {
+exports.Position = function () {};
+
+exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ {
+
+    /**
+     * The constructor function for all trigger instances.
+     *
+     * @type {function}
+     */
+    constructor: {
+        configurable: true,
+        writable: true,
+        value: exports.Position
+    },
 
     /**
      * The position's altitude.
      * @type {number}
      */
     altitude: {
+        configurable: true,
+        writable: true,
         value: 0
     },
 
@@ -22,6 +43,8 @@ exports.Position = Montage.specialize(/** @lends Montage.prototype */ {
      * @type {number}
      */
     latitude: {
+        configurable: true,
+        writable: true,
         value: 0
     },
 
@@ -30,10 +53,21 @@ exports.Position = Montage.specialize(/** @lends Montage.prototype */ {
      * @type {number}
      */
     longitude: {
+        configurable: true,
+        writable: true,
         value: 0
+    },
+
+    toArray: {
+        value: function () {
+            //TODO: Optimize by caching array.
+            return [this.longitude, this.latitude];
+        }
     }
 
-}, {
+});
+
+Object.defineProperties(exports.Position, /** @lends Position */ {
 
     /**
      * Returns a newly initialized point with the specified coordinates.
@@ -54,7 +88,7 @@ exports.Position = Montage.specialize(/** @lends Montage.prototype */ {
             if (length && Array.isArray(arguments[0])) {
                 return exports.Position.withCoordinates.apply(this, (arguments[0]));
             }
-            self = new this();
+            self = new exports.Position();
             if (length > 0) self.longitude = arguments[0];
             if (length > 1) self.latitude = arguments[1];
             if (length > 2) self.altitude = arguments[2];

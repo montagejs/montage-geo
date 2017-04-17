@@ -36,15 +36,14 @@ var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.
             for (i = 0, j = 1, length = positions.length - 1; i < length; i++, j++) {
                 point3 = positions[i];
                 point4 = positions[j];
-                for (a = 0, length2 = segments.length - 1; a < length2; a++) {
-                    segment = segments[a].coordinates;
-                    point1 = segment[0];
-                    point2 = segment[1];
+                for (a = 0, length2 = segments.length; a < length2; a++) {
+                    point1 = segments[a].coordinates[0];
+                    point2 = segments[a].coordinates[1];
                     doesContain = this._segmentsIntersect(
-                        point1[0], point1[1],
-                        point2[0], point2[1],
-                        point3[0], point3[1],
-                        point4[0], point4[1]
+                        point1.longitude, point1.latitude,
+                        point2.longitude, point2.latitude,
+                        point3.longitude, point3.latitude,
+                        point4.longitude, point4.latitude
                     );
                     if (doesContain) break outerloop;
                 }
@@ -93,11 +92,12 @@ var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.
             var coordinates = this.coordinates,
                 segments = [],
                 i, n;
-            for (i = 0, n = coordinates.length; i <= n; i += 1) {
+            for (i = 0, n = coordinates.length - 1; i < n; i += 1) {
                 segments.push(LineString.withCoordinates([
-                    coordinates[i], coordinates[i + 1]
+                    coordinates[i].toArray(), coordinates[i + 1].toArray()
                 ]));
             }
+            return segments;
         }
     },
 

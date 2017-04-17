@@ -9,7 +9,7 @@ var Montage = require("montage/core/core").Montage,
  * @class
  * @extends external:Montage
  */
-var Geometry = exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
+exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
 
     /**
      * The points, curves and surfaces that describe this geometry.

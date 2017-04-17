@@ -1,8 +1,10 @@
 console.log('montage-testing', 'Start');
 module.exports = require("montage-testing").run(require, [
+    "spec/bounding-box",
     "spec/feature",
     "spec/feature-collection",
     "spec/geometry",
+    "spec/line-string",
     "spec/point",
     "spec/position"
 
