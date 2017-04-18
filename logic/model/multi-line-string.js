@@ -3,12 +3,13 @@ var Geometry = require("./geometry").Geometry,
 
 /**
  *
- * A Geometry whose "coordinates" member is an array of two or more positions.
+ * A Geometry whose "coordinates" member must be an array of
+ * LineString coordinate arrays.
  *
  * @class
  * @extends external:Geometry
  */
-exports.LineString = Geometry.specialize(/** @lends LineString.prototype */ {
+exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototype */ {
 
     /**
      * @type {Array<Position>}
@@ -24,10 +25,19 @@ exports.LineString = Geometry.specialize(/** @lends LineString.prototype */ {
      */
     intersects: {
         value: function (geometry) {
-
             var coordinates = geometry.coordinates,
-                positions = this.coordinates,
                 isIntersecting = false,
+                i, n;
+            for (i = 0, n = this.coordinates.length; i < n && !isIntersecting; i += 1) {
+                isIntersecting = this._intersects(this.coordinates[i], coordinates);
+            }
+            return isIntersecting;
+        }
+    },
+
+    _intersects: {
+        value: function (positions, coordinates) {
+            var doesContain = false,
                 point1, point2, point3, point4,
                 i, j, a, b, length, length2;
 
@@ -38,16 +48,16 @@ exports.LineString = Geometry.specialize(/** @lends LineString.prototype */ {
                 for (a = 0, b = 1, length2 = coordinates.length - 1; a < length2; a++, b++) {
                     point1 = coordinates[a];
                     point2 = coordinates[b];
-                    isIntersecting = this._segmentsIntersect(
+                    doesContain = this._segmentsIntersect(
                         point1.longitude, point1.latitude,
                         point2.longitude, point2.latitude,
                         point3.longitude, point3.latitude,
                         point4.longitude, point4.latitude
                     );
-                    if (isIntersecting) break outerloop;
+                    if (doesContain) break outerloop;
                 }
             }
-            return isIntersecting;
+            return doesContain;
         }
     },
 
@@ -68,15 +78,18 @@ exports.LineString = Geometry.specialize(/** @lends LineString.prototype */ {
 }, {
 
     /**
-     * Returns a newly initialized LineString with the specified coordinates.
+     * Returns a newly initialized MultiLineString with the specified coordinates.
      *
-     * @param {array<array<number>>} coordinates - The position of this point.
+     * @param {array<array<array<number>>>} coordinates - The positions of this
+     * MultiLineString.
      */
     withCoordinates: {
-        value: function (coordinates) {
+        value: function (lineStrings) {
             var self = new this();
-            self.coordinates = coordinates.map(function (coordinate) {
-                return Position.withCoordinates(coordinate);
+            self.coordinates = lineStrings.map(function (coordinates) {
+                return coordinates.map(function(coordinate) {
+                    return Position.withCoordinates(coordinate);
+                });
             });
             return self;
         }

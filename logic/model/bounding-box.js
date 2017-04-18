@@ -1,5 +1,10 @@
 var Montage = require("montage/core/core").Montage,
-    LineString = require("logic/model/line-string").LineString;
+    GeometryCollection = require("logic/model/geometry-collection").GeometryCollection,
+    LineString = require("logic/model/line-string").LineString,
+    MultiLineString = require("logic/model/multi-line-string").MultiLineString,
+    MultiPoint = require("logic/model/multi-point").MultiPoint,
+    Point = require("logic/model/point").Point,
+    Position = require("logic/model/position").Position;
 
 /**
  *
@@ -19,8 +24,8 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         get: function () {
             return this._xMax;
         },
-        set: function (y) {
-            this._xMax = y;
+        set: function (x) {
+            this._xMax = x;
             if (this._box) {
                 this._box[2] = x;
             }
@@ -149,17 +154,22 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         }
     },
 
-    toSegments: {
-        value: function () {
-            var southEast = [this.xMax, this.yMin],
-                southWest = [this.xMin, this.yMin],
-                northWest = [this.xMin, this.yMax],
-                northEast = [this.xMax, this.yMax];
+    /**
+     *
+     * Returns this bounding box with the coordinates of
+     * a polygon.
+     *
+     * @method
+     * @returns {Array<Position>}
+     */
+    coordinates: {
+        get: function () {
+            var southEast = Position.withCoordinates(this.xMax, this.yMin),
+                southWest = Position.withCoordinates(this.xMin, this.yMin),
+                northWest = Position.withCoordinates(this.xMin, this.yMax),
+                northEast = Position.withCoordinates(this.xMax, this.yMax);
             return [
-                LineString.withCoordinates([southEast, southWest]),
-                LineString.withCoordinates([southWest, northWest]),
-                LineString.withCoordinates([northWest, northEast]),
-                LineString.withCoordinates([northEast, southEast])
+                southEast, southWest, northWest, northEast, southEast
             ];
         }
     },
@@ -175,32 +185,30 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
      */
     containsFeature: {
         value: function (feature) {
-            var geometry = feature.geometry,
-                type = geometry.type;
+            var geometry = feature.geometry;
             return this.splitAlongAntimeridian().some(function (bounds) {
-                return type === "GeometryCollection" ? geometry.geometries.some(function (geometry) {
-                    return bounds._contains(geometry);
-                }) : bounds._contains(geometry)
+                return geometry instanceof GeometryCollection ? geometry.geometries.some(function (geometry) {
+                    return bounds.containsGeometry(geometry);
+                }) : bounds.containsGeometry(geometry)
             });
         }
     },
 
-    _contains: {
+    containsGeometry: {
         value: function (geometry) {
-            var type = geometry.type;
-            return  type === "Point" ?              this._containsPoint(geometry) :
-                    type === "MultiPoint" ?         this._containsMultiPoint(geometry) :
-                    type === "LineString" ?         geometry.intersects(this.toSegments()) :
-                    type === "MultiLineString" ?    geometry.intersects(this.toSegments()) :
-                    type === "Polygon" ?            this._containsPolygon(geometry) :
-                    type === "MultiPolygon" ?       this._containsPolygon(geometry) :
-                                                    false;
+            return  geometry instanceof Point ?              this._containsPoint(geometry) :
+                    geometry instanceof MultiPoint ?         this._containsMultiPoint(geometry) :
+                    geometry instanceof LineString ?         this._containsLineString(geometry) :
+                    geometry instanceof MultiLineString ?    this._containsMultiLineString(geometry) :
+                    // type === "Polygon" ?            this._containsPolygon(geometry) :
+                    // type === "MultiPolygon" ?       this._containsPolygon(geometry) :
+                                                            false;
         }
     },
 
     _containsPoint: {
-        value: function (geometry) {
-            return this._containsPosition(geometry.coordinates);
+        value: function (point) {
+            return this._containsPosition(point.coordinates);
         }
     },
 
@@ -209,69 +217,26 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             var self = this;
             return geometry.coordinates.some(function (position) {
                 return self._containsPosition(position);
-            })
-        }
-    },
-
-    // _intersect: {
-    //     value: function (geometry) {
-    //         return this._containsLineStringPositions(geometry.coordinates);
-    //     }
-    // },
-
-    // _containsLineStringPositions: {
-    //     value: function (positions) {
-    //         var doesContain, extentPoints,
-    //             point1, point2, point3, point4,
-    //             i, length, j, a, b;
-    //
-    //         doesContain = geometry.coordinates.some(function (position) {
-    //             return this._containsPosition(position);
-    //         });
-    //
-    //         if (!doesContain) {
-    //             extentPoints = [
-    //                 [this.xMax, this.yMin],
-    //                 [this.xMin, this.yMin],
-    //                 [this.xMin, this.yMax],
-    //                 [this.xMax, this.yMax]
-    //             ];
-    //             for (i = 0, length = positions.length, j = length - 1; i < length; j = i++) {
-    //                 point3 = positions[i];
-    //                 point4 = positions[j];
-    //                 for (a = 0; a < 4; a += 1) {
-    //                     b = a + 1;
-    //                     if (b === 4) {
-    //                         b = 0;
-    //                     }
-    //                     point1 = extentPoints[a];
-    //                     point2 = extentPoints[b];
-    //                     doesContain = Geometry.isInteresectingLines(
-    //                         point1[0], point1[1],
-    //                         point2[0], point2[1],
-    //                         point3[0], point3[1],
-    //                         point4[0], point4[1]
-    //                     );
-    //                 }
-    //             }
-    //         }
-    //         return doesContain;
-    //
-    //     }
-    // },
-
-    _containsMultiLineString: {
-        value: function (geometry) {
-            var self = this;
-            return geometry.coordinates.some(function (positions) {
-                return self._containsLineStringPositions(positions);
             });
         }
     },
 
-    _containsPolygon: {
+    _containsLineString: {
         value: function (geometry) {
+            var self = this;
+            return geometry.coordinates.some(function (position) {
+                return self._containsPosition(position);
+            }) || geometry.intersects(this);
+        }
+    },
 
+    _containsMultiLineString: {
+        value: function (geometry) {
+            var self = this,
+                positions = this._flattenPositions(geometry.coordinates);
+            return positions.some(function (position) {
+                return self._containsPosition(position);
+            }) || geometry.intersects(this);
         }
     },
 
@@ -283,6 +248,15 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
                     longitude >= this.xMin &&
                     latitude <= this.yMax &&
                     latitude >= this.yMin;
+        }
+    },
+
+    _flattenPositions: {
+        value: function (coordinates) {
+            var self = this;
+            return coordinates.reduce(function (flat, toFlatten) {
+                return flat.concat(Array.isArray(toFlatten) ? self._flattenPositions(toFlatten) : toFlatten);
+            }, []);
         }
     }
 
