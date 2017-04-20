@@ -7,4 +7,4 @@ var Montage = require("montage/core/core").Montage;
  */
 exports.GeometryCollection = Montage.specialize(/** @lends GeometryCollection.prototype */ {
 
-});
+}, {});

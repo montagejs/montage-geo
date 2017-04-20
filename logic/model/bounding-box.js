@@ -88,7 +88,7 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
      *
      * @type {Array.<number>}
      */
-    box: {
+    bbox: {
         get: function () {
             if (!this._box) {
                 this._box = [this.xMin, this.yMin, this.xMax, this.yMax];
@@ -124,10 +124,10 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             return this.splitAlongAntimeridian().some(function (thisSplit) {
                 return otherSplits.some(function (otherSplit) {
                     // Taken from leaflet.Bounds#intersects.
-                    return otherSplit.xMax >= thisSplit.xMin &&
-                        otherSplit.xMin <= thisSplit.xMax &&
-                        otherSplit.yMax >= thisSplit.yMin &&
-                        otherSplit.yMin <= thisSplit.yMax;
+                    return  otherSplit.xMax >= thisSplit.xMin &&
+                            otherSplit.xMin <= thisSplit.xMax &&
+                            otherSplit.yMax >= thisSplit.yMin &&
+                            otherSplit.yMin <= thisSplit.yMax;
                 });
             });
         }
@@ -135,8 +135,8 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
 
     /**
      * @todo [Charles]: The array of split bounds will be cached, but the cache
-     * is not udpated or cleared if the bound values change. Either the cache
-     * should be cleare on bound changes, or preferably bounds should be made
+     * is not updated or cleared if the bound values change. Either the cache
+     * should be cleared on bound changes, or preferably bounds should be made
      * an immutable object.
      */
     splitAlongAntimeridian: {
@@ -169,13 +169,12 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
                 northWest = Position.withCoordinates(this.xMin, this.yMax),
                 northEast = Position.withCoordinates(this.xMax, this.yMax);
             return [
-                southEast, southWest, northWest, northEast, southEast
+                southWest, northWest, northEast, southEast, southWest
             ];
         }
     },
 
     /**
-     *
      * Determines whether or not the bounds intersects,
      * contains or is within the passed in feature.
      *
@@ -194,6 +193,33 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         }
     },
 
+    /**
+     * Determines whether or not the bounds contains the
+     * position.
+     *
+     * @method
+     * @param {Position} position - The position to test.
+     * @returns {boolean}
+     */
+    containsPosition: {
+        value: function (position) {
+            var lng = position.longitude,
+                lat = position.latitude;
+            return  lng <= this.xMax &&
+                    lng >= this.xMin &&
+                    lat <= this.yMax &&
+                    lat >= this.yMin;
+        }
+    },
+
+    /**
+     * Determines whether or not the bounds contains the
+     * geometry.
+     *
+     * @method
+     * @param {Geometry} geometry - The geometry to test.
+     * @returns {boolean}
+     */
     containsGeometry: {
         value: function (geometry) {
             return  geometry instanceof Point ?              this._containsPoint(geometry) :
@@ -208,7 +234,7 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
 
     _containsPoint: {
         value: function (point) {
-            return this._containsPosition(point.coordinates);
+            return this.containsPosition(point.coordinates);
         }
     },
 
@@ -216,7 +242,7 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         value: function (geometry) {
             var self = this;
             return geometry.coordinates.some(function (position) {
-                return self._containsPosition(position);
+                return self.containsPosition(position);
             });
         }
     },
@@ -225,7 +251,7 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         value: function (geometry) {
             var self = this;
             return geometry.coordinates.some(function (position) {
-                return self._containsPosition(position);
+                return self.containsPosition(position);
             }) || geometry.intersects(this);
         }
     },
@@ -235,19 +261,8 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             var self = this,
                 positions = this._flattenPositions(geometry.coordinates);
             return positions.some(function (position) {
-                return self._containsPosition(position);
+                return self.containsPosition(position);
             }) || geometry.intersects(this);
-        }
-    },
-
-    _containsPosition: {
-        value: function (position) {
-            var longitude = position.longitude,
-                latitude = position.latitude;
-            return  longitude <= this.xMax &&
-                    longitude >= this.xMin &&
-                    latitude <= this.yMax &&
-                    latitude >= this.yMin;
         }
     },
 
@@ -261,6 +276,12 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
     }
 
 }, {
+
+    withBbox: {
+        value: function (bbox, projection) {
+            return exports.BoundingBox.withCoordinates(bbox[0], bbox[1], bbox[2], bbox[3], projection);
+        }
+    },
 
     withCoordinates: {
         value: function (xMin, yMin, xMax, yMax, projection) {
