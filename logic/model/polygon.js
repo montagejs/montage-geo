@@ -50,6 +50,10 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
         }
     },
 
+    _rangeChangeCanceler: {
+        value: undefined
+    },
+
     /**
      * @method
      * @param {Polygon} geometry    - The polygon to test for
@@ -58,9 +62,7 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
      */
     intersects: {
         value: function (geometry) {
-            if (this._boundsIntersectsBounds(geometry)) {
-
-            }
+            return this.intersectsBbox(geometry.bbox) && this._intersectsPolygon(geometry);
         }
     },
 
@@ -72,10 +74,10 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
         }
     },
 
-    _rangeChangeCanceler: {
-        value: undefined
-    },
-
+    /**
+     * @method
+     * @private
+     */
     _updateBbox: {
         value: function () {
 
@@ -99,56 +101,55 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
         }
     },
 
-    _boundsIntersectsBounds: {
-        value: function (geometry) {
-            var bounds = Bounds.withBbox(geometry.bbox);
-            return  this._isBboxInBbox(this.bbox, bbox) ||
-                    this._isBboxInBbox(bbox, this.bbox) ||
-                    false;
+    /**
+     * @method
+     * @private
+     * @param {Polygon} polygon
+     * @return boolean
+     */
+    _intersectsPolygon: {
+        value: function (polygon) {
+            var isIntersecting = false,
+                outerRing = polygon.coordinates[0],
+                i, n;
+            for (i = 0, n = outerRing.length; i < n && !isIntersecting; i += 1) {
+                isIntersecting = this._containsPosition(outerRing[i]);
+            }
+            return isIntersecting;
         }
     },
 
-
-
-    _isBboxInBbox: {
-        value: function (bbox1, bbox2) {
-            var bounds = Bounds.withBbox(bbox1),
-                corners = [
-                    Position.withCoordinates(bbox2[0], bbox[1]), // SW
-                    Position.withCoordinates(bbox2[0], bbox[3]), // NW
-                    Position.withCoordinates(bbox2[2], bbox[3]), // NE
-                    Position.withCoordinates(bbox2[2], bbox[1])  // SE
-                ];
-            return corners.some(function (position) {
-                return bounds.containsPosition(position);
-            });
-        }
-    },
-
-    _bboxIntersect: {
-        value: function (bbox1, bbox2) {
-
-        }
-    },
-
+    /**
+     * @method
+     * @private
+     * @param {Position} position
+     * @return boolean
+     */
     _containsPosition: {
         value: function (position) {
             var coordinates = this.coordinates,
                 doesContain = true,
                 isInPolygon, i, n;
             for (i = 0, n = coordinates.length; i < n && doesContain; i += 1) {
-                isInPolygon = this._polygonContainsPosition(coordinates[i], position);
+                isInPolygon = this._isPositionInPolygon(coordinates[i], position);
                 doesContain = i === 0 ? isInPolygon : !isInPolygon;
             }
             return doesContain;
         }
     },
 
-    _polygonContainsPosition: {
+    /**
+     * @method
+     * @private
+     * @param {Polygon} polygon
+     * @param {Position} position
+     * @return boolean
+     */
+    _isPositionInPolygon: {
         value: function (polygon, position) {
             var x = position.longitude,
                 y = position.latitude,
-                isInPolygon = false,
+                isPositionInPolygon = false,
                 iPosition, jPosition,
                 i, j, length,
                 x1, y1, x2, y2;
@@ -163,12 +164,12 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
 
                 if ((y1 < y && y2 >= y || y2 < y && y1 >= y) && (x1 <= x || x2 <= x)) {
                     if (x1 + (y - y1) / (y2 - y1) * (x2 - x1) < x) {
-                        isInPolygon = !isInPolygon;
+                        isPositionInPolygon = !isPositionInPolygon;
                     }
                 }
             }
 
-            return isInPolygon;
+            return isPositionInPolygon;
         }
     }
 
@@ -178,7 +179,11 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
      * Returns a newly initialized point with the specified coordinates.
      *
      * @param {array<array<number>>} rings - The LinearRings that compose
-     *                                       this polygon.
+     *                                       this polygon.  The first ring
+     *                                       is the outline of the polygon.
+     *                                       The other rings represent holes
+     *                                       inside the outer polygon.
+     * @return {Polygon} polygon
      */
     withCoordinates: {
         value: function (rings) {

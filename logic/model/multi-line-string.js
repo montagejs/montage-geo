@@ -1,4 +1,5 @@
 var Geometry = require("./geometry").Geometry,
+    LineString = require("./line-string").LineString,
     Position = require("./position").Position;
 
 /**
@@ -25,7 +26,8 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
      */
     intersects: {
         value: function (geometry) {
-            var coordinates = geometry.coordinates,
+            var coordinates = geometry instanceof LineString ?  geometry.coordinates :
+                                                                geometry.coordinates[0],
                 isIntersecting = false,
                 i, n;
             for (i = 0, n = this.coordinates.length; i < n && !isIntersecting; i += 1) {

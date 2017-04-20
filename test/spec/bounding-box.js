@@ -24,7 +24,7 @@ describe("A BoundingBox", function () {
 
     it("can convert to an array of coordinates", function () {
         var bounds = BoundingBox.withCoordinates(0, 0, 10, 10),
-            coordinates = bounds.coordinates;
+            coordinates = bounds.coordinates[0];
         expect(coordinates.length).toBe(5);
         expect(coordinates[0].longitude).toBe(0);
         expect(coordinates[0].latitude).toBe(0);

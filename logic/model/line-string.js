@@ -8,7 +8,7 @@ var Geometry = require("./geometry").Geometry,
  * @class
  * @extends external:Geometry
  */
-exports.LineString = Geometry.specialize(/** @lends LineString.prototype */ {
+var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.prototype */ {
 
     /**
      * @type {Array<Position>}
@@ -25,7 +25,8 @@ exports.LineString = Geometry.specialize(/** @lends LineString.prototype */ {
     intersects: {
         value: function (geometry) {
 
-            var coordinates = geometry.coordinates,
+            var coordinates = geometry instanceof LineString ?  geometry.coordinates :
+                                                                geometry.coordinates[0],
                 positions = this.coordinates,
                 isIntersecting = false,
                 point1, point2, point3, point4,

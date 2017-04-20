@@ -7,6 +7,7 @@ module.exports = require("montage-testing").run(require, [
     "spec/line-string",
     "spec/multi-line-string",
     "spec/point",
+    "spec/polygon",
     "spec/position"
 
 ]).then(function () {

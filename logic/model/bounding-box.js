@@ -169,7 +169,7 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
                 northWest = Position.withCoordinates(this.xMin, this.yMax),
                 northEast = Position.withCoordinates(this.xMax, this.yMax);
             return [
-                southWest, northWest, northEast, southEast, southWest
+                [southWest, northWest, northEast, southEast, southWest]
             ];
         }
     },

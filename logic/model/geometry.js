@@ -11,12 +11,47 @@ var Montage = require("montage/core/core").Montage,
  */
 exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
 
+
+    /**
+     * A Geometry MAY have a member named "bbox" to include
+     * information on the coordinate range for its coordinates.
+     * The value of the bbox member MUST be an array of
+     * length 2*n where n is the number of dimensions represented
+     * in the contained geometries, with all axes of the most south-
+     * westerly point followed by all axes of the more northeasterly
+     * point.  The axes order of a bbox follows the axes order of
+     * geometries.
+     *
+     * Subclasses should override this method to return a
+     * geometry appropriate implementation
+     *
+     * @type {array<number>}
+     */
+    bbox: {
+        value: undefined
+    },
+
     /**
      * The points, curves and surfaces that describe this geometry.
      * @type {Position|array<Position>|array<array<Position>>}
      */
     coordinates: {
         value: undefined
+    },
+
+    intersectsBbox: {
+        value: function (bbox) {
+            var intersects = false,
+                myBbox = this.bbox;
+            if (Array.isArray(bbox) && Array.isArray(myBbox) &&
+                myBbox.length === 4 && bbox.length === 4) {
+                intersects = bbox[2] >= myBbox[0] &&
+                             bbox[0] <= myBbox[2] &&
+                             bbox[3] >= myBbox[1] &&
+                             bbox[1] <= myBbox[3]
+            }
+            return intersects;
+        }
     }
 
 }, {
