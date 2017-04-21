@@ -11,6 +11,11 @@ var Montage = require("montage/core/core").Montage,
  */
 exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
 
+    constructor: {
+        value: function Geometry() {
+            this.addPathChangeListener("coordinates", this, "coordinatesDidChange");
+        }
+    },
 
     /**
      * A Geometry MAY have a member named "bbox" to include
@@ -28,7 +33,12 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
      * @type {array<number>}
      */
     bbox: {
-        value: undefined
+        get: function () {
+            if (!this._bbox) {
+                this._bbox = [];
+            }
+            return this._bbox;
+        }
     },
 
     /**
@@ -51,6 +61,78 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
                              bbox[1] <= myBbox[3]
             }
             return intersects;
+        }
+    },
+
+    handleRangeChange: {
+        value: function (plus, minus) {
+            var self = this,
+                recalculate = minus.some(this.isPositionOnBoundary.bind(this));
+
+            if (recalculate) {
+                this._recalculateBbox();
+            } else {
+                plus.forEach(function (position) {
+                    self._extend(position);
+                });
+            }
+        }
+    },
+
+    coordinatesDidChange: {
+        value: function () {}
+    },
+
+    isPositionOnBoundary: {
+        value: function (position) {
+            var box = this.bbox,
+                lng = position.longitude,
+                lat = position.latitude;
+            return  box[0] === lng || box[2] === lng ||
+                    box[1] === lat || box[3] === lat;
+        }
+    },
+
+    /**
+     *
+     * Subclasses should override this function to implement their
+     * bbox calculation strategy
+     *
+     * @method
+     * @returns {bbox} bbox
+     */
+    _recalculateBbox: {
+        value: function () {
+            var positions = this.bboxPositions || [],
+                minX = Infinity,
+                minY = Infinity,
+                maxX = -Infinity,
+                maxY = -Infinity;
+            positions.forEach(function (position) {
+                var lng = position.longitude,
+                    lat = position.latitude;
+                if (minX > lng) minX = lng;
+                if (maxX < lng) maxX = lng;
+                if (minY > lat) minY = lat;
+                if (maxY < lat) maxY = lat;
+            });
+            this.bbox.splice(0, 4, minX, minY, maxX, maxY);
+        }
+    },
+
+    bboxPositions: {
+        value: undefined
+    },
+
+    _extend: {
+        value: function (position) {
+            var bbox = this.bbox,
+                lng = position.longitude,
+                lat = position.latitude;
+            if (bbox[0] > lng) bbox[0] = lng;
+            else if (bbox[2] < lng) bbox[2] = lng;
+            if (bbox[1] > lat) bbox[1] = lat;
+            else if (bbox[3] < lat) bbox[3] = lat;
         }
     }
 

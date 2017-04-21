@@ -3,26 +3,49 @@ var Geometry = require("./geometry").Geometry,
 
 /**
  *
- * A Geometry whose coordinates property must be an array of
- * LinearRing coordinate arrays. For Polygons with multiple
- * rings, the first must be the exterior ring and any others
- * must be interior rings or holes.
+ * A Geometry whose coordinates property is an array of
+ * Polygon coordinate arrays.
  *
  * @class
  * @extends external:Geometry
  */
-exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
+exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ {
 
-    coordinatesDidChange: {
-        value: function () {
+    /**
+     *
+     * @type {array<array<array<position>>>}
+     */
+    coordinates: {
+        get: function () {
+            return this._coordinates;
+        },
+        set: function (value) {
             if (this._rangeChangeCanceler) {
                 this._rangeChangeCanceler();
             }
-            if (this.coordinates && this.coordinates.length) {
-                this._rangeChangeCanceler = this.coordinates[0].addRangeChangeListener(this);
-            }
-            this._recalculateBbox();
+            this._coordinates = value;
         }
+    },
+
+    /**
+     *
+     * A 2*n array where n is the number of dimensions represented
+     * in the contained geometries, with the lowest values for all
+     * axes followed by the highest values.
+     *
+     * @type {array}
+     */
+    bbox: {
+        get: function () {
+            if (!this._bbox) {
+                this._bbox = [];
+            }
+            return this._bbox;
+        }
+    },
+
+    _rangeChangeCanceler: {
+        value: undefined
     },
 
     /**
@@ -37,9 +60,38 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
         }
     },
 
-    bboxPositions: {
-        get: function () {
-            return this.coordinates && this.coordinates[0];
+    handleRangeChange: {
+        value: function (plus, minus) {
+            if (plus.length > 0 || minus.length > 0) {
+                this._updateBbox();
+            }
+        }
+    },
+
+    /**
+     * @method
+     * @private
+     */
+    _updateBbox: {
+        value: function () {
+
+            var minX = Infinity,
+                minY = Infinity,
+                maxX = -Infinity,
+                maxY = -Infinity,
+                positions = this.coordinates[0],
+                position, lng, lat, i, n;
+
+            for (i = 0, n = positions.length; i < n; i += 1) {
+                position = positions[i];
+                lng = position.longitude;
+                lat = position.latitude;
+                if (minX > lng) minX = lng;
+                if (maxX < lng) maxX = lng;
+                if (minY > lat) minY = lat;
+                if (maxY < lat) maxY = lat;
+            }
+            this.bbox.splice(0, Infinity, minX, minY, maxX, maxY);
         }
     },
 
@@ -113,10 +165,6 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
 
             return isPositionInPolygon;
         }
-    },
-
-    _rangeChangeCanceler: {
-        value: undefined
     }
 
 }, {

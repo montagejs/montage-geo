@@ -3,17 +3,32 @@ var Geometry = require("./geometry").Geometry,
 
 /**
  *
- * A Geometry whose coordinates member is an array of positions.
+ * A Geometry whose coordinates property is an array of positions.
  *
  * @class
  * @extends external:Geometry
  */
 exports.MultiPoint = Geometry.specialize(/** @lends MultiPoint.prototype */ {
 
-    /**
-     * @type {array<Position>}
-     */
-    coordinates: {
+    coordinatesDidChange: {
+        value: function () {
+            if (this._rangeChangeCanceler) {
+                this._rangeChangeCanceler();
+            }
+            if (this.coordinates) {
+                this._rangeChangeCanceler = this.coordinates.addRangeChangeListener(this);
+            }
+            this._recalculateBbox();
+        }
+    },
+
+    bboxPositions: {
+        get: function () {
+            return this.coordinates;
+        }
+    },
+
+    _rangeChangeCanceler: {
         value: undefined
     }
 
@@ -28,7 +43,7 @@ exports.MultiPoint = Geometry.specialize(/** @lends MultiPoint.prototype */ {
         value: function (coordinates) {
             var self = new this();
             self.coordinates = coordinates.map(function (coordinate) {
-                return Position.withCoordinates(coordinate);
+                return Position.withCoordinates(coordinate[0], coordinate[1]);
             });
             return self;
         }

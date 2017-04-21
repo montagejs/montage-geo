@@ -18,7 +18,7 @@ exports.Position = function () {};
 exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ {
 
     /**
-     * The constructor function for all trigger instances.
+     * The constructor function for all Position instances.
      *
      * @type {function}
      */
@@ -74,8 +74,8 @@ Object.defineProperties(exports.Position, /** @lends Position */ {
      *
      * @param {number?|array?} longitude/coordinates    - Either the longitude of this position or an
      *                                                    array of coordinates.  If no arguments are passed
-     *                                                    then the position defaults to 0 degrees long-
-     *                                                    itude, 0 degrees latitude and 0 meters altitude.
+     *                                                    then the position defaults to 0 degrees longitude,
+     *                                                    0 degrees latitude and 0 meters altitude.
      * @param {number?} latitude                        - The latitude of the position.  If no value is
      *                                                    provided the latitude is set to 0.
      * @param {number?} altitude                        - The altitude of the position in meters.  If no

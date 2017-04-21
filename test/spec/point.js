@@ -11,6 +11,19 @@ describe("A Point", function () {
         expect(point.coordinates instanceof Position).toBe(true);
     });
 
+    it("can be properly update its bbox", function () {
+        var coordinates = [-156.6825, 20.8783],
+            point = Point.withCoordinates(coordinates);
+        expect(point.bbox.join(",")).toBe("-156.6825,20.8783,-156.6825,20.8783");
+        point.coordinates.longitude = -156.683;
+        expect(point.bbox.join(",")).toBe("-156.683,20.8783,-156.683,20.8783");
+        point.coordinates.latitude = 20.9;
+        expect(point.bbox.join(",")).toBe("-156.683,20.9,-156.683,20.9");
+        point.coordinates = Position.withCoordinates(0, 0);
+        expect(point.bbox.join(",")).toBe("0,0,0,0");
+    });
+
+
     it("can calculate initial bearing to another point", function () {
 
         var origin = Point.withCoordinates([0.119, 52.205]),

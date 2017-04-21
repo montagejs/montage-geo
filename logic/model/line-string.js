@@ -3,18 +3,46 @@ var Geometry = require("./geometry").Geometry,
 
 /**
  *
- * A Geometry whose "coordinates" member is an array of two or more positions.
+ * A Geometry whose "coordinates" property is an array of
+ * two or more positions.
  *
  * @class
  * @extends external:Geometry
  */
 var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.prototype */ {
 
+    constructor: {
+        value: function LineString() {
+            this._coordinates = [];
+            this._coordinates.addRangeChangeListener(this);
+        }
+    },
+
     /**
      * @type {Array<Position>}
      */
     coordinates: {
-        value: undefined
+        get: function () {
+            return this._coordinates;
+        }
+    },
+
+    coordinatesDidChange: {
+        value: function () {
+            if (this._rangeChangeCanceler) {
+                this._rangeChangeCanceler();
+            }
+            if (this.coordinates) {
+                this._rangeChangeCanceler = this.coordinates.addRangeChangeListener(this);
+            }
+            this._recalculateBbox();
+        }
+    },
+
+    bboxPositions: {
+        get: function () {
+            return this.coordinates;
+        }
     },
 
     /**
@@ -75,10 +103,11 @@ var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.
      */
     withCoordinates: {
         value: function (coordinates) {
-            var self = new this();
-            self.coordinates = coordinates.map(function (coordinate) {
-                return Position.withCoordinates(coordinate);
-            });
+            var self = new this(),
+                positions = coordinates.map(function (coordinate) {
+                    return Position.withCoordinates(coordinate);
+                });
+            self.coordinates.splice.apply(self.coordinates, [0, Infinity].concat(positions));
             return self;
         }
     }

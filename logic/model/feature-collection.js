@@ -3,7 +3,11 @@ var Montage = require("montage/core/core").Montage,
     Set = require("collections/set");
 
 /**
- * A feature collection represents a group of features
+ * A feature collection represents a group of features.  Every
+ * feature collection has a coordinates property which is an
+ * array of features.  The features array cannot be set directly
+ * but you may alter its content.
+ *
  * @class
  * @extends external:Montage
  */
@@ -203,7 +207,6 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
 
     _registerFeature: {
         value: function (feature) {
-            var oldFeature;
             if (!this._featuresSet.has(feature)) this._featuresSet.add(feature);
             if (feature.id) {
                 this._deregisterDuplicate(feature.id);

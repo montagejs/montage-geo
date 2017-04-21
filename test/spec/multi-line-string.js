@@ -1,6 +1,7 @@
 var MultiLineString = require("montage-geo/logic/model/multi-line-string").MultiLineString,
+    BoundingBox = require("montage-geo/logic/model/bounding-box").BoundingBox,
     LineString = require("montage-geo/logic/model/line-string").LineString,
-    BoundingBox = require("montage-geo/logic/model/bounding-box").BoundingBox;
+    Position = require("montage-geo/logic/model/position").Position;
 
 describe("A MultiLineString", function () {
 
@@ -15,6 +16,26 @@ describe("A MultiLineString", function () {
         expect(multiline.coordinates.length).toBe(4);
         expect(multiline.coordinates[0][0].toArray().join(",")).toBe("0,0");
         expect(multiline.coordinates[0][1].toArray().join(",")).toBe("0,10");
+    });
+
+    it("can calculate its bbox", function () {
+        var multiline = MultiLineString.withCoordinates([
+            [[0, 0], [0, 10]],
+            [[0, 0], [0, -10]],
+            [[0, 0], [10, 0]],
+            [[0, 0], [-10, 0]]
+        ]);
+        expect(multiline.bboxPositions.length).toBe(8);
+        expect(multiline.bbox.join(",")).toBe("-10,-10,10,10");
+        multiline.coordinates[0].push(Position.withCoordinates(0, 20));
+        expect(multiline.bbox.join(",")).toBe("-10,-10,10,20");
+        multiline.coordinates.push([
+            Position.withCoordinates(20, 0),
+            Position.withCoordinates(30, 0)
+        ]);
+        expect(multiline.bbox.join(",")).toBe("-10,-10,30,20");
+        multiline.coordinates.pop();
+        expect(multiline.bbox.join(",")).toBe("-10,-10,10,20");
     });
 
     it("can test for intersection with a line string", function () {

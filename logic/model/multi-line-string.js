@@ -1,10 +1,11 @@
 var Geometry = require("./geometry").Geometry,
     LineString = require("./line-string").LineString,
+    Map = require("collections/map"),
     Position = require("./position").Position;
 
 /**
  *
- * A Geometry whose "coordinates" member must be an array of
+ * A Geometry whose "coordinates" property must be an array of
  * LineString coordinate arrays.
  *
  * @class
@@ -16,6 +17,73 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
      * @type {Array<Position>}
      */
     coordinates: {
+        value: undefined
+    },
+
+    coordinatesDidChange: {
+        value: function () {
+            var self;
+            if (this._rangeChangeCanceler) {
+                this._rangeChangeCanceler();
+            }
+            this._childLineStringsRangeChangeCancelers.forEach(function (cancel) {
+                cancel();
+            });
+            this._childLineStringsRangeChangeCancelers.clear();
+            if (this.coordinates) {
+                self = this;
+                this.coordinates.forEach(function (lineString) {
+                    var cancel = lineString.addRangeChangeListener(self);
+                    self._childLineStringsRangeChangeCancelers.set(lineString, cancel);
+                });
+                this._rangeChangeCanceler = this.coordinates.addRangeChangeListener(this, "childLineString");
+            }
+            this._recalculateBbox();
+        }
+    },
+
+    handleChildLineStringRangeChange: {
+        value: function (plus, minus) {
+            var self = this,
+                shouldRecalculate = false;
+            minus.forEach(function (lineString) {
+                var cancel = self._childLineStringsRangeChangeCancelers.get(lineString);
+                self._childLineStringsRangeChangeCancelers.delete(lineString);
+                shouldRecalculate = shouldRecalculate || lineString.some(self.isPositionOnBoundary.bind(self));
+                cancel();
+            });
+            if (shouldRecalculate) {
+                this._recalculateBbox();
+            } else {
+                plus.forEach(function (lineString) {
+                    var cancel = lineString.addRangeChangeListener(self);
+                    lineString.forEach(function (position) {
+                        self._extend(position);
+                    });
+                    self._childLineStringsRangeChangeCancelers.set(lineString, cancel);
+                });
+            }
+        }
+    },
+
+    bboxPositions: {
+        get: function () {
+            return this.coordinates ? this.coordinates.flatten(function (accumulator, positions) {
+                return accumulator.concat(positions);
+            }, []) : [];
+        }
+    },
+
+    _childLineStringsRangeChangeCancelers: {
+        get: function () {
+            if (!this.__childLineStringsRangeChangeCancelers) {
+                this.__childLineStringsRangeChangeCancelers = new Map();
+            }
+            return this.__childLineStringsRangeChangeCancelers;
+        }
+    },
+
+    _rangeChangeCanceler: {
         value: undefined
     },
 

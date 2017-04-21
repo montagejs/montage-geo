@@ -3,18 +3,34 @@ var Geometry = require("./geometry").Geometry,
 
 /**
  *
- * A Geometry whose coordinates member is a single position.
+ * A Geometry whose coordinates property is a single position.
  *
  * @class
  * @extends external:Geometry
  */
 exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
 
+    constructor: {
+        value: function Point() {
+            this.addPathChangeListener("coordinates.latitude", this, "coordinatesDidChange");
+            this.addPathChangeListener("coordinates.longitude", this, "coordinatesDidChange");
+        }
+    },
+
     /**
      * @type {Position}
      */
     coordinates: {
         value: undefined
+    },
+
+    bbox: {
+        get: function () {
+            if(!this._bbox) {
+                this._bbox = [];
+            }
+            return this._bbox;
+        }
     },
 
     observeBearing: {
@@ -83,6 +99,17 @@ exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
                 theta = Math.atan2(y, x);
 
             return (Geometry.toDegrees(theta) + 360) % 360;
+        }
+    },
+
+    coordinatesDidChange: {
+        value: function () {
+            var lng, lat;
+            if (this.coordinates) {
+                lng = this.coordinates.longitude;
+                lat = this.coordinates.latitude;
+                this.bbox.splice(0, 4, lng, lat, lng, lat);
+            }
         }
     }
 
