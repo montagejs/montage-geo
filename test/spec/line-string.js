@@ -1,12 +1,23 @@
 var LineString = require("montage-geo/logic/model/line-string").LineString,
-    BoundingBox = require("montage-geo/logic/model/bounding-box").BoundingBox;
+    BoundingBox = require("montage-geo/logic/model/bounding-box").BoundingBox,
+    Position = require("montage-geo/logic/model/position").Position;
 
 describe("A LineString", function () {
 
     it("can be created", function () {
         var line = LineString.withCoordinates([[0, 0], [0, 10]]);
         expect(line).toBeDefined();
+        expect(line.bbox.join(",")).toBe("0,0,0,10");
     });
+
+    it("can be properly update its bbox", function () {
+        var line = LineString.withCoordinates([[0, 0], [0, 10]]),
+            position = Position.withCoordinates(10, 10);
+        expect(line.bbox.join(",")).toBe("0,0,0,10");
+        line.coordinates.push(position);
+        expect(line.bbox.join(",")).toBe("0,0,10,10");
+    });
+
 
     it("can test for intersection with another line string", function () {
         var line = LineString.withCoordinates([[0, 0], [0, 10]]),

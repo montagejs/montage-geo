@@ -11,22 +11,6 @@ var Geometry = require("./geometry").Geometry,
  */
 var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.prototype */ {
 
-    constructor: {
-        value: function LineString() {
-            this._coordinates = [];
-            this._coordinates.addRangeChangeListener(this);
-        }
-    },
-
-    /**
-     * @type {Array<Position>}
-     */
-    coordinates: {
-        get: function () {
-            return this._coordinates;
-        }
-    },
-
     coordinatesDidChange: {
         value: function () {
             if (this._rangeChangeCanceler) {
@@ -103,11 +87,10 @@ var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.
      */
     withCoordinates: {
         value: function (coordinates) {
-            var self = new this(),
-                positions = coordinates.map(function (coordinate) {
-                    return Position.withCoordinates(coordinate);
-                });
-            self.coordinates.splice.apply(self.coordinates, [0, Infinity].concat(positions));
+            var self = new this();
+            self.coordinates = coordinates.map(function (coordinate) {
+                return Position.withCoordinates(coordinate);
+            });
             return self;
         }
     }

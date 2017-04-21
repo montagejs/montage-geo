@@ -56,15 +56,8 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
      */
     intersects: {
         value: function (geometry) {
-            return this.intersectsBbox(geometry.bbox) && this._intersectsPolygon(geometry);
-        }
-    },
-
-    handleRangeChange: {
-        value: function (plus, minus) {
-            if (plus.length > 0 || minus.length > 0) {
-                this._updateBbox();
-            }
+            // TODO: implement strategy for multi-polygon
+            // return this.intersectsBbox(geometry.bbox) && this._intersectsPolygon(geometry);
         }
     },
 
