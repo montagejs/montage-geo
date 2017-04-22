@@ -24,15 +24,6 @@ exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
         value: undefined
     },
 
-    bbox: {
-        get: function () {
-            if(!this._bbox) {
-                this._bbox = [];
-            }
-            return this._bbox;
-        }
-    },
-
     observeBearing: {
         value: function (emit, destination) {
             var self = this,

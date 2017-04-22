@@ -56,13 +56,6 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
         configurable: true,
         writable: true,
         value: 0
-    },
-
-    toArray: {
-        value: function () {
-            //TODO: Optimize by caching array.
-            return [this.longitude, this.latitude];
-        }
     }
 
 });

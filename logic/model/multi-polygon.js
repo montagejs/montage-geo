@@ -1,4 +1,5 @@
 var Geometry = require("./geometry").Geometry,
+    Map = require("collections/map"),
     Position = require("./position").Position;
 
 /**
@@ -12,39 +13,87 @@ var Geometry = require("./geometry").Geometry,
 exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ {
 
     /**
-     *
-     * @type {array<array<array<position>>>}
+     * @type {array<Polygon>>
      */
     coordinates: {
-        get: function () {
-            return this._coordinates;
-        },
-        set: function (value) {
-            if (this._rangeChangeCanceler) {
-                this._rangeChangeCanceler();
+        value: undefined
+    },
+
+    coordinatesDidChange: {
+        value: function () {
+            if (this._coordinatesRangeChangeCanceler) {
+                this._coordinatesRangeChangeCanceler();
             }
-            this._coordinates = value;
+            this._childPolygonRangeChangeCancelers.forEach(function (cancel) {
+                cancel();
+            });
+            this._childPolygonRangeChangeCancelers.clear();
+            if (this.coordinates) {
+                this.coordinates.forEach(this._addPolygon.bind(this));
+                this._coordinatesRangeChangeCanceler = this.coordinates.addRangeChangeListener(this, "childPolygon");
+            }
         }
     },
 
-    /**
-     *
-     * A 2*n array where n is the number of dimensions represented
-     * in the contained geometries, with the lowest values for all
-     * axes followed by the highest values.
-     *
-     * @type {array}
-     */
-    bbox: {
+    bboxPositions: {
         get: function () {
-            if (!this._bbox) {
-                this._bbox = [];
-            }
-            return this._bbox;
+            return this.coordinates ? this.coordinates.reduce(function (accumulator, polygon) {
+                return accumulator.concat(polygon[0]);
+            }, []) : [];
         }
     },
 
-    _rangeChangeCanceler: {
+    handleChildPolygonRangeChange: {
+        value: function (plus, minus) {
+            minus.forEach(this._removePolygon.bind(this));
+            plus.forEach(this._addPolygon.bind(this));
+            if (this._shouldRecalculate) {
+                this._recalculateBbox();
+                this._shouldRecalculate = false;
+            }
+        }
+    },
+
+    _addPolygon: {
+        value: function (polygon) {
+            var self,
+                outerRing = polygon[0],
+                cancel = outerRing.addRangeChangeListener(this);
+            this._childPolygonRangeChangeCancelers.set(polygon, cancel);
+            if (!this._shouldRecalculate) {
+                self = this;
+                outerRing.forEach(function (position) {
+                    self._extend(position);
+                });
+            }
+        }
+    },
+
+    _removePolygon: {
+        value: function (polygon) {
+            var cancel = this._childPolygonRangeChangeCancelers.get(polygon),
+                outerRing = polygon[0];
+            this._childPolygonRangeChangeCancelers.delete(polygon);
+            this._shouldRecalculate =   this._shouldRecalculate ||
+                                        outerRing.some(this.isPositionOnBoundary.bind(this));
+            if (cancel) cancel();
+        }
+    },
+
+    _shouldRecalculate: {
+        value: false
+    },
+
+    _childPolygonRangeChangeCancelers: {
+        get: function () {
+            if (!this.__childPolygonRangeChangeCancelers) {
+                this.__childPolygonRangeChangeCancelers = new Map();
+            }
+            return this.__childPolygonRangeChangeCancelers;
+        }
+    },
+
+    _coordinatesRangeChangeCanceler: {
         value: undefined
     },
 
@@ -58,33 +107,6 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
         value: function (geometry) {
             // TODO: implement strategy for multi-polygon
             // return this.intersectsBbox(geometry.bbox) && this._intersectsPolygon(geometry);
-        }
-    },
-
-    /**
-     * @method
-     * @private
-     */
-    _updateBbox: {
-        value: function () {
-
-            var minX = Infinity,
-                minY = Infinity,
-                maxX = -Infinity,
-                maxY = -Infinity,
-                positions = this.coordinates[0],
-                position, lng, lat, i, n;
-
-            for (i = 0, n = positions.length; i < n; i += 1) {
-                position = positions[i];
-                lng = position.longitude;
-                lat = position.latitude;
-                if (minX > lng) minX = lng;
-                if (maxX < lng) maxX = lng;
-                if (minY > lat) minY = lat;
-                if (maxY < lat) maxY = lat;
-            }
-            this.bbox.splice(0, Infinity, minX, minY, maxX, maxY);
         }
     },
 
@@ -177,7 +199,9 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
             var self = new this();
             self.coordinates = rings.map(function (ring) {
                 return ring.map(function (coordinates) {
-                    return Position.withCoordinates(coordinates);
+                    return coordinates.map(function (coordinate) {
+                        return Position.withCoordinates(coordinate);
+                    });
                 });
             });
             return self;

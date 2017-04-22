@@ -14,7 +14,7 @@ var Geometry = require("./geometry").Geometry,
 exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototype */ {
 
     /**
-     * @type {Array<Position>}
+     * @type {array<Position>}
      */
     coordinates: {
         value: undefined
@@ -31,46 +31,53 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
             });
             this._childLineStringsRangeChangeCancelers.clear();
             if (this.coordinates) {
-                self = this;
-                this.coordinates.forEach(function (lineString) {
-                    var cancel = lineString.addRangeChangeListener(self);
-                    self._childLineStringsRangeChangeCancelers.set(lineString, cancel);
-                });
+                this._shouldRecalculate = true;
+                this.coordinates.forEach(this._addLineString.bind(this));
                 this._rangeChangeCanceler = this.coordinates.addRangeChangeListener(this, "childLineString");
             }
             this._recalculateBbox();
+            this._shouldRecalculate = false;
         }
     },
 
     handleChildLineStringRangeChange: {
         value: function (plus, minus) {
-            var self = this,
-                shouldRecalculate = false;
-            minus.forEach(function (lineString) {
-                var cancel = self._childLineStringsRangeChangeCancelers.get(lineString);
-                self._childLineStringsRangeChangeCancelers.delete(lineString);
-                shouldRecalculate = shouldRecalculate || lineString.some(self.isPositionOnBoundary.bind(self));
-                cancel();
-            });
-            if (shouldRecalculate) {
+            minus.forEach(this._removeLineString.bind(this));
+            plus.forEach(this._addLineString.bind(this));
+            if (this._shouldRecalculate) {
                 this._recalculateBbox();
-            } else {
-                plus.forEach(function (lineString) {
-                    var cancel = lineString.addRangeChangeListener(self);
-                    lineString.forEach(function (position) {
-                        self._extend(position);
-                    });
-                    self._childLineStringsRangeChangeCancelers.set(lineString, cancel);
-                });
             }
         }
     },
 
     bboxPositions: {
         get: function () {
-            return this.coordinates ? this.coordinates.flatten(function (accumulator, positions) {
+            return this.coordinates ? this.coordinates.reduce(function (accumulator, positions) {
                 return accumulator.concat(positions);
             }, []) : [];
+        }
+    },
+
+    _addLineString: {
+        value: function (lineString) {
+            var cancel = lineString.addRangeChangeListener(this), self;
+            this._childLineStringsRangeChangeCancelers.set(lineString, cancel);
+            if (!this._shouldRecalculate) {
+                self = this;
+                lineString.forEach(function (position) {
+                    self._extend(position);
+                });
+            }
+        }
+    },
+
+    _removeLineString: {
+        value: function (lineString) {
+            var cancel = this._childLineStringsRangeChangeCancelers.get(lineString);
+            this._childLineStringsRangeChangeCancelers.delete(lineString);
+            this._shouldRecalculate =   this._shouldRecalculate ||
+                                        lineString.some(this.isPositionOnBoundary.bind(this));
+            if (cancel) cancel();
         }
     },
 
@@ -85,6 +92,10 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
 
     _rangeChangeCanceler: {
         value: undefined
+    },
+
+    _shouldRecalculate: {
+        value: false
     },
 
     /**

@@ -35,7 +35,7 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
     bbox: {
         get: function () {
             if (!this._bbox) {
-                this._bbox = [];
+                this._bbox = [Infinity, Infinity, -Infinity, -Infinity];
             }
             return this._bbox;
         }
@@ -130,9 +130,9 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
                 lng = position.longitude,
                 lat = position.latitude;
             if (bbox[0] > lng) bbox[0] = lng;
-            else if (bbox[2] < lng) bbox[2] = lng;
+            if (bbox[2] < lng) bbox[2] = lng;
             if (bbox[1] > lat) bbox[1] = lat;
-            else if (bbox[3] < lat) bbox[3] = lat;
+            if (bbox[3] < lat) bbox[3] = lat;
         }
     }
 

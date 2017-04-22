@@ -14,8 +14,10 @@ describe("A MultiLineString", function () {
         ]);
         expect(multiline).toBeDefined();
         expect(multiline.coordinates.length).toBe(4);
-        expect(multiline.coordinates[0][0].toArray().join(",")).toBe("0,0");
-        expect(multiline.coordinates[0][1].toArray().join(",")).toBe("0,10");
+        expect(multiline.coordinates[0][0].longitude).toBe(0);
+        expect(multiline.coordinates[0][0].latitude).toBe(0);
+        expect(multiline.coordinates[0][1].longitude).toBe(0);
+        expect(multiline.coordinates[0][1].latitude).toBe(10);
     });
 
     it("can calculate its bbox", function () {

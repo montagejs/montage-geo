@@ -13,6 +13,13 @@ var Geometry = require("./geometry").Geometry,
  */
 exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
 
+    /**
+     * @type {array<array<Position>>
+     */
+    coordinates: {
+        value: undefined
+    },
+
     coordinatesDidChange: {
         value: function () {
             if (this._rangeChangeCanceler) {
