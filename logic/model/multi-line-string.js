@@ -1,7 +1,6 @@
 var Geometry = require("./geometry").Geometry,
     LineString = require("./line-string").LineString,
-    Map = require("collections/map"),
-    Position = require("./position").Position;
+    Map = require("collections/map");
 
 /**
  *
@@ -22,7 +21,6 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
 
     coordinatesDidChange: {
         value: function () {
-            var self;
             if (this._rangeChangeCanceler) {
                 this._rangeChangeCanceler();
             }
@@ -31,12 +29,9 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
             });
             this._childLineStringsRangeChangeCancelers.clear();
             if (this.coordinates) {
-                this._shouldRecalculate = true;
                 this.coordinates.forEach(this._addLineString.bind(this));
                 this._rangeChangeCanceler = this.coordinates.addRangeChangeListener(this, "childLineString");
             }
-            this._recalculateBbox();
-            this._shouldRecalculate = false;
         }
     },
 
@@ -46,37 +41,47 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
             plus.forEach(this._addLineString.bind(this));
             if (this._shouldRecalculate) {
                 this._recalculateBbox();
+                this._shouldRecalculate = false;
             }
         }
     },
 
     bboxPositions: {
         get: function () {
-            return this.coordinates ? this.coordinates.reduce(function (accumulator, positions) {
-                return accumulator.concat(positions);
-            }, []) : [];
+            var positions = [];
+            if (this.coordinates) {
+                this.coordinates.forEach(function (lineString) {
+                    positions.push.apply(positions, lineString.bboxPositions);
+                });
+            }
+            return positions;
+        }
+    },
+
+    handleRangeChange: {
+        value: function () {
+            this._recalculateBbox();
         }
     },
 
     _addLineString: {
         value: function (lineString) {
-            var cancel = lineString.addRangeChangeListener(this), self;
+            var bbox = lineString.bbox,
+                cancel = bbox.addRangeChangeListener(this);
             this._childLineStringsRangeChangeCancelers.set(lineString, cancel);
             if (!this._shouldRecalculate) {
-                self = this;
-                lineString.forEach(function (position) {
-                    self._extend(position);
-                });
+                this.positionsForBbox(bbox).forEach(this._extend.bind(this));
             }
         }
     },
 
     _removeLineString: {
         value: function (lineString) {
-            var cancel = this._childLineStringsRangeChangeCancelers.get(lineString);
+            var cancel = this._childLineStringsRangeChangeCancelers.get(lineString),
+                positions = this.positionsForBbox(lineString.bbox);
             this._childLineStringsRangeChangeCancelers.delete(lineString);
             this._shouldRecalculate =   this._shouldRecalculate ||
-                                        lineString.some(this.isPositionOnBoundary.bind(this));
+                                        positions.some(this.isPositionOnBoundary.bind(this));
             if (cancel) cancel();
         }
     },
@@ -105,54 +110,9 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
      */
     intersects: {
         value: function (geometry) {
-            var coordinates = geometry instanceof LineString ?  geometry.coordinates :
-                                                                geometry.coordinates[0],
-                isIntersecting = false,
-                i, n;
-            for (i = 0, n = this.coordinates.length; i < n && !isIntersecting; i += 1) {
-                isIntersecting = this._intersects(this.coordinates[i], coordinates);
-            }
-            return isIntersecting;
-        }
-    },
-
-    _intersects: {
-        value: function (positions, coordinates) {
-            var doesContain = false,
-                point1, point2, point3, point4,
-                i, j, a, b, length, length2;
-
-            outerloop:
-            for (i = 0, j = 1, length = positions.length - 1; i < length; i++, j++) {
-                point3 = positions[i];
-                point4 = positions[j];
-                for (a = 0, b = 1, length2 = coordinates.length - 1; a < length2; a++, b++) {
-                    point1 = coordinates[a];
-                    point2 = coordinates[b];
-                    doesContain = this._segmentsIntersect(
-                        point1.longitude, point1.latitude,
-                        point2.longitude, point2.latitude,
-                        point3.longitude, point3.latitude,
-                        point4.longitude, point4.latitude
-                    );
-                    if (doesContain) break outerloop;
-                }
-            }
-            return doesContain;
-        }
-    },
-
-    _segmentsIntersect: {
-        value: function (x1, y1, x2, y2, x3, y3, x4, y4) {
-            return this._orientation(x1, y1, x3, y3, x4, y4) !== this._orientation(x2, y2, x3, y3, x4, y4) &&
-                this._orientation(x1, y1, x2, y2, x3, y3) !== this._orientation(x1, y1, x2, y2, x4, y4);
-        }
-    },
-
-    _orientation: {
-        value: function (tx1, ty1, tx2, ty2, tx3, ty3) {
-            var clockWise = ((ty3 - ty1) * (tx2 - tx1)) - ((ty2 - ty1) * (tx3 - tx1));
-            return clockWise > 0 ? true : clockWise < 0 ? false : true;
+            return this.coordinates.some(function (lineString) {
+                return lineString.intersects(geometry);
+            });
         }
     }
 
@@ -167,10 +127,8 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
     withCoordinates: {
         value: function (lineStrings) {
             var self = new this();
-            self.coordinates = lineStrings.map(function (coordinates) {
-                return coordinates.map(function(coordinate) {
-                    return Position.withCoordinates(coordinate);
-                });
+            self.coordinates = lineStrings.map(function (lineString) {
+                return LineString.withCoordinates(lineString);
             });
             return self;
         }

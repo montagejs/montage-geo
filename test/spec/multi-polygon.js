@@ -1,4 +1,5 @@
 var MultiPolygon = require("montage-geo/logic/model/multi-polygon").MultiPolygon,
+    Polygon = require("montage-geo/logic/model/polygon").Polygon,
     Position = require("montage-geo/logic/model/position").Position;
 
 describe("A MultiPolygon", function () {
@@ -10,10 +11,10 @@ describe("A MultiPolygon", function () {
         ]);
         expect(multipolygon).toBeDefined();
         expect(multipolygon.coordinates.length).toBe(2);
-        expect(multipolygon.coordinates[0].length).toBe(1);
-        expect(multipolygon.coordinates[1].length).toBe(1);
-        expect(multipolygon.coordinates[0][0].length).toBe(5);
-        expect(multipolygon.coordinates[1][0].length).toBe(5);
+        expect(multipolygon.coordinates[0] instanceof Polygon).toBe(true);
+        expect(multipolygon.coordinates[1] instanceof Polygon).toBe(true);
+        expect(multipolygon.coordinates[0].coordinates[0].length).toBe(5);
+        expect(multipolygon.coordinates[1].coordinates[0].length).toBe(5);
         expect(multipolygon.bbox.join(",")).toBe("-10,-10,10,10");
     });
 
@@ -23,19 +24,15 @@ describe("A MultiPolygon", function () {
             [[[0,0], [0,-10], [-10,-10], [-10,0], [0,0]]]
         ]);
         expect(multipolygon.bbox.join(",")).toBe("-10,-10,10,10");
-        multipolygon.coordinates.push([[
-            Position.withCoordinates(10, 0),
-            Position.withCoordinates(10, 10),
-            Position.withCoordinates(20, 10),
-            Position.withCoordinates(20, 0),
-            Position.withCoordinates(10, 0)
-        ]]);
+        multipolygon.coordinates.push(Polygon.withCoordinates([
+            [[10, 0], [10, 10], [20, 10], [20, 0], [10, 0]]
+        ]));
         expect(multipolygon.bbox.join(",")).toBe("-10,-10,20,10");
         multipolygon.coordinates.pop();
         expect(multipolygon.bbox.join(",")).toBe("-10,-10,10,10");
-        multipolygon.coordinates[0][0].splice(3, 0, Position.withCoordinates(20, 10));
+        multipolygon.coordinates[0].coordinates[0].splice(3, 0, Position.withCoordinates(20, 10));
         expect(multipolygon.bbox.join(",")).toBe("-10,-10,20,10");
-        multipolygon.coordinates[0][0].splice(3, 1);
+        multipolygon.coordinates[0].coordinates[0].splice(3, 1);
         expect(multipolygon.bbox.join(",")).toBe("-10,-10,10,10");
     });
 

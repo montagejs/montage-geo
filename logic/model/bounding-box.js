@@ -258,10 +258,9 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
 
     _containsMultiLineString: {
         value: function (geometry) {
-            var self = this,
-                positions = this._flattenPositions(geometry.coordinates);
-            return positions.some(function (position) {
-                return self.containsPosition(position);
+            var self = this;
+            return geometry.coordinates.some(function (lineString) {
+                return self._containsLineString(lineString);
             }) || geometry.intersects(this);
         }
     },

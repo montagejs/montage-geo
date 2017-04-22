@@ -14,10 +14,10 @@ describe("A MultiLineString", function () {
         ]);
         expect(multiline).toBeDefined();
         expect(multiline.coordinates.length).toBe(4);
-        expect(multiline.coordinates[0][0].longitude).toBe(0);
-        expect(multiline.coordinates[0][0].latitude).toBe(0);
-        expect(multiline.coordinates[0][1].longitude).toBe(0);
-        expect(multiline.coordinates[0][1].latitude).toBe(10);
+        expect(multiline.coordinates[0].coordinates[0].longitude).toBe(0);
+        expect(multiline.coordinates[0].coordinates[0].latitude).toBe(0);
+        expect(multiline.coordinates[0].coordinates[1].longitude).toBe(0);
+        expect(multiline.coordinates[0].coordinates[1].latitude).toBe(10);
     });
 
     it("can calculate its bbox", function () {
@@ -29,12 +29,9 @@ describe("A MultiLineString", function () {
         ]);
         expect(multiline.bboxPositions.length).toBe(8);
         expect(multiline.bbox.join(",")).toBe("-10,-10,10,10");
-        multiline.coordinates[0].push(Position.withCoordinates(0, 20));
+        multiline.coordinates[0].coordinates.push(Position.withCoordinates(0, 20));
         expect(multiline.bbox.join(",")).toBe("-10,-10,10,20");
-        multiline.coordinates.push([
-            Position.withCoordinates(20, 0),
-            Position.withCoordinates(30, 0)
-        ]);
+        multiline.coordinates.push(LineString.withCoordinates([[20, 0], [30, 0]]));
         expect(multiline.bbox.join(",")).toBe("-10,-10,30,20");
         multiline.coordinates.pop();
         expect(multiline.bbox.join(",")).toBe("-10,-10,10,20");

@@ -1,4 +1,5 @@
 var Montage = require("montage/core/core").Montage,
+    Position = require("./position").Position,
     HALF_PI = Math.PI / 180.0;
 
 /**
@@ -93,6 +94,20 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
         }
     },
 
+    positionsForBbox: {
+        value: function (bbox) {
+            var positions = [], i, j, x, y;
+            for (i = 0; i < 2; i += 1) {
+                for (j = 0; j < 2; j += 1) {
+                    x = i === 0 ? bbox[0] : bbox[2];
+                    y = j === 0 ? bbox[1] : bbox[3];
+                    positions.push(Position.withCoordinates(x, y));
+                }
+            }
+            return positions;
+        }
+    },
+
     /**
      *
      * Subclasses should override this function to implement their
@@ -129,10 +144,10 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
             var bbox = this.bbox,
                 lng = position.longitude,
                 lat = position.latitude;
-            if (bbox[0] > lng) bbox[0] = lng;
-            if (bbox[2] < lng) bbox[2] = lng;
-            if (bbox[1] > lat) bbox[1] = lat;
-            if (bbox[3] < lat) bbox[3] = lat;
+            if (bbox[0] > lng) bbox.splice(0, 1, lng);
+            if (bbox[2] < lng) bbox.splice(2, 1, lng);
+            if (bbox[1] > lat) bbox.splice(1, 1, lat);
+            if (bbox[3] < lat) bbox.splice(3, 1, lat);
         }
     }
 

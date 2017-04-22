@@ -1,6 +1,6 @@
 var Geometry = require("./geometry").Geometry,
     Map = require("collections/map"),
-    Position = require("./position").Position;
+    Polygon = require("./polygon").Polygon;
 
 /**
  *
@@ -35,14 +35,6 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
         }
     },
 
-    bboxPositions: {
-        get: function () {
-            return this.coordinates ? this.coordinates.reduce(function (accumulator, polygon) {
-                return accumulator.concat(polygon[0]);
-            }, []) : [];
-        }
-    },
-
     handleChildPolygonRangeChange: {
         value: function (plus, minus) {
             minus.forEach(this._removePolygon.bind(this));
@@ -54,17 +46,28 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
         }
     },
 
+    bboxPositions: {
+        get: function () {
+            var self = this;
+            return this.coordinates ? this.coordinates.reduce(function (accumulator, polygon) {
+                return accumulator.concat(self.positionsForBbox(polygon.bbox));
+            }, []) : [];
+        }
+    },
+
+    handleRangeChange: {
+        value: function () {
+            this._recalculateBbox();
+        }
+    },
+
     _addPolygon: {
         value: function (polygon) {
-            var self,
-                outerRing = polygon[0],
-                cancel = outerRing.addRangeChangeListener(this);
-            this._childPolygonRangeChangeCancelers.set(polygon, cancel);
+            var bbox = polygon.bbox,
+                cancel = bbox.addRangeChangeListener(this);
+            this.__childPolygonRangeChangeCancelers.set(polygon, cancel);
             if (!this._shouldRecalculate) {
-                self = this;
-                outerRing.forEach(function (position) {
-                    self._extend(position);
-                });
+                this.positionsForBbox(bbox).forEach(this._extend.bind(this));
             }
         }
     },
@@ -72,16 +75,12 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
     _removePolygon: {
         value: function (polygon) {
             var cancel = this._childPolygonRangeChangeCancelers.get(polygon),
-                outerRing = polygon[0];
+                positions = this.positionsForBbox(polygon.bbox);
             this._childPolygonRangeChangeCancelers.delete(polygon);
             this._shouldRecalculate =   this._shouldRecalculate ||
-                                        outerRing.some(this.isPositionOnBoundary.bind(this));
+                                        positions.some(this.isPositionOnBoundary.bind(this));
             if (cancel) cancel();
         }
-    },
-
-    _shouldRecalculate: {
-        value: false
     },
 
     _childPolygonRangeChangeCancelers: {
@@ -91,6 +90,10 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
             }
             return this.__childPolygonRangeChangeCancelers;
         }
+    },
+
+    _shouldRecalculate: {
+        value: false
     },
 
     _coordinatesRangeChangeCanceler: {
@@ -105,80 +108,9 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
      */
     intersects: {
         value: function (geometry) {
-            // TODO: implement strategy for multi-polygon
-            // return this.intersectsBbox(geometry.bbox) && this._intersectsPolygon(geometry);
-        }
-    },
-
-    /**
-     * @method
-     * @private
-     * @param {Polygon} polygon
-     * @return boolean
-     */
-    _intersectsPolygon: {
-        value: function (polygon) {
-            var isIntersecting = false,
-                outerRing = polygon.coordinates[0],
-                i, n;
-            for (i = 0, n = outerRing.length; i < n && !isIntersecting; i += 1) {
-                isIntersecting = this._containsPosition(outerRing[i]);
-            }
-            return isIntersecting;
-        }
-    },
-
-    /**
-     * @method
-     * @private
-     * @param {Position} position
-     * @return boolean
-     */
-    _containsPosition: {
-        value: function (position) {
-            var coordinates = this.coordinates,
-                doesContain = true,
-                isInPolygon, i, n;
-            for (i = 0, n = coordinates.length; i < n && doesContain; i += 1) {
-                isInPolygon = this._isPositionInPolygon(coordinates[i], position);
-                doesContain = i === 0 ? isInPolygon : !isInPolygon;
-            }
-            return doesContain;
-        }
-    },
-
-    /**
-     * @method
-     * @private
-     * @param {Polygon} polygon
-     * @param {Position} position
-     * @return boolean
-     */
-    _isPositionInPolygon: {
-        value: function (polygon, position) {
-            var x = position.longitude,
-                y = position.latitude,
-                isPositionInPolygon = false,
-                iPosition, jPosition,
-                i, j, length,
-                x1, y1, x2, y2;
-
-            for (i = 0, j = polygon.length - 1, length = polygon.length; i < length; j = i++) {
-                iPosition = polygon[i];
-                jPosition = polygon[j];
-                x1 = iPosition.longitude;
-                y1 = iPosition.latitude;
-                x2 = jPosition.longitude;
-                y2 = jPosition.latitude;
-
-                if ((y1 < y && y2 >= y || y2 < y && y1 >= y) && (x1 <= x || x2 <= x)) {
-                    if (x1 + (y - y1) / (y2 - y1) * (x2 - x1) < x) {
-                        isPositionInPolygon = !isPositionInPolygon;
-                    }
-                }
-            }
-
-            return isPositionInPolygon;
+            return this.coordinates.some(function (polygon) {
+                return polygon.intersects(geometry);
+            });
         }
     }
 
@@ -198,11 +130,7 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
         value: function (rings) {
             var self = new this();
             self.coordinates = rings.map(function (ring) {
-                return ring.map(function (coordinates) {
-                    return coordinates.map(function (coordinate) {
-                        return Position.withCoordinates(coordinate);
-                    });
-                });
+                return Polygon.withCoordinates(ring);
             });
             return self;
         }
