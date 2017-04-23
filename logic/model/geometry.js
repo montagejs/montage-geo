@@ -61,16 +61,30 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
 
     /**
      * This method is called when the geometry's coordinates
-     * change.  Subclasses should overridet this method to
-     * provide their handling of coordinates changing i.e.
-     * updating their bbox.
+     * change.
      *
      * @method
      */
     coordinatesDidChange: {
-        value: function () {}
+        value: function () {
+            if (this._rangeChangeCanceler) {
+                this._rangeChangeCanceler();
+            }
+            if (this.coordinates) {
+                this._rangeChangeCanceler = this.coordinates.addRangeChangeListener(this);
+            }
+            this.bounds.setWithPositions(this.positions);
+        }
     },
 
+    /**
+     * This method is called when the positions are added or removed
+     * from the geometry's coordinates.
+     *
+     * Subclasses may choose to override this method.
+     *
+     * @method
+     */
     handleRangeChange: {
         value: function (plus, minus) {
             var bounds = this.bounds;
@@ -80,6 +94,10 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
                 plus.forEach(bounds.extend.bind(bounds));
             }
         }
+    },
+
+    _rangeChangeCanceler: {
+        value: undefined
     }
 
 }, {

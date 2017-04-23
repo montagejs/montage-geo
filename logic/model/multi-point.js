@@ -10,18 +10,6 @@ var Geometry = require("./geometry").Geometry,
  */
 exports.MultiPoint = Geometry.specialize(/** @lends MultiPoint.prototype */ {
 
-    coordinatesDidChange: {
-        value: function () {
-            if (this._rangeChangeCanceler) {
-                this._rangeChangeCanceler();
-            }
-            if (this.coordinates) {
-                this._rangeChangeCanceler = this.coordinates.addRangeChangeListener(this);
-            }
-            this.bounds.setWithPositions(this.positions);
-        }
-    },
-
     /**
      * @override
      * @returns array<Position>
@@ -39,10 +27,6 @@ exports.MultiPoint = Geometry.specialize(/** @lends MultiPoint.prototype */ {
                         return bounds.contains(position);
                     });
         }
-    },
-
-    _rangeChangeCanceler: {
-        value: undefined
     }
 
 }, {

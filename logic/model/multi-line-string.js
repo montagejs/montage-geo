@@ -19,6 +19,39 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
         value: undefined
     },
 
+    /**
+     * @override
+     * @returns array<Position>
+     */
+    positions: {
+        get: function () {
+            var positions = [];
+            if (this.coordinates) {
+                this.coordinates.forEach(function (lineString) {
+                    positions.push.apply(positions, lineString.positions);
+                });
+            }
+            return positions;
+        }
+    },
+
+    /**
+     * @method
+     * @param{LineString|Polygon|BoundingBox}
+     * @returns boolean
+     */
+    intersects: {
+        value: function (geometry) {
+            return this.coordinates.some(function (lineString) {
+                return lineString.intersects(geometry);
+            });
+        }
+    },
+
+    /**
+     * @override
+     * @method
+     */
     coordinatesDidChange: {
         value: function () {
             if (this._rangeChangeCanceler) {
@@ -48,20 +81,8 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
 
     /**
      * @override
-     * @returns array<Position>
+     * @method
      */
-    positions: {
-        get: function () {
-            var positions = [];
-            if (this.coordinates) {
-                this.coordinates.forEach(function (lineString) {
-                    positions.push.apply(positions, lineString.positions);
-                });
-            }
-            return positions;
-        }
-    },
-
     handleRangeChange: {
         value: function () {
             this.bounds.setWithPositions(this.positions);
@@ -71,10 +92,12 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
     _addLineString: {
         value: function (lineString) {
             var bbox = lineString.bbox,
-                cancel = bbox.addRangeChangeListener(this);
+                cancel = bbox.addRangeChangeListener(this),
+                bounds;
             this._childLineStringsRangeChangeCancelers.set(lineString, cancel);
             if (!this._shouldRecalculate) {
-                lineString.bounds.positions.forEach(this.bounds.extend.bind(this.bounds));
+                bounds = this.bounds;
+                lineString.bounds.positions.forEach(bounds.extend.bind(bounds));
             }
         }
     },
@@ -106,19 +129,6 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
 
     _shouldRecalculate: {
         value: false
-    },
-
-    /**
-     * @method
-     * @param{LineString|Polygon|BoundingBox}
-     * @returns boolean
-     */
-    intersects: {
-        value: function (geometry) {
-            return this.coordinates.some(function (lineString) {
-                return lineString.intersects(geometry);
-            });
-        }
     }
 
 }, {

@@ -20,6 +20,10 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
         value: undefined
     },
 
+    /**
+     * @override
+     * @method
+     */
     coordinatesDidChange: {
         value: function () {
             if (this._rangeChangeCanceler) {
@@ -56,25 +60,6 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
 
     /**
      * @method
-     * @private
-     * @param {Polygon} polygon
-     * @return boolean
-     */
-    _intersectsPolygon: {
-        value: function (polygon) {
-            var isIntersecting = false,
-                outerRing = polygon.coordinates[0],
-                i, n;
-            for (i = 0, n = outerRing.length; i < n && !isIntersecting; i += 1) {
-                isIntersecting = this.contains(outerRing[i]);
-            }
-            return isIntersecting;
-        }
-    },
-
-    /**
-     * @method
-     * @private
      * @param {Position} position
      * @return boolean
      */
@@ -88,6 +73,24 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
                 doesContain = i === 0 ? isInPolygon : !isInPolygon;
             }
             return doesContain;
+        }
+    },
+
+    /**
+     * @method
+     * @private
+     * @param {Polygon} polygon
+     * @return boolean
+     */
+    _intersectsPolygon: {
+        value: function (polygon) {
+            var isIntersecting = false,
+                outerRing = polygon.coordinates[0],
+                i, n;
+            for (i = 0, n = outerRing.length; i < n && !isIntersecting; i += 1) {
+                isIntersecting = this.contains(outerRing[i]);
+            }
+            return isIntersecting;
         }
     },
 

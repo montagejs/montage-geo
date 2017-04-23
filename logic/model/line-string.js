@@ -11,18 +11,6 @@ var Geometry = require("./geometry").Geometry,
  */
 var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.prototype */ {
 
-    coordinatesDidChange: {
-        value: function () {
-            if (this._rangeChangeCanceler) {
-                this._rangeChangeCanceler();
-            }
-            if (this.coordinates) {
-                this._rangeChangeCanceler = this.coordinates.addRangeChangeListener(this);
-            }
-            this.bounds.setWithPositions(this.positions);
-        }
-    },
-
     /**
      * @override
      * @returns array<Position>

@@ -19,6 +19,32 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
         value: undefined
     },
 
+    /**
+     * @override
+     * @returns array<Position>
+     */
+    positions: {
+        get: function () {
+            return this.coordinates ? this.coordinates.reduce(function (accumulator, polygon) {
+                return accumulator.concat(polygon.bounds.positions);
+            }, []) : [];
+        }
+    },
+
+    /**
+     * @method
+     * @param {Polygon} geometry    - The polygon to test for
+     *                                intersection
+     * @returns {boolean}
+     */
+    intersects: {
+        value: function (geometry) {
+            return this.coordinates.some(function (polygon) {
+                return polygon.intersects(geometry);
+            });
+        }
+    },
+
     coordinatesDidChange: {
         value: function () {
             if (this._coordinatesRangeChangeCanceler) {
@@ -43,18 +69,6 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
                 this.bounds.setWithPositions(this.positions);
                 this._shouldRecalculate = false;
             }
-        }
-    },
-
-    /**
-     * @override
-     * @returns array<Position>
-     */
-    positions: {
-        get: function () {
-            return this.coordinates ? this.coordinates.reduce(function (accumulator, polygon) {
-                return accumulator.concat(polygon.bounds.positions);
-            }, []) : [];
         }
     },
 
@@ -102,20 +116,6 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
 
     _coordinatesRangeChangeCanceler: {
         value: undefined
-    },
-
-    /**
-     * @method
-     * @param {Polygon} geometry    - The polygon to test for
-     *                                intersection
-     * @returns {boolean}
-     */
-    intersects: {
-        value: function (geometry) {
-            return this.coordinates.some(function (polygon) {
-                return polygon.intersects(geometry);
-            });
-        }
     }
 
 }, {
