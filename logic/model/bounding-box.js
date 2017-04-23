@@ -2,6 +2,12 @@ var Montage = require("montage/core/core").Montage,
     GeometryCollection = require("logic/model/geometry-collection").GeometryCollection,
     Position = require("logic/model/position").Position;
 
+
+var PRECISION_SCALE = [
+    0.70924, 22.7529, 729.62, 23409, 744200, 23912100,
+    762450000, 24336000000, 781250000000, 25000000000000
+];
+
 /**
  *
  * A bounding box represents an area defined by two longitudes and
@@ -11,6 +17,10 @@ var Montage = require("montage/core/core").Montage,
  * @extends external:Montage
  */
 exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
+
+    /********************************************
+     * Properties
+     */
 
     /**
      * The maximum longitude
@@ -76,6 +86,10 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         }
     },
 
+    /********************************************
+     * Derived Properties
+     */
+
     /**
      * A Geometry MAY have a member named "bbox" to include
      * information on the coordinate range for its coordinates.
@@ -103,95 +117,11 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         }
     },
 
-    equals: {
-        value: function (other) {
-            return other === this ||
-                other && other.xMin === this.xMin &&
-                other.yMin === this.yMin &&
-                other.xMax === this.xMax &&
-                other.yMax === this.yMax;
-        }
-    },
-
-    extend: {
-        value: function (position) {
-            var lng = position.longitude,
-                lat = position.latitude;
-            if (this.xMin > lng) this.xMin = lng;
-            if (this.xMax < lng) this.xMax = lng;
-            if (this.yMin > lat) this.yMin = lat;
-            if (this.yMax < lat) this.yMax = lat;
-        }
-    },
-
-    setWithPositions: {
-        value: function (positions) {
-            var xMin = Infinity,
-                yMin = Infinity,
-                xMax = -Infinity,
-                yMax = -Infinity;
-            positions = positions || [];
-            positions.forEach(function (position) {
-                var lng = position.longitude,
-                    lat = position.latitude;
-                if (xMin > lng) xMin = lng;
-                if (xMax < lng) xMax = lng;
-                if (yMin > lat) yMin = lat;
-                if (yMax < lat) yMax = lat;
-            });
-            if (this.xMin !== xMin) this.xMin = xMin;
-            if (this.yMin !== yMin) this.yMin = yMin;
-            if (this.xMax !== xMax) this.xMax = xMax;
-            if (this.yMax !== yMax) this.yMax = yMax;
-        }
-    },
-
-    /***
-     * Returns true if this bounds intersects the passed in bounds.
-     * @param {Object} Bounds - the bounds to compare to this bounds.
-     * @return {Boolean}
-     */
-    intersects: {
-        value: function (other) {
-            var otherSplits = other.splitAlongAntimeridian();
-            return this.splitAlongAntimeridian().some(function (thisSplit) {
-                return otherSplits.some(function (otherSplit) {
-                    // Taken from leaflet.Bounds#intersects.
-                    return  otherSplit.xMax >= thisSplit.xMin &&
-                            otherSplit.xMin <= thisSplit.xMax &&
-                            otherSplit.yMax >= thisSplit.yMin &&
-                            otherSplit.yMin <= thisSplit.yMax;
-                });
-            });
-        }
-    },
-
-    /**
-     * @todo [Charles]: The array of split bounds will be cached, but the cache
-     * is not updated or cleared if the bound values change. Either the cache
-     * should be cleared on bound changes, or preferably bounds should be made
-     * an immutable object.
-     */
-    splitAlongAntimeridian: {
-        value: function () {
-            if (!this._split) {
-                this._split = [];
-                if (this.xMin <= this.xMax) {
-                    this._split.push(this);
-                } else {
-                    this._split.push(exports.BoundingBox.withCoordinates(this.xMin, this.yMin, 179.99999, this.yMax));
-                    this._split.push(exports.BoundingBox.withCoordinates(-179.99999, this.yMin, this.xMax, this.yMax));
-                }
-            }
-            return this._split;
-        }
-    },
-
     /**
      *
      * Returns this bounding box with the coordinates of
      * a polygon.
-     *
+     * TODO: Make Observable
      * @method
      * @returns {Array<Position>}
      */
@@ -228,18 +158,26 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         }
     },
 
+    /******************************************************
+     * Testing
+     */
+
     /**
-     * Test if any of the position's coordinates are on
-     * any of the boundaries of this bounds.
-     * @param {Position}
+     * Determines whether or not the bounds contains the
+     * position.
+     *
+     * @method
+     * @param {Position} position - The position to test.
      * @returns {boolean}
      */
-    isOnBoundary: {
+    contains: {
         value: function (position) {
             var lng = position.longitude,
                 lat = position.latitude;
-            return  this.xMin === lng || this.xMax === lng ||
-                    this.yMin === lat || this.yMax === lat;
+            return  lng <= this.xMax &&
+                    lng >= this.xMin &&
+                    lat <= this.yMax &&
+                    lat >= this.yMin;
         }
     },
 
@@ -262,22 +200,144 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         }
     },
 
+    equals: {
+        value: function (other) {
+            return other === this ||
+                other && other.xMin === this.xMin &&
+                other.yMin === this.yMin &&
+                other.xMax === this.xMax &&
+                other.yMax === this.yMax;
+        }
+    },
+
+    /***
+     * Returns true if this bounds intersects the passed in bounds.
+     * @param {Object} Bounds - the bounds to compare to this bounds.
+     * @return {Boolean}
+     */
+    intersects: {
+        value: function (other) {
+            var otherSplits = other.splitAlongAntimeridian();
+            return this.splitAlongAntimeridian().some(function (thisSplit) {
+                return otherSplits.some(function (otherSplit) {
+                    // Taken from leaflet.Bounds#intersects.
+                    return  otherSplit.xMax >= thisSplit.xMin &&
+                            otherSplit.xMin <= thisSplit.xMax &&
+                            otherSplit.yMax >= thisSplit.yMin &&
+                            otherSplit.yMin <= thisSplit.yMax;
+                });
+            });
+        }
+    },
+
     /**
-     * Determines whether or not the bounds contains the
-     * position.
-     *
-     * @method
-     * @param {Position} position - The position to test.
+     * Test if any of the position's coordinates are on
+     * any of the boundaries of this bounds.
+     * @param {Position}
      * @returns {boolean}
      */
-    contains: {
+    isOnBoundary: {
         value: function (position) {
             var lng = position.longitude,
                 lat = position.latitude;
-            return  lng <= this.xMax &&
-                    lng >= this.xMin &&
-                    lat <= this.yMax &&
-                    lat >= this.yMin;
+            return  this.xMin === lng || this.xMax === lng ||
+                this.yMin === lat || this.yMax === lat;
+        }
+    },
+
+    /******************************************************
+     * Measurement
+     */
+
+    /**
+     * Returns the area of this bounding box in square meters
+     * @method
+     * @returns {number}
+     */
+    area: {
+        get: function() {
+            var southWest = Position.withCoordinates(this.xMin, this.yMin),
+                northWest = Position.withCoordinates(this.xMin, this.yMax),
+                southEast = Position.withCoordinates(this.xMax, this.yMin),
+                height = southWest.distance(northWest),
+                width = southWest.distance(southEast);
+            return height * width;
+        }
+    },
+
+    precision: {
+        get: function () {
+            var area = this.area,
+                precision = -1,
+                i, n;
+            for (i = 0, n = PRECISION_SCALE.length; i < n && precision < 0; i += 1) {
+                if (PRECISION_SCALE[i] > area) {
+                    precision = i;
+                }
+            }
+            return precision === -1 ? 1 : PRECISION_SCALE.length - precision;
+        }
+    },
+
+    /******************************************************
+     * Mutating
+     */
+
+    extend: {
+        value: function (position) {
+            var lng = position.longitude,
+                lat = position.latitude;
+            if (this.xMin > lng) this.xMin = lng;
+            if (this.xMax < lng) this.xMax = lng;
+            if (this.yMin > lat) this.yMin = lat;
+            if (this.yMax < lat) this.yMax = lat;
+        }
+    },
+
+    setWithPositions: {
+        value: function (positions) {
+            var xMin = Infinity,
+                yMin = Infinity,
+                xMax = -Infinity,
+                yMax = -Infinity;
+            positions = positions || [];
+            positions.forEach(function (position) {
+                var lng = position.longitude,
+                    lat = position.latitude;
+                if (xMin > lng) xMin = lng;
+                if (xMax < lng) xMax = lng;
+                if (yMin > lat) yMin = lat;
+                if (yMax < lat) yMax = lat;
+            });
+            if (this.xMin !== xMin) this.xMin = xMin;
+            if (this.yMin !== yMin) this.yMin = yMin;
+            if (this.xMax !== xMax) this.xMax = xMax;
+            if (this.yMax !== yMax) this.yMax = yMax;
+        }
+    },
+
+    /******************************************************
+     * Utilities
+     */
+
+    /**
+     * @todo [Charles]: The array of split bounds will be cached, but the cache
+     * is not updated or cleared if the bound values change. Either the cache
+     * should be cleared on bound changes, or preferably bounds should be made
+     * an immutable object.
+     */
+    splitAlongAntimeridian: {
+        value: function () {
+            if (!this._split) {
+                this._split = [];
+                if (this.xMin <= this.xMax) {
+                    this._split.push(this);
+                } else {
+                    this._split.push(exports.BoundingBox.withCoordinates(this.xMin, this.yMin, 179.99999, this.yMax));
+                    this._split.push(exports.BoundingBox.withCoordinates(-179.99999, this.yMin, this.xMax, this.yMax));
+                }
+            }
+            return this._split;
         }
     }
 

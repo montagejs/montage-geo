@@ -1,4 +1,4 @@
-var Montage = require("montage/core/core").Montage;
+var HALF_PI = Math.PI / 180.0;
 
 /**
  *
@@ -56,6 +56,61 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
         configurable: true,
         writable: true,
         value: 0
+    },
+
+    /*****************************************************
+     * Measurement
+     */
+
+    /**
+     * Returns the bearing from this Position to the provided
+     * Position.
+     *
+     * @method
+     * @param {Position}
+     * @returns {number}
+     */
+    bearing: {
+        value: function (destination) {
+            var thetaOne = exports.Position.toRadians(this.latitude),
+                thetaTwo = exports.Position.toRadians(destination.latitude),
+                deltaLambda = exports.Position.toRadians(destination.longitude - this.longitude),
+                y = Math.sin(deltaLambda) * Math.cos(thetaTwo),
+                x = Math.cos(thetaOne) * Math.sin(thetaTwo) - Math.sin(thetaOne) *
+                    Math.cos(thetaTwo) * Math.cos(deltaLambda),
+                theta = Math.atan2(y, x);
+
+            return (exports.Position.toDegrees(theta) + 360) % 360;
+        }
+    },
+
+    /**
+     * Calculates the distance between two Position.
+
+     * @see http://www.movable-type.co.uk/scripts/latlong.html
+     *
+     * @param {Point} point - the destination.
+     * @return {number} The distance between the two Position in meters.
+     s     */
+    distance: {
+        value: function (position) {
+            var earthRadius = 6371000,
+                lng = this.longitude,
+                lat = this.latitude,
+                lng2 = position.longitude,
+                lat2 = position.latitude,
+                thetaOne = exports.Position.toRadians(lat),
+                thetaTwo = exports.Position.toRadians(lat2),
+                deltaTheta = exports.Position.toRadians(lat2 - lat),
+                deltaLambda = exports.Position.toRadians(lng2 - lng),
+                a = Math.sin(deltaTheta / 2) * Math.sin(deltaTheta / 2) +
+                    Math.cos(thetaOne) * Math.cos(thetaTwo) *
+                    Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2),
+                c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            return earthRadius * c;
+
+        }
     }
 
 });
@@ -86,6 +141,30 @@ Object.defineProperties(exports.Position, /** @lends Position */ {
             if (length > 1) self.latitude = arguments[1];
             if (length > 2) self.altitude = arguments[2];
             return self;
+        }
+    },
+
+    /**
+     * Converts a value in degrees to radians
+     * @method
+     * @param {number} degrees
+     * @returns {number} radians
+     */
+    toRadians: {
+        value: function (degrees) {
+            return degrees * HALF_PI;
+        }
+    },
+
+    /**
+     * Converts a value in radians to degrees
+     * @method
+     * @param {number} radians
+     * @returns {number} degrees
+     */
+    toDegrees: {
+        value: function (radians) {
+            return radians * 57.29577951308233; // 180 divided by PI;
         }
     }
 

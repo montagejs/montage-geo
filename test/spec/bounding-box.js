@@ -125,4 +125,28 @@ describe("A BoundingBox", function () {
         expect(bounds.contains(outPosition)).toBe(false);
     });
 
+    it ("can calculate its area", function () {
+        var bounds = BoundingBox.withCoordinates(0, 0, 10, 10),
+            southWest = Position.withCoordinates(0, 0),
+            northWest = Position.withCoordinates(0, 10),
+            southEast = Position.withCoordinates(10, 0),
+            height = southWest.distance(northWest),
+            width = southWest.distance(southEast);
+
+        expect((height / 1000).toFixed(0)).toBe("1112");
+        expect((width / 1000).toFixed(0)).toBe("1112");
+        expect((bounds.area / 1000).toFixed(0)).toBe("1236431171");
+
+    });
+
+    it ("can calculate the correct GeoHash precision", function () {
+        var bounds = BoundingBox.withCoordinates(0, 0, 10, 10),
+            bounds2 = BoundingBox.withCoordinates(0, 0, 1, 1);
+
+        expect(bounds.precision).toBe(1);
+        expect(bounds2.precision).toBe(3);
+
+    });
+
+
 });

@@ -54,17 +54,7 @@ exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
      */
     bearing: {
         value: function (point) {
-            var origin = this.coordinates,
-                destination = point.coordinates,
-                thetaOne = Geometry.toRadians(origin.latitude),
-                thetaTwo = Geometry.toRadians(destination.latitude),
-                deltaLambda = Geometry.toRadians(destination.longitude - origin.longitude),
-                y = Math.sin(deltaLambda) * Math.cos(thetaTwo),
-                x = Math.cos(thetaOne) * Math.sin(thetaTwo) - Math.sin(thetaOne) *
-                    Math.cos(thetaTwo) * Math.cos(deltaLambda),
-                theta = Math.atan2(y, x);
-
-            return (Geometry.toDegrees(theta) + 360) % 360;
+            return this.coordinates.bearing(point.coordinates);
         }
     },
 
@@ -78,22 +68,7 @@ exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
 s     */
     distance: {
         value: function (point) {
-            var earthRadius = 6371000,
-                lng = this.coordinates.longitude,
-                lat = this.coordinates.latitude,
-                lng2 = point.coordinates.longitude,
-                lat2 = point.coordinates.latitude,
-                thetaOne = Geometry.toRadians(lat),
-                thetaTwo = Geometry.toRadians(lat2),
-                deltaTheta = Geometry.toRadians(lat2 - lat),
-                deltaLambda = Geometry.toRadians(lng2 - lng),
-                a = Math.sin(deltaTheta / 2) * Math.sin(deltaTheta / 2) +
-                    Math.cos(thetaOne) * Math.cos(thetaTwo) *
-                    Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2),
-                c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-            return earthRadius * c;
-
+            return this.coordinates.distance(point.coordinates);
         }
     },
 
