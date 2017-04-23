@@ -40,24 +40,27 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
             minus.forEach(this._removePolygon.bind(this));
             plus.forEach(this._addPolygon.bind(this));
             if (this._shouldRecalculate) {
-                this._recalculateBbox();
+                this.bounds.setWithPositions(this.positions);
                 this._shouldRecalculate = false;
             }
         }
     },
 
-    bboxPositions: {
+    /**
+     * @override
+     * @returns array<Position>
+     */
+    positions: {
         get: function () {
-            var self = this;
             return this.coordinates ? this.coordinates.reduce(function (accumulator, polygon) {
-                return accumulator.concat(self.positionsForBbox(polygon.bbox));
+                return accumulator.concat(polygon.bounds.positions);
             }, []) : [];
         }
     },
 
     handleRangeChange: {
         value: function () {
-            this._recalculateBbox();
+            this.bounds.setWithPositions(this.positions);
         }
     },
 
@@ -65,9 +68,9 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
         value: function (polygon) {
             var bbox = polygon.bbox,
                 cancel = bbox.addRangeChangeListener(this);
-            this.__childPolygonRangeChangeCancelers.set(polygon, cancel);
+            this._childPolygonRangeChangeCancelers.set(polygon, cancel);
             if (!this._shouldRecalculate) {
-                this.positionsForBbox(bbox).forEach(this._extend.bind(this));
+                polygon.bounds.positions.forEach(this.bounds.extend.bind(this.bounds));
             }
         }
     },
@@ -75,10 +78,11 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
     _removePolygon: {
         value: function (polygon) {
             var cancel = this._childPolygonRangeChangeCancelers.get(polygon),
-                positions = this.positionsForBbox(polygon.bbox);
+                positions = polygon.bounds.positions,
+                bounds = this.bounds;
             this._childPolygonRangeChangeCancelers.delete(polygon);
             this._shouldRecalculate =   this._shouldRecalculate ||
-                                        positions.some(this.isPositionOnBoundary.bind(this));
+                                        positions.some(bounds.isOnBoundary.bind(bounds));
             if (cancel) cancel();
         }
     },

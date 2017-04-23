@@ -24,6 +24,37 @@ exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
         value: undefined
     },
 
+    /**
+     * @override
+     * @returns array<Position>
+     */
+    positions: {
+        get: function () {
+            return [this.coordinates];
+        }
+    },
+
+    intersects: {
+        value: function (bounds) {
+            return bounds.contains(this.coordinates);
+        }
+    },
+
+    /****************************************************************
+     * Observables
+     */
+
+    coordinatesDidChange: {
+        value: function () {
+            var lng, lat;
+            if (this.coordinates) {
+                lng = this.coordinates.longitude;
+                lat = this.coordinates.latitude;
+                this.bounds.setWithPositions(this.positions);
+            }
+        }
+    },
+
     observeBearing: {
         value: function (emit, destination) {
             var self = this,
@@ -90,17 +121,6 @@ exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
                 theta = Math.atan2(y, x);
 
             return (Geometry.toDegrees(theta) + 360) % 360;
-        }
-    },
-
-    coordinatesDidChange: {
-        value: function () {
-            var lng, lat;
-            if (this.coordinates) {
-                lng = this.coordinates.longitude;
-                lat = this.coordinates.latitude;
-                this.bbox.splice(0, 4, lng, lat, lng, lat);
-            }
         }
     }
 

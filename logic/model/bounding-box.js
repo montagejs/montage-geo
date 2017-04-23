@@ -1,9 +1,5 @@
 var Montage = require("montage/core/core").Montage,
     GeometryCollection = require("logic/model/geometry-collection").GeometryCollection,
-    LineString = require("logic/model/line-string").LineString,
-    MultiLineString = require("logic/model/multi-line-string").MultiLineString,
-    MultiPoint = require("logic/model/multi-point").MultiPoint,
-    Point = require("logic/model/point").Point,
     Position = require("logic/model/position").Position;
 
 /**
@@ -26,8 +22,8 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         },
         set: function (x) {
             this._xMax = x;
-            if (this._box) {
-                this._box[2] = x;
+            if (this._bbox) {
+                this._bbox.splice(2, 1, x);
             }
         }
     },
@@ -42,8 +38,8 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         },
         set: function (x) {
             this._xMin = x;
-            if (this._box) {
-                this._box[0] = x;
+            if (this._bbox) {
+                this._bbox.splice(0, 1, x);
             }
         }
     },
@@ -58,8 +54,8 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         },
         set: function (y) {
             this._yMax = y;
-            if (this._box) {
-                this._box[3] = x;
+            if (this._bbox) {
+                this._bbox.splice(3, 1, y);
             }
         }
     },
@@ -74,26 +70,30 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         },
         set: function (y) {
             this._yMin = y;
-            if (this._box) {
-                this._box[1] = x;
+            if (this._bbox) {
+                this._bbox.splice(1, 1, y);
             }
         }
     },
 
     /**
-     * This [xMin, yMin, xMax, yMax] array is created lazily and no more than
-     * once for a given bounds object. Once created it is kept in sync with the
-     * bounds' xMin, xMax, yMin, and yMax values. Setting this will update the
-     * bounds' xMin, xMax, yMin, and yMax values accordingly.
+     * A Geometry MAY have a member named "bbox" to include
+     * information on the coordinate range for its coordinates.
+     * The value of the bbox member MUST be an array of
+     * length 2*n where n is the number of dimensions represented
+     * in the contained geometries, with all axes of the most south-
+     * westerly point followed by all axes of the more northeasterly
+     * point.  The axes order of a bbox follows the axes order of
+     * geometries.
      *
      * @type {Array.<number>}
      */
     bbox: {
         get: function () {
-            if (!this._box) {
-                this._box = [this.xMin, this.yMin, this.xMax, this.yMax];
+            if (!this._bbox) {
+                this._bbox = [this.xMin, this.yMin, this.xMax, this.yMax];
             }
-            return this._box;
+            return this._bbox;
         },
         set: function (box) {
             this.xMin = box[0];
@@ -110,6 +110,39 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
                 other.yMin === this.yMin &&
                 other.xMax === this.xMax &&
                 other.yMax === this.yMax;
+        }
+    },
+
+    extend: {
+        value: function (position) {
+            var lng = position.longitude,
+                lat = position.latitude;
+            if (this.xMin > lng) this.xMin = lng;
+            if (this.xMax < lng) this.xMax = lng;
+            if (this.yMin > lat) this.yMin = lat;
+            if (this.yMax < lat) this.yMax = lat;
+        }
+    },
+
+    setWithPositions: {
+        value: function (positions) {
+            var xMin = Infinity,
+                yMin = Infinity,
+                xMax = -Infinity,
+                yMax = -Infinity;
+            positions = positions || [];
+            positions.forEach(function (position) {
+                var lng = position.longitude,
+                    lat = position.latitude;
+                if (xMin > lng) xMin = lng;
+                if (xMax < lng) xMax = lng;
+                if (yMin > lat) yMin = lat;
+                if (yMax < lat) yMax = lat;
+            });
+            if (this.xMin !== xMin) this.xMin = xMin;
+            if (this.yMin !== yMin) this.yMin = yMin;
+            if (this.xMax !== xMax) this.xMax = xMax;
+            if (this.yMax !== yMax) this.yMax = yMax;
         }
     },
 
@@ -146,8 +179,8 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
                 if (this.xMin <= this.xMax) {
                     this._split.push(this);
                 } else {
-                    this._split.push(exports.Bounds.withCoordinates(this.xMin, this.yMin, 179.99999, this.yMax));
-                    this._split.push(exports.Bounds.withCoordinates(-179.99999, this.yMin, this.xMax, this.yMax));
+                    this._split.push(exports.BoundingBox.withCoordinates(this.xMin, this.yMin, 179.99999, this.yMax));
+                    this._split.push(exports.BoundingBox.withCoordinates(-179.99999, this.yMin, this.xMax, this.yMax));
                 }
             }
             return this._split;
@@ -175,6 +208,42 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
     },
 
     /**
+     * The positions of this bounding box.
+     * TODO: Make Observable
+     * @returns {array<Position>}
+     */
+    positions: {
+        get: function () {
+            var bbox = this.bbox,
+                positions = [],
+                i, j, x, y;
+            for (i = 0; i < 2; i += 1) {
+                for (j = 0; j < 2; j += 1) {
+                    x = i === 0 ? bbox[0] : bbox[2];
+                    y = j === 0 ? bbox[1] : bbox[3];
+                    positions.push(Position.withCoordinates(x, y));
+                }
+            }
+            return positions;
+        }
+    },
+
+    /**
+     * Test if any of the position's coordinates are on
+     * any of the boundaries of this bounds.
+     * @param {Position}
+     * @returns {boolean}
+     */
+    isOnBoundary: {
+        value: function (position) {
+            var lng = position.longitude,
+                lat = position.latitude;
+            return  this.xMin === lng || this.xMax === lng ||
+                    this.yMin === lat || this.yMax === lat;
+        }
+    },
+
+    /**
      * Determines whether or not the bounds intersects,
      * contains or is within the passed in feature.
      *
@@ -187,8 +256,8 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             var geometry = feature.geometry;
             return this.splitAlongAntimeridian().some(function (bounds) {
                 return geometry instanceof GeometryCollection ? geometry.geometries.some(function (geometry) {
-                    return bounds.containsGeometry(geometry);
-                }) : bounds.containsGeometry(geometry)
+                    return geometry.intersects(bounds);
+                }) : geometry.intersects(bounds)
             });
         }
     },
@@ -201,7 +270,7 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
      * @param {Position} position - The position to test.
      * @returns {boolean}
      */
-    containsPosition: {
+    contains: {
         value: function (position) {
             var lng = position.longitude,
                 lat = position.latitude;
@@ -209,68 +278,6 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
                     lng >= this.xMin &&
                     lat <= this.yMax &&
                     lat >= this.yMin;
-        }
-    },
-
-    /**
-     * Determines whether or not the bounds contains the
-     * geometry.
-     *
-     * @method
-     * @param {Geometry} geometry - The geometry to test.
-     * @returns {boolean}
-     */
-    containsGeometry: {
-        value: function (geometry) {
-            return  geometry instanceof Point ?              this._containsPoint(geometry) :
-                    geometry instanceof MultiPoint ?         this._containsMultiPoint(geometry) :
-                    geometry instanceof LineString ?         this._containsLineString(geometry) :
-                    geometry instanceof MultiLineString ?    this._containsMultiLineString(geometry) :
-                    // type === "Polygon" ?            this._containsPolygon(geometry) :
-                    // type === "MultiPolygon" ?       this._containsPolygon(geometry) :
-                                                            false;
-        }
-    },
-
-    _containsPoint: {
-        value: function (point) {
-            return this.containsPosition(point.coordinates);
-        }
-    },
-
-    _containsMultiPoint: {
-        value: function (geometry) {
-            var self = this;
-            return geometry.coordinates.some(function (position) {
-                return self.containsPosition(position);
-            });
-        }
-    },
-
-    _containsLineString: {
-        value: function (geometry) {
-            var self = this;
-            return geometry.coordinates.some(function (position) {
-                return self.containsPosition(position);
-            }) || geometry.intersects(this);
-        }
-    },
-
-    _containsMultiLineString: {
-        value: function (geometry) {
-            var self = this;
-            return geometry.coordinates.some(function (lineString) {
-                return self._containsLineString(lineString);
-            }) || geometry.intersects(this);
-        }
-    },
-
-    _flattenPositions: {
-        value: function (coordinates) {
-            var self = this;
-            return coordinates.reduce(function (flat, toFlatten) {
-                return flat.concat(Array.isArray(toFlatten) ? self._flattenPositions(toFlatten) : toFlatten);
-            }, []);
         }
     }
 
@@ -296,3 +303,5 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
     }
 
 });
+
+exports.BoundingBox.EARTH = exports.BoundingBox.withCoordinates(-180.0, -85.05112878, 180.0, 85.05112878);

@@ -36,6 +36,17 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
         }
     },
 
+    /**
+     * A feature collectionMAY have a member named "bbox" to
+     * include information on the coordinate range for its Features'
+     * Geometries
+     *
+     * @type {array<number>}
+     */
+    bbox: {
+        value: undefined
+    },
+
     _featuresMap: {
         enumerable: false,
         writeable: false,

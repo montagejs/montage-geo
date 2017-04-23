@@ -23,6 +23,18 @@ exports.Feature = Montage.specialize(/** @lends Feature.prototype */ {
     },
 
     /**
+     * A feature MAY have a member named "bbox" to include information on the
+     * coordinate range for its Geometries
+     *
+     * @type {array<number>}
+     */
+    bbox: {
+        get: function () {
+            return this.geometry && this.geometry.bbox;
+        }
+    },
+
+    /**
      * @type {object|null}
      */
     properties: {

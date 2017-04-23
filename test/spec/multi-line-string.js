@@ -27,7 +27,7 @@ describe("A MultiLineString", function () {
             [[0, 0], [10, 0]],
             [[0, 0], [-10, 0]]
         ]);
-        expect(multiline.bboxPositions.length).toBe(8);
+        expect(multiline.positions.length).toBe(8);
         expect(multiline.bbox.join(",")).toBe("-10,-10,10,10");
         multiline.coordinates[0].coordinates.push(Position.withCoordinates(0, 20));
         expect(multiline.bbox.join(",")).toBe("-10,-10,10,20");

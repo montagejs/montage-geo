@@ -28,7 +28,7 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
             if (this.coordinates && this.coordinates.length) {
                 this._rangeChangeCanceler = this.coordinates[0].addRangeChangeListener(this);
             }
-            this._recalculateBbox();
+            this.bounds.setWithPositions(this.positions);
         }
     },
 
@@ -40,11 +40,15 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
      */
     intersects: {
         value: function (geometry) {
-            return this.intersectsBbox(geometry.bbox) && this._intersectsPolygon(geometry);
+            return this.bounds.intersects(geometry.bounds) && this._intersectsPolygon(geometry);
         }
     },
 
-    bboxPositions: {
+    /**
+     * @override
+     * @returns array<Position>
+     */
+    positions: {
         get: function () {
             return this.coordinates && this.coordinates[0];
         }
@@ -62,7 +66,7 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
                 outerRing = polygon.coordinates[0],
                 i, n;
             for (i = 0, n = outerRing.length; i < n && !isIntersecting; i += 1) {
-                isIntersecting = this._containsPosition(outerRing[i]);
+                isIntersecting = this.contains(outerRing[i]);
             }
             return isIntersecting;
         }
@@ -74,7 +78,7 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
      * @param {Position} position
      * @return boolean
      */
-    _containsPosition: {
+    contains: {
         value: function (position) {
             var coordinates = this.coordinates,
                 doesContain = true,

@@ -51,8 +51,8 @@ describe("A BoundingBox", function () {
             inBoundsPoint = Point.withCoordinates([5, 5]),
             outBoundsPoint = Point.withCoordinates([5, -5]);
 
-        expect(bounds.containsGeometry(inBoundsPoint)).toBe(true);
-        expect(bounds.containsGeometry(outBoundsPoint)).toBe(false);
+        expect(inBoundsPoint.intersects(bounds)).toBe(true);
+        expect(outBoundsPoint.intersects(bounds)).toBe(false);
     });
 
     it("can test if it contains multi-point features", function () {
@@ -64,8 +64,8 @@ describe("A BoundingBox", function () {
                 [-5, -5], [-10, -10]
             ]);
 
-        expect(bounds.containsGeometry(inBoundsPoint)).toBe(true);
-        expect(bounds.containsGeometry(outBoundsPoint)).toBe(false);
+        expect(inBoundsPoint.intersects(bounds)).toBe(true);
+        expect(outBoundsPoint.intersects(bounds)).toBe(false);
     });
 
     it("can test if it contains or intersects line features", function () {
@@ -74,9 +74,9 @@ describe("A BoundingBox", function () {
             intersectingLineString = LineString.withCoordinates([[-1, -1], [11, 11]]),
             outBoundsLineString = LineString.withCoordinates([[0, -1], [10, -1]]);
 
-        expect(bounds.containsGeometry(inBoundsLineString)).toBe(true);
-        expect(bounds.containsGeometry(intersectingLineString)).toBe(true);
-        expect(bounds.containsGeometry(outBoundsLineString)).toBe(false);
+        expect(inBoundsLineString.intersects(bounds)).toBe(true);
+        expect(intersectingLineString.intersects(bounds)).toBe(true);
+        expect(outBoundsLineString.intersects(bounds)).toBe(false);
     });
 
     it("can test if it contains or intersects multi-line features", function () {
@@ -93,9 +93,9 @@ describe("A BoundingBox", function () {
                 [[-10, -1], [-1, -1], [10, -1], [10, -11]]
             ]);
 
-        expect(bounds.containsGeometry(inBoundsMultiLineString)).toBe(true);
-        expect(bounds.containsGeometry(intersectingMultiLineString)).toBe(true);
-        expect(bounds.containsGeometry(outBoundsMultiLineString)).toBe(false);
+        expect(inBoundsMultiLineString.intersects(bounds)).toBe(true);
+        expect(intersectingMultiLineString.intersects(bounds)).toBe(true);
+        expect(outBoundsMultiLineString.intersects(bounds)).toBe(false);
     });
 
     it("can test if it intersects another bounds", function () {
@@ -121,8 +121,8 @@ describe("A BoundingBox", function () {
             inPosition = Position.withCoordinates(5, 5),
             outPosition = Position.withCoordinates(-5, 5);
 
-        expect(bounds.containsPosition(inPosition)).toBe(true);
-        expect(bounds.containsPosition(outPosition)).toBe(false);
+        expect(bounds.contains(inPosition)).toBe(true);
+        expect(bounds.contains(outPosition)).toBe(false);
     });
 
 });

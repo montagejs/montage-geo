@@ -19,11 +19,15 @@ var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.
             if (this.coordinates) {
                 this._rangeChangeCanceler = this.coordinates.addRangeChangeListener(this);
             }
-            this._recalculateBbox();
+            this.bounds.setWithPositions(this.positions);
         }
     },
 
-    bboxPositions: {
+    /**
+     * @override
+     * @returns array<Position>
+     */
+    positions: {
         get: function () {
             return this.coordinates;
         }
@@ -37,28 +41,37 @@ var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.
     intersects: {
         value: function (geometry) {
 
-            var coordinates = geometry instanceof LineString ?  geometry.coordinates :
-                                                                geometry.coordinates[0],
+            var isLineString = geometry instanceof LineString,
+                coordinates,
                 positions = this.coordinates,
                 isIntersecting = false,
                 point1, point2, point3, point4,
                 i, j, a, b, length, length2;
 
-            outerloop:
-            for (i = 0, j = 1, length = positions.length - 1; i < length; i++, j++) {
-                point3 = positions[i];
-                point4 = positions[j];
-                for (a = 0, b = 1, length2 = coordinates.length - 1; a < length2; a++, b++) {
-                    point1 = coordinates[a];
-                    point2 = coordinates[b];
-                    isIntersecting = this._segmentsIntersect(
-                        point1.longitude, point1.latitude,
-                        point2.longitude, point2.latitude,
-                        point3.longitude, point3.latitude,
-                        point4.longitude, point4.latitude
-                    );
-                    if (isIntersecting) break outerloop;
-                }
+            if (!isLineString) {
+                isIntersecting = positions.some(function (position) {
+                    return geometry.contains(position);
+                });
+            }
+
+            if (!isIntersecting) {
+                coordinates = isLineString && geometry.coordinates || geometry.coordinates[0];
+                outerloop:
+                    for (i = 0, j = 1, length = positions.length - 1; i < length; i++, j++) {
+                        point3 = positions[i];
+                        point4 = positions[j];
+                        for (a = 0, b = 1, length2 = coordinates.length - 1; a < length2; a++, b++) {
+                            point1 = coordinates[a];
+                            point2 = coordinates[b];
+                            isIntersecting = this._segmentsIntersect(
+                                point1.longitude, point1.latitude,
+                                point2.longitude, point2.latitude,
+                                point3.longitude, point3.latitude,
+                                point4.longitude, point4.latitude
+                            );
+                            if (isIntersecting) break outerloop;
+                        }
+                    }
             }
             return isIntersecting;
         }

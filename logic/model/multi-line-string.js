@@ -40,18 +40,22 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
             minus.forEach(this._removeLineString.bind(this));
             plus.forEach(this._addLineString.bind(this));
             if (this._shouldRecalculate) {
-                this._recalculateBbox();
+                this.bounds.setWithPositions(this.positions);
                 this._shouldRecalculate = false;
             }
         }
     },
 
-    bboxPositions: {
+    /**
+     * @override
+     * @returns array<Position>
+     */
+    positions: {
         get: function () {
             var positions = [];
             if (this.coordinates) {
                 this.coordinates.forEach(function (lineString) {
-                    positions.push.apply(positions, lineString.bboxPositions);
+                    positions.push.apply(positions, lineString.positions);
                 });
             }
             return positions;
@@ -60,7 +64,7 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
 
     handleRangeChange: {
         value: function () {
-            this._recalculateBbox();
+            this.bounds.setWithPositions(this.positions);
         }
     },
 
@@ -70,7 +74,7 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
                 cancel = bbox.addRangeChangeListener(this);
             this._childLineStringsRangeChangeCancelers.set(lineString, cancel);
             if (!this._shouldRecalculate) {
-                this.positionsForBbox(bbox).forEach(this._extend.bind(this));
+                lineString.bounds.positions.forEach(this.bounds.extend.bind(this.bounds));
             }
         }
     },
@@ -78,10 +82,11 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
     _removeLineString: {
         value: function (lineString) {
             var cancel = this._childLineStringsRangeChangeCancelers.get(lineString),
-                positions = this.positionsForBbox(lineString.bbox);
+                positions = lineString.bounds.positions,
+                bounds = this.bounds;
             this._childLineStringsRangeChangeCancelers.delete(lineString);
             this._shouldRecalculate =   this._shouldRecalculate ||
-                                        positions.some(this.isPositionOnBoundary.bind(this));
+                                        positions.some(bounds.isOnBoundary.bind(bounds));
             if (cancel) cancel();
         }
     },

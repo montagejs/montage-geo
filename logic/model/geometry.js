@@ -1,4 +1,5 @@
 var Montage = require("montage/core/core").Montage,
+    BoundingBox = require("logic/model/bounding-box").BoundingBox,
     Position = require("./position").Position,
     HALF_PI = Math.PI / 180.0;
 
@@ -18,27 +19,22 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
         }
     },
 
+    bounds: {
+        get: function () {
+            if (!this._bounds) {
+                this._bounds = BoundingBox.withCoordinates(Infinity, Infinity, -Infinity, -Infinity);
+            }
+            return this._bounds;
+        }
+    },
+
     /**
-     * A Geometry MAY have a member named "bbox" to include
-     * information on the coordinate range for its coordinates.
-     * The value of the bbox member MUST be an array of
-     * length 2*n where n is the number of dimensions represented
-     * in the contained geometries, with all axes of the most south-
-     * westerly point followed by all axes of the more northeasterly
-     * point.  The axes order of a bbox follows the axes order of
-     * geometries.
-     *
-     * Subclasses should override this method to return a
-     * geometry appropriate implementation
-     *
+     * The bbox property is an alias to this.bounds.bbox
      * @type {array<number>}
      */
     bbox: {
         get: function () {
-            if (!this._bbox) {
-                this._bbox = [Infinity, Infinity, -Infinity, -Infinity];
-            }
-            return this._bbox;
+            return this.bounds.bbox;
         }
     },
 
@@ -50,104 +46,39 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
         value: undefined
     },
 
-    intersectsBbox: {
-        value: function (bbox) {
-            var intersects = false,
-                myBbox = this.bbox;
-            if (Array.isArray(bbox) && Array.isArray(myBbox) &&
-                myBbox.length === 4 && bbox.length === 4) {
-                intersects = bbox[2] >= myBbox[0] &&
-                             bbox[0] <= myBbox[2] &&
-                             bbox[3] >= myBbox[1] &&
-                             bbox[1] <= myBbox[3]
-            }
-            return intersects;
-        }
-    },
-
-    handleRangeChange: {
-        value: function (plus, minus) {
-            var self = this,
-                recalculate = minus.some(this.isPositionOnBoundary.bind(this));
-
-            if (recalculate) {
-                this._recalculateBbox();
-            } else {
-                plus.forEach(function (position) {
-                    self._extend(position);
-                });
-            }
-        }
-    },
-
-    coordinatesDidChange: {
-        value: function () {}
-    },
-
-    isPositionOnBoundary: {
-        value: function (position) {
-            var box = this.bbox,
-                lng = position.longitude,
-                lat = position.latitude;
-            return  box[0] === lng || box[2] === lng ||
-                    box[1] === lat || box[3] === lat;
-        }
-    },
-
-    positionsForBbox: {
-        value: function (bbox) {
-            var positions = [], i, j, x, y;
-            for (i = 0; i < 2; i += 1) {
-                for (j = 0; j < 2; j += 1) {
-                    x = i === 0 ? bbox[0] : bbox[2];
-                    y = j === 0 ? bbox[1] : bbox[3];
-                    positions.push(Position.withCoordinates(x, y));
-                }
-            }
-            return positions;
+    /**
+     * Returns all the positions of this geometry.  Subclasses should
+     * override this method to implement their strategy for returning
+     * their positions.  This property is not observable.
+     *
+     * @returns {array<Position>|undefined}
+     */
+    positions: {
+        get: function () {
+            return undefined;
         }
     },
 
     /**
-     *
-     * Subclasses should override this function to implement their
-     * bbox calculation strategy
+     * This method is called when the geometry's coordinates
+     * change.  Subclasses should overridet this method to
+     * provide their handling of coordinates changing i.e.
+     * updating their bbox.
      *
      * @method
-     * @returns {bbox} bbox
      */
-    _recalculateBbox: {
-        value: function () {
-            var positions = this.bboxPositions || [],
-                minX = Infinity,
-                minY = Infinity,
-                maxX = -Infinity,
-                maxY = -Infinity;
-            positions.forEach(function (position) {
-                var lng = position.longitude,
-                    lat = position.latitude;
-                if (minX > lng) minX = lng;
-                if (maxX < lng) maxX = lng;
-                if (minY > lat) minY = lat;
-                if (maxY < lat) maxY = lat;
-            });
-            this.bbox.splice(0, 4, minX, minY, maxX, maxY);
-        }
+    coordinatesDidChange: {
+        value: function () {}
     },
 
-    bboxPositions: {
-        value: undefined
-    },
-
-    _extend: {
-        value: function (position) {
-            var bbox = this.bbox,
-                lng = position.longitude,
-                lat = position.latitude;
-            if (bbox[0] > lng) bbox.splice(0, 1, lng);
-            if (bbox[2] < lng) bbox.splice(2, 1, lng);
-            if (bbox[1] > lat) bbox.splice(1, 1, lat);
-            if (bbox[3] < lat) bbox.splice(3, 1, lat);
+    handleRangeChange: {
+        value: function (plus, minus) {
+            var bounds = this.bounds;
+            if (minus.some(bounds.isOnBoundary.bind(bounds))) {
+                bounds.setWithPositions(this.positions);
+            } else {
+                plus.forEach(bounds.extend.bind(bounds));
+            }
         }
     }
 

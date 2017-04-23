@@ -18,13 +18,26 @@ exports.MultiPoint = Geometry.specialize(/** @lends MultiPoint.prototype */ {
             if (this.coordinates) {
                 this._rangeChangeCanceler = this.coordinates.addRangeChangeListener(this);
             }
-            this._recalculateBbox();
+            this.bounds.setWithPositions(this.positions);
         }
     },
 
-    bboxPositions: {
+    /**
+     * @override
+     * @returns array<Position>
+     */
+    positions: {
         get: function () {
             return this.coordinates;
+        }
+    },
+
+    intersects: {
+        value: function (bounds) {
+            return  this.bounds.intersects(bounds) &&
+                    this.positions.some(function (position) {
+                        return bounds.contains(position);
+                    });
         }
     },
 
