@@ -208,6 +208,7 @@ var Geohash = exports.Geohash = Montage.specialize(/** @lends Geohash.prototype 
         }
     },
 
+    // Solve cyclic dependency
     BoundingBox: {
         get: function () {
             return require("./bounding-box").BoundingBox;
