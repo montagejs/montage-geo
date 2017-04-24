@@ -104,8 +104,6 @@ var Geohash = exports.Geohash = Montage.specialize(/** @lends Geohash.prototype 
             for (i = 0; i < geohash.length; i++) {
                 char = geohash.charAt(i);
                 index = CHARACTERS.indexOf(char);
-                if (index == -1) throw new Error('Invalid geohash');
-
                 for (n = 4; n >= 0; n--) {
                     bitN = index >> n & 1;
                     if (evenBit) {

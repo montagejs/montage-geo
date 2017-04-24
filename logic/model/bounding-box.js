@@ -132,6 +132,17 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
     },
 
     /**
+     * Return the Geohashes for this bounds.  This property can
+     * be observed.
+     * @type {Set}
+     */
+    hashes: {
+        get: function () {
+            return this._hashCollection.hashes;
+        }
+    },
+
+    /**
      * The positions of this bounding box.
      * TODO: Make Observable
      * @returns {array<Position>}
@@ -149,6 +160,15 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
                 }
             }
             return positions;
+        }
+    },
+
+    _hashCollection: {
+        get: function () {
+            if (!this.__hashCollection) {
+                this.__hashCollection = GeohashCollection.withBoundingBox(this);
+            }
+            return this.__hashCollection;
         }
     },
 
@@ -345,3 +365,4 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
 });
 
 exports.BoundingBox.EARTH = exports.BoundingBox.withCoordinates(-180.0, -85.05112878, 180.0, 85.05112878);
+var GeohashCollection = require("logic/model/geohash-collection").GeohashCollection;
