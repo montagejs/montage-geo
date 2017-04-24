@@ -3,6 +3,8 @@ module.exports = require("montage-testing").run(require, [
     "spec/bounding-box",
     "spec/feature",
     "spec/feature-collection",
+    "spec/geohash",
+    "spec/geohash-collection",
     "spec/geometry",
     "spec/line-string",
     "spec/multi-line-string",

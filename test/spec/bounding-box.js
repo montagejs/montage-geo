@@ -139,14 +139,4 @@ describe("A BoundingBox", function () {
 
     });
 
-    it ("can calculate the correct GeoHash precision", function () {
-        var bounds = BoundingBox.withCoordinates(0, 0, 10, 10),
-            bounds2 = BoundingBox.withCoordinates(0, 0, 1, 1);
-
-        expect(bounds.precision).toBe(1);
-        expect(bounds2.precision).toBe(3);
-
-    });
-
-
 });

@@ -2,12 +2,6 @@ var Montage = require("montage/core/core").Montage,
     GeometryCollection = require("logic/model/geometry-collection").GeometryCollection,
     Position = require("logic/model/position").Position;
 
-
-var PRECISION_SCALE = [
-    0.70924, 22.7529, 729.62, 23409, 744200, 23912100,
-    762450000, 24336000000, 781250000000, 25000000000000
-];
-
 /**
  *
  * A bounding box represents an area defined by two longitudes and
@@ -262,20 +256,6 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
                 height = southWest.distance(northWest),
                 width = southWest.distance(southEast);
             return height * width;
-        }
-    },
-
-    precision: {
-        get: function () {
-            var area = this.area,
-                precision = -1,
-                i, n;
-            for (i = 0, n = PRECISION_SCALE.length; i < n && precision < 0; i += 1) {
-                if (PRECISION_SCALE[i] > area) {
-                    precision = i;
-                }
-            }
-            return precision === -1 ? 1 : PRECISION_SCALE.length - precision;
         }
     },
 

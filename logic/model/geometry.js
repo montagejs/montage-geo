@@ -1,6 +1,5 @@
 var Montage = require("montage/core/core").Montage,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
-    Position = require("./position").Position,
     HALF_PI = Math.PI / 180.0;
 
 /**
