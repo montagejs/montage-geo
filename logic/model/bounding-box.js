@@ -1,6 +1,6 @@
 var Montage = require("montage/core/core").Montage,
     GeometryCollection = require("logic/model/geometry-collection").GeometryCollection,
-    Position = require("logic/model/position").Position;
+    GeohashCollection = require("logic/model/geohash-collection").GeohashCollection;
 
 /**
  *
@@ -121,7 +121,8 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
      */
     coordinates: {
         get: function () {
-            var southEast = Position.withCoordinates(this.xMax, this.yMin),
+                var Position = exports.BoundingBox.Position,
+                southEast = Position.withCoordinates(this.xMax, this.yMin),
                 southWest = Position.withCoordinates(this.xMin, this.yMin),
                 northWest = Position.withCoordinates(this.xMin, this.yMax),
                 northEast = Position.withCoordinates(this.xMax, this.yMax);
@@ -156,7 +157,7 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
                 for (j = 0; j < 2; j += 1) {
                     x = i === 0 ? bbox[0] : bbox[2];
                     y = j === 0 ? bbox[1] : bbox[3];
-                    positions.push(Position.withCoordinates(x, y));
+                    positions.push(exports.BoundingBox.Position.withCoordinates(x, y));
                 }
             }
             return positions;
@@ -270,7 +271,8 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
      */
     area: {
         get: function() {
-            var southWest = Position.withCoordinates(this.xMin, this.yMin),
+            var Position = exports.BoundingBox.Position,
+                southWest = Position.withCoordinates(this.xMin, this.yMin),
                 northWest = Position.withCoordinates(this.xMin, this.yMax),
                 southEast = Position.withCoordinates(this.xMax, this.yMin),
                 height = southWest.distance(northWest),
@@ -360,9 +362,15 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             bounds.yMax = maximums[1];
             return bounds;
         }
+    },
+
+    // Solve cyclic dependency
+    Position: {
+        get: function () {
+            return require("logic/model/position").Position
+        }
     }
 
 });
 
 exports.BoundingBox.EARTH = exports.BoundingBox.withCoordinates(-180.0, -85.05112878, 180.0, 85.05112878);
-var GeohashCollection = require("logic/model/geohash-collection").GeohashCollection;

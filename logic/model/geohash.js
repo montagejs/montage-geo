@@ -1,5 +1,4 @@
-var Montage = require("montage/core/core").Montage,
-    BoundingBox = require("./bounding-box").BoundingBox;
+var Montage = require("montage/core/core").Montage;
 
 var CHARACTERS = '0123456789bcdefghjkmnpqrstuvwxyz';
 
@@ -127,7 +126,7 @@ var Geohash = exports.Geohash = Montage.specialize(/** @lends Geohash.prototype 
                 }
             }
 
-            return BoundingBox.withCoordinates(xMin, yMin, xMax, yMax);
+            return Geohash.BoundingBox.withCoordinates(xMin, yMin, xMax, yMax);
         }
     }
 
@@ -207,6 +206,12 @@ var Geohash = exports.Geohash = Montage.specialize(/** @lends Geohash.prototype 
             }
             return hash;
         }
-    }
+    },
 
+    // Solve cyclic dependency
+    BoundingBox: {
+        get: function () {
+            return require("./bounding-box").BoundingBox;
+        }
+    }
 });
