@@ -275,10 +275,33 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             var Position = exports.BoundingBox.Position,
                 southWest = Position.withCoordinates(this.xMin, this.yMin),
                 northWest = Position.withCoordinates(this.xMin, this.yMax),
-                southEast = Position.withCoordinates(this.xMax, this.yMin),
                 height = southWest.distance(northWest),
-                width = southWest.distance(southEast);
-            return height * width;
+                spheres = this._divideIfGreaterThan180(),
+                area = 0;
+            spheres.forEach(function (bbox) {
+                var southWest = Position.withCoordinates(bbox[0], bbox[1]),
+                    southEast = Position.withCoordinates(bbox[2], bbox[1]),
+                    width = southWest.distance(southEast);
+                area += height * width;
+            });
+            return area;
+        }
+    },
+
+    // TODO: Rename...
+    _divideIfGreaterThan180: {
+        value: function () {
+            var split = [],
+                width = this.xMax - this.xMin,
+                xMid;
+            if (width >= 180) {
+                xMid = (this.xMin + this.xMax) / 2;
+                split.push([this.xMin, this.yMin, xMid, this.yMax]);
+                split.push([xMid, this.yMin, this.xMax, this.yMax]);
+            } else {
+                split.push(this.bbox);
+            }
+            return split;
         }
     },
 
@@ -346,6 +369,13 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
 
 }, {
 
+    // Solve cyclic dependency
+    Position: {
+        get: function () {
+            return require("logic/model/position").Position;
+        }
+    },
+
     withBbox: {
         value: function (bbox, projection) {
             return exports.BoundingBox.withCoordinates(bbox[0], bbox[1], bbox[2], bbox[3], projection);
@@ -362,13 +392,6 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             bounds.xMax = maximums[0];
             bounds.yMax = maximums[1];
             return bounds;
-        }
-    },
-
-    // Solve cyclic dependency
-    Position: {
-        get: function () {
-            return require("logic/model/position").Position
         }
     }
 

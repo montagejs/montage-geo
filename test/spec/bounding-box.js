@@ -140,8 +140,8 @@ describe("A BoundingBox", function () {
     });
 
     it ("can access its geohashes", function () {
-        var bounds = BoundingBox.withCoordinates(-179, -85, -1, 85);
-        expect(bounds.hashes.size).toBe(16);
+        var bounds = BoundingBox.withCoordinates(-180, -85, 180, 85);
+        expect(bounds.hashes.size).toBe(32);
     });
 
 });
