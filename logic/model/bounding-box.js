@@ -150,14 +150,15 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
      */
     positions: {
         get: function () {
-            var bbox = this.bbox,
+            var Position = exports.BoundingBox.Position,
+                bbox = this.bbox,
                 positions = [],
                 i, j, x, y;
             for (i = 0; i < 2; i += 1) {
                 for (j = 0; j < 2; j += 1) {
                     x = i === 0 ? bbox[0] : bbox[2];
                     y = j === 0 ? bbox[1] : bbox[3];
-                    positions.push(exports.BoundingBox.Position.withCoordinates(x, y));
+                    positions.push(Position.withCoordinates(x, y));
                 }
             }
             return positions;
