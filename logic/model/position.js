@@ -85,6 +85,40 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
     },
 
     /**
+     * Returns the destination position having travelled the given distance along a geodesic
+     * path given by initial bearing from ‘this’ position, using Vincenty direct solution.
+     *
+     * @param   {number} distance - Distance travelled along the geodesic in meters.
+     * @param   {number} initialBearing - Initial bearing in degrees from north.
+     * @returns {Position} Destination position.
+     *
+     * @example
+     *   var p1 = Position.withCoordinates(144.42487, -37.95103);
+     *   var p2 = p1.destination(54972.271, 306.86816);
+     */
+    destination: {
+        value: function (distance, bearing) {
+            var delta = Number(distance) / exports.Position.EARTH_RADIUS,
+                theta = exports.Position.toRadians(Number(bearing)),
+                thetaOne = exports.Position.toRadians(this.latitude),
+                lambdaOne = exports.Position.toRadians(this.longitude),
+                thetaTwo =  Math.asin(Math.sin(thetaOne) * Math.cos(delta) +
+                    Math.cos(thetaOne) * Math.sin(delta) * Math.cos(theta)),
+                lambdaTwo = lambdaOne + Math.atan2(
+                        Math.sin(theta) * Math.sin(delta) * Math.cos(thetaOne),
+                        Math.cos(delta) - Math.sin(thetaOne) * Math.sin(thetaTwo)
+                    );
+
+            lambdaTwo = (lambdaTwo + 3 * Math.PI) % (2 * Math.PI) - Math.PI;
+            lambdaTwo = exports.Position.toDegrees(lambdaTwo);
+            thetaTwo = exports.Position.toDegrees(thetaTwo);
+
+            return exports.Position.withCoordinates(lambdaTwo, thetaTwo);
+        }
+    },
+
+
+    /**
      * Calculates the distance between two Position.
 
      * @see http://www.movable-type.co.uk/scripts/latlong.html
@@ -94,7 +128,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
      s     */
     distance: {
         value: function (position) {
-            var earthRadius = 6371000,
+            var earthRadius = exports.Position.EARTH_RADIUS,
                 lng = this.longitude,
                 lat = this.latitude,
                 lng2 = position.longitude,
@@ -116,6 +150,10 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
 });
 
 Object.defineProperties(exports.Position, /** @lends Position */ {
+
+    EARTH_RADIUS: {
+        value: 6371e3
+    },
 
     /**
      * Returns a newly initialized point with the specified coordinates.

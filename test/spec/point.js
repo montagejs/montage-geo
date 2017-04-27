@@ -90,4 +90,33 @@ describe("A Point", function () {
 
     });
 
+    it ("can calculate the destination to a point given a distance and an initial bearing", function () {
+        var origin = Point.withCoordinates([1.4347, 54.1914]),
+            destination = origin.destination(124000.8, 96);
+        expect(destination.coordinates.latitude.toFixed(2)).toBe("54.06");
+        expect(destination.coordinates.longitude.toFixed(2)).toBe("3.32");
+    });
+
+    it ("can create a binding for destination", function () {
+        var origin = Point.withCoordinates([1.4347, 54.1914]),
+            controller = {
+                origin: origin,
+                distance: 124000.8,
+                bearing: 96
+            };
+        Bindings.defineBinding(controller, "destination", {"<-": "origin.destination(distance, bearing)"});
+        expect(controller.destination.coordinates.latitude.toFixed(2)).toBe("54.06");
+        expect(controller.destination.coordinates.longitude.toFixed(2)).toBe("3.32");
+        controller.distance = 132000.8;
+        expect(controller.destination.coordinates.latitude.toFixed(2)).toBe("54.05");
+        expect(controller.destination.coordinates.longitude.toFixed(2)).toBe("3.45");
+        controller.bearing = 98;
+        expect(controller.destination.coordinates.latitude.toFixed(2)).toBe("54.01");
+        expect(controller.destination.coordinates.longitude.toFixed(2)).toBe("3.44");
+        controller.origin = Point.withCoordinates([2, 55]);
+        expect(controller.destination.coordinates.latitude.toFixed(2)).toBe("54.82");
+        expect(controller.destination.coordinates.longitude.toFixed(2)).toBe("4.04");
+    });
+
+
 });

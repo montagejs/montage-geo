@@ -276,7 +276,7 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
                 southWest = Position.withCoordinates(this.xMin, this.yMin),
                 northWest = Position.withCoordinates(this.xMin, this.yMax),
                 height = southWest.distance(northWest),
-                spheres = this._divideIfGreaterThan180(),
+                spheres = this._divideIfWiderThan180Degrees(),
                 area = 0;
             spheres.forEach(function (bbox) {
                 var southWest = Position.withCoordinates(bbox[0], bbox[1]),
@@ -289,7 +289,7 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
     },
 
     // TODO: Rename...
-    _divideIfGreaterThan180: {
+    _divideIfWiderThan180Degrees: {
         value: function () {
             var split = [],
                 width = this.xMax - this.xMin,
