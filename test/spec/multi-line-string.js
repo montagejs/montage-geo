@@ -20,7 +20,7 @@ describe("A MultiLineString", function () {
         expect(multiline.coordinates[0].coordinates[1].latitude).toBe(10);
     });
 
-    it("can calculate its bbox", function () {
+    it("can calculate its bounds", function () {
         var multiline = MultiLineString.withCoordinates([
             [[0, 0], [0, 10]],
             [[0, 0], [0, -10]],
@@ -28,13 +28,13 @@ describe("A MultiLineString", function () {
             [[0, 0], [-10, 0]]
         ]);
         expect(multiline.positions.length).toBe(8);
-        expect(multiline.bbox.join(",")).toBe("-10,-10,10,10");
+        expect(multiline.bounds.bbox.join(",")).toBe("-10,-10,10,10");
         multiline.coordinates[0].coordinates.push(Position.withCoordinates(0, 20));
-        expect(multiline.bbox.join(",")).toBe("-10,-10,10,20");
+        expect(multiline.bounds.bbox.join(",")).toBe("-10,-10,10,20");
         multiline.coordinates.push(LineString.withCoordinates([[20, 0], [30, 0]]));
-        expect(multiline.bbox.join(",")).toBe("-10,-10,30,20");
+        expect(multiline.bounds.bbox.join(",")).toBe("-10,-10,30,20");
         multiline.coordinates.pop();
-        expect(multiline.bbox.join(",")).toBe("-10,-10,10,20");
+        expect(multiline.bounds.bbox.join(",")).toBe("-10,-10,10,20");
     });
 
     it("can test for intersection with a line string", function () {

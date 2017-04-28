@@ -28,16 +28,6 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
     },
 
     /**
-     * The bbox property is an alias to this.bounds.bbox
-     * @type {array<number>}
-     */
-    bbox: {
-        get: function () {
-            return this.bounds.bbox;
-        }
-    },
-
-    /**
      * The points, curves and surfaces that describe this geometry.
      * @type {Position|array<Position>|array<array<Position>>}
      */
@@ -87,7 +77,7 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
     handleRangeChange: {
         value: function (plus, minus) {
             var bounds = this.bounds;
-            if (minus.some(bounds.isOnBoundary.bind(bounds))) {
+            if (minus.some(bounds.isPositionOnBoundary.bind(bounds))) {
                 bounds.setWithPositions(this.positions);
             } else {
                 plus.forEach(bounds.extend.bind(bounds));

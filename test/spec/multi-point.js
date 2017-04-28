@@ -9,7 +9,7 @@ describe("A MultiPoint", function () {
         ]);
         expect(geometry).toBeDefined();
         expect(geometry.coordinates.length).toBe(4);
-        expect(geometry.bbox.join(",")).toBe("0,0,10,10");
+        expect(geometry.bounds.bbox.join(",")).toBe("0,0,10,10");
     });
 
     it("can observe changes to coordinates", function () {
@@ -18,7 +18,7 @@ describe("A MultiPoint", function () {
                 [0, 0], [10, 0], [10, 10], [0, 10]
             ]);
         geometry.coordinates.push(position);
-        expect(geometry.bbox.join(",")).toBe("0,0,20,20");
+        expect(geometry.bounds.bbox.join(",")).toBe("0,0,20,20");
     });
 
 });

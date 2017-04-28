@@ -1,6 +1,7 @@
 {
     "name": "montage-geo",
-    "version": "0.0.1",
+    "version": "0.1.0",
+    "author": "Montage Studio, inc. (http://montagestudio.com/)",
     "description": "Montage resources to build geospatial applications",
     "dependencies": {
         "collections": "~5.0.x",
@@ -41,7 +42,6 @@
         "Reactive",
         "Bindings"
     ],
-    "author": "Montage Studio, inc. (http://montagestudio.com/)",
     "license": "BSD-3-Clause",
     "bugs": {
         "url": "https://github.com/montagestudio/montage-geo/issues"

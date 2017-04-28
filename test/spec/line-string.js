@@ -7,15 +7,15 @@ describe("A LineString", function () {
     it("can be created", function () {
         var line = LineString.withCoordinates([[0, 0], [0, 10]]);
         expect(line).toBeDefined();
-        expect(line.bbox.join(",")).toBe("0,0,0,10");
+        expect(line.bounds.bbox.join(",")).toBe("0,0,0,10");
     });
 
-    it("can be properly update its bbox", function () {
+    it("can be properly update its bounds", function () {
         var line = LineString.withCoordinates([[0, 0], [0, 10]]),
             position = Position.withCoordinates(10, 10);
-        expect(line.bbox.join(",")).toBe("0,0,0,10");
+        expect(line.bounds.bbox.join(",")).toBe("0,0,0,10");
         line.coordinates.push(position);
-        expect(line.bbox.join(",")).toBe("0,0,10,10");
+        expect(line.bounds.bbox.join(",")).toBe("0,0,10,10");
     });
 
 

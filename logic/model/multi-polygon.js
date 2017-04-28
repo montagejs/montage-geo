@@ -80,7 +80,7 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
 
     _addPolygon: {
         value: function (polygon) {
-            var bbox = polygon.bbox,
+            var bbox = polygon.bounds.bbox,
                 cancel = bbox.addRangeChangeListener(this);
             this._childPolygonRangeChangeCancelers.set(polygon, cancel);
             if (!this._shouldRecalculate) {
@@ -96,7 +96,7 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
                 bounds = this.bounds;
             this._childPolygonRangeChangeCancelers.delete(polygon);
             this._shouldRecalculate =   this._shouldRecalculate ||
-                                        positions.some(bounds.isOnBoundary.bind(bounds));
+                                        positions.some(bounds.isPositionOnBoundary.bind(bounds));
             if (cancel) cancel();
         }
     },

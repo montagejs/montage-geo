@@ -11,16 +11,16 @@ describe("A Point", function () {
         expect(point.coordinates instanceof Position).toBe(true);
     });
 
-    it("can be properly update its bbox", function () {
+    it("can be properly update its bounds", function () {
         var coordinates = [-156.6825, 20.8783],
             point = Point.withCoordinates(coordinates);
-        expect(point.bbox.join(",")).toBe("-156.6825,20.8783,-156.6825,20.8783");
+        expect(point.bounds.bbox.join(",")).toBe("-156.6825,20.8783,-156.6825,20.8783");
         point.coordinates.longitude = -156.683;
-        expect(point.bbox.join(",")).toBe("-156.683,20.8783,-156.683,20.8783");
+        expect(point.bounds.bbox.join(",")).toBe("-156.683,20.8783,-156.683,20.8783");
         point.coordinates.latitude = 20.9;
-        expect(point.bbox.join(",")).toBe("-156.683,20.9,-156.683,20.9");
+        expect(point.bounds.bbox.join(",")).toBe("-156.683,20.9,-156.683,20.9");
         point.coordinates = Position.withCoordinates(0, 0);
-        expect(point.bbox.join(",")).toBe("0,0,0,0");
+        expect(point.bounds.bbox.join(",")).toBe("0,0,0,0");
     });
 
 
@@ -31,11 +31,6 @@ describe("A Point", function () {
             bearing = origin.bearing(destination);
 
         expect(bearing.toFixed(1)).toBe("156.2");
-        destination.coordinates.latitude = 49.213;
-        origin.coordinates.longitude = 0.119;
-        bearing = origin.bearing(destination);
-        console.log("Reset origin new bearing (", bearing, ")");
-
     });
 
     it ("can create a binding for bearing", function () {

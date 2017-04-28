@@ -23,14 +23,14 @@ exports.Feature = Montage.specialize(/** @lends Feature.prototype */ {
     },
 
     /**
-     * A feature MAY have a member named "bbox" to include information on the
+     * A feature MAY have a member named "bounds" to include information on the
      * coordinate range for its Geometries
      *
-     * @type {array<number>}
+     * @type {BoundingBox}
      */
-    bbox: {
+    bounds: {
         get: function () {
-            return this.geometry && this.geometry.bbox;
+            return this.geometry && this.geometry.bounds;
         }
     },
 

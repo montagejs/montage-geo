@@ -91,7 +91,7 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
 
     _addLineString: {
         value: function (lineString) {
-            var bbox = lineString.bbox,
+            var bbox = lineString.bounds.bbox,
                 cancel = bbox.addRangeChangeListener(this),
                 bounds;
             this._childLineStringsRangeChangeCancelers.set(lineString, cancel);
@@ -109,7 +109,7 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
                 bounds = this.bounds;
             this._childLineStringsRangeChangeCancelers.delete(lineString);
             this._shouldRecalculate =   this._shouldRecalculate ||
-                                        positions.some(bounds.isOnBoundary.bind(bounds));
+                                        positions.some(bounds.isPositionOnBoundary.bind(bounds));
             if (cancel) cancel();
         }
     },

@@ -7,7 +7,6 @@ describe("A Geohash", function () {
         var hash = Geohash.withIdentifier("Z");
         expect(hash).toBeDefined();
         expect(hash.bounds).toBeDefined();
-        console.log(hash.bounds);
     });
 
     it("can cache hashes", function () {

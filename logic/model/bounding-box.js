@@ -252,12 +252,14 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
      * @param {Position}
      * @returns {boolean}
      */
-    isOnBoundary: {
+    isPositionOnBoundary: {
         value: function (position) {
             var lng = position.longitude,
                 lat = position.latitude;
-            return  this.xMin === lng || this.xMax === lng ||
-                this.yMin === lat || this.yMax === lat;
+            return  this.contains(position) && (
+                        this.xMin === lng || this.xMax === lng ||
+                        this.yMin === lat || this.yMax === lat
+                    );
         }
     },
 
