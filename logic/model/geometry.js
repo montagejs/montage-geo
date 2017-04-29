@@ -85,6 +85,21 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
         }
     },
 
+
+    /**
+     * This method is called when the positions are added or removed
+     * from the geometry's coordinates.
+     *
+     * Subclasses may choose to override this method.
+     *
+     * @method
+     * @param {Geometry|Bounds}
+     * @returns boolean
+     */
+    intersects: {
+        value: function (geometry) {}
+    },
+
     _rangeChangeCanceler: {
         value: undefined
     }

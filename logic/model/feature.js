@@ -50,7 +50,20 @@ exports.Feature = Montage.specialize(/** @lends Feature.prototype */ {
      */
     geometry: {
         value: undefined
+    },
+
+    /**
+     * Tests to see if this feature's geometry intersects the provided bounds.
+     * @method
+     * @param {BoundingBox} bounds - The bounds to test for intersection
+     * @returns boolean
+     */
+    intersects: {
+        value: function (bounds) {
+            return this.geometry.intersects(bounds);
+        }
     }
+
 
 }, {
 
