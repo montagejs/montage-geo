@@ -139,24 +139,27 @@ describe("A FeatureCollection", function () {
     it("can observe filter changes", function () {
         var controller = {
                 bounds: BoundingBox.withCoordinates(0, 0, 10, 10),
-                features: FeatureCollection.withFeatures([]),
-                filtered: undefined
+                collection: FeatureCollection.withFeatures([]),
+                features: undefined
             },
             point1 = Point.withCoordinates([5, 5]),
             point2 = Point.withCoordinates([-5, 5]);
 
-        Bindings.defineBinding(controller, "filtered", {"<-": "features.filter(bounds)"});
-        expect(controller.filtered.length).toBe(0);
-        controller.features.add(point1);
-        expect(controller.filtered.length).toBe(1);
-        controller.features.add(point2);
-        expect(controller.filtered.length).toBe(1);
+        Bindings.defineBinding(controller, "features", {"<-": "collection.filter(bounds)"});
+        expect(controller.features.length).toBe(0);
+        controller.collection.add(point1);
+        expect(controller.features.length).toBe(1);
+        controller.collection.add(point2);
+        expect(controller.features.length).toBe(1);
         controller.bounds.xMin = -10;
-        expect(controller.filtered.length).toBe(2);
+        expect(controller.features.length).toBe(2);
         controller.bounds.xMax = 0;
-        expect(controller.filtered.length).toBe(1);
-        controller.features.remove(point2);
-        expect(controller.filtered.length).toBe(0);
+        expect(controller.features.length).toBe(1);
+        controller.collection.remove(point2);
+        expect(controller.features.length).toBe(0);
+        controller.bounds = BoundingBox.withCoordinates(0, 0, 10, 10);
+        expect(controller.features.length).toBe(1);
+
     });
 
 });

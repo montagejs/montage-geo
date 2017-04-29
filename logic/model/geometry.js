@@ -87,10 +87,11 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
 
 
     /**
-     * This method is called when the positions are added or removed
-     * from the geometry's coordinates.
+     * Tests whether this geometry intersects the provided
+     * geometry.
      *
-     * Subclasses may choose to override this method.
+     * Subclasses should override this method to implement their
+     * intersection testing logic.
      *
      * @method
      * @param {Geometry|Bounds}
