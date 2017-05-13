@@ -223,9 +223,20 @@ s     */
                 }
             };
         }
+    },
+
+    toGeoJSON: {
+        value: function () {
+            var position = this.coordinates;
+            return {
+                type: "Point",
+                coordinates: [position.longitude, position.latitude]
+            };
+        }
     }
 
 }, {
+
 
     /**
      * Returns a newly initialized point with the specified coordinates.

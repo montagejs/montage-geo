@@ -1,5 +1,6 @@
 var Montage = require("montage/core/core").Montage,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
+    geo = require("d3-geo"),
     HALF_PI = Math.PI / 180.0;
 
 /**
@@ -61,8 +62,20 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
             }
             if (this.coordinates) {
                 this._rangeChangeCanceler = this.coordinates.addRangeChangeListener(this);
+                this.updateBounds();
             }
-            this.bounds.setWithPositions(this.positions);
+        }
+    },
+
+    updateBounds: {
+        value: function () {
+            var json =  this.toGeoJSON(),
+                geoBounds = geo.geoBounds(json);
+            this.bounds.xMin = geoBounds[0][0];
+            this.bounds.yMin = geoBounds[0][1];
+            this.bounds.xMax = geoBounds[1][0];
+            this.bounds.yMax = geoBounds[1][1];
+
         }
     },
 
@@ -76,15 +89,22 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
      */
     handleRangeChange: {
         value: function (plus, minus) {
-            var bounds = this.bounds;
-            if (minus.some(bounds.isPositionOnBoundary.bind(bounds))) {
-                bounds.setWithPositions(this.positions);
-            } else {
-                plus.forEach(bounds.extend.bind(bounds));
+            var bounds = this.bounds,
+                needsCalculation = plus.length > 0 || minus.some(bounds.isPositionOnBoundary.bind(bounds)),
+                geoBounds;
+
+            if (needsCalculation) {
+                geoBounds = geo.geoBounds({
+                    geometry: this.toGeoJSON(),
+                    type: "Feature"
+                });
+                this.bounds.xMin = geoBounds[0][0];
+                this.bounds.yMin = geoBounds[0][1];
+                this.bounds.xMax = geoBounds[1][0];
+                this.bounds.yMax = geoBounds[1][1];
             }
         }
     },
-
 
     /**
      * Tests whether this geometry intersects the provided
@@ -101,11 +121,17 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
         value: function (geometry) {}
     },
 
+    toGeoJSON: {
+        value: function () {}
+    },
+
     _rangeChangeCanceler: {
         value: undefined
     }
 
 }, {
+
+
 
     /**
      * Converts a value in degrees to radians

@@ -58,6 +58,14 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
         value: 0
     },
 
+    equals: {
+        value: function (other) {
+            return  this.altitude === other.altitude &&
+                    this.longitude === other.longitude &&
+                    this.latitude === other.latitude
+        }
+    },
+
     /*****************************************************
      * Measurement
      */

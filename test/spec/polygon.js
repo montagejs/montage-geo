@@ -3,6 +3,12 @@ var Polygon = require("montage-geo/logic/model/polygon").Polygon,
 
 describe("A Polygon", function () {
 
+    function roundedBbox(bbox) {
+        return bbox.map(function (coordinate) {
+            return Math.round(coordinate);
+        })
+    }
+
     it("can be created", function () {
         var p1 = Polygon.withCoordinates([
             [[0,0], [0,10], [10,10], [10,0], [0,0]]
@@ -15,7 +21,7 @@ describe("A Polygon", function () {
         var p1 = Polygon.withCoordinates([
             [[0,0], [0,10], [10,10], [10,0], [0,0]]
         ]);
-        expect(p1.bounds.bbox.join(",")).toBe("0,0,10,10");
+        expect(roundedBbox(p1.bounds.bbox).join(",")).toBe("0,0,10,10");
     });
 
     it("can properly update its bounds.", function () {
@@ -27,20 +33,20 @@ describe("A Polygon", function () {
         ]);
         p1.coordinates[0].splice(1, 1, Position.withCoordinates(0, 20));
         p2.coordinates[0].splice(2, 0, Position.withCoordinates(5, 20));
-        expect(p1.bounds.bbox.join(",")).toBe("0,0,10,20");
-        expect(p2.bounds.bbox.join(",")).toBe("0,0,10,20");
+        expect(roundedBbox(p1.bounds.bbox).join(",")).toBe("0,0,10,20");
+        expect(roundedBbox(p2.bounds.bbox).join(",")).toBe("0,0,10,20");
         p2.coordinates[0].splice(2, 1);
-        expect(p2.bounds.bbox.join(",")).toBe("0,0,10,10");
+        expect(roundedBbox(p2.bounds.bbox).join(",")).toBe("0,0,10,10");
         p1.coordinates = [
             [
                 Position.withCoordinates(10, 10),
-                Position.withCoordinates(20, 10),
-                Position.withCoordinates(20, 20),
                 Position.withCoordinates(10, 20),
+                Position.withCoordinates(20, 20),
+                Position.withCoordinates(20, 10),
                 Position.withCoordinates(10, 10)
             ]
         ];
-        expect(p1.bounds.bbox.join(",")).toBe("10,10,20,20");
+        expect(roundedBbox(p1.bounds.bbox).join(",")).toBe("10,10,20,20");
     });
 
     it("can test another polygon for intersection", function () {

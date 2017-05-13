@@ -1,5 +1,10 @@
 var Montage = require("montage/core/core").Montage,
-    Point = require("./point").Point;
+    LineString = require("./line-string").LineString,
+    MultiLineString = require("./multi-line-string").MultiLineString,
+    MultiPolygon = require("./multi-polygon").MultiPolygon,
+    MultiPoint = require("./multi-point").MultiPoint,
+    Point = require("./point").Point,
+    Polygon = require("./polygon").Polygon;
 
 /**
  *
@@ -70,7 +75,7 @@ exports.Feature = Montage.specialize(/** @lends Feature.prototype */ {
     withGeoJSON: {
         value: function (json) {
             var rawGeometry, geometry;
-            json = typeof json === "string" ? this._toJSON(json) : json;
+            json = typeof json === "string" ? this._parseJSON(json) : json;
             rawGeometry = json.geometry || {};
             geometry = exports.Feature._geometryWithTypeAndCoordinates(rawGeometry.type, rawGeometry.coordinates);
             return exports.Feature.withMembers(json.id, json.properties, geometry);
@@ -79,12 +84,17 @@ exports.Feature = Montage.specialize(/** @lends Feature.prototype */ {
 
     _geometryWithTypeAndCoordinates: {
         value: function (type, coordinates) {
-            if (type === "Point") return Point.withCoordinates(coordinates);
+            if (type === "LineString")      return LineString.withCoordinates(coordinates);
+            if (type === "MultiLineString") return MultiLineString.withCoordinates(coordinates);
+            if (type === "MultiPoint")      return MultiPoint.withCoordinates(coordinates);
+            if (type === "MultiPolygon")    return MultiPolygon.withCoordinates(coordinates);
+            if (type === "Point")           return Point.withCoordinates(coordinates);
+            if (type === "Polygon")         return Polygon.withCoordinates(coordinates);
             return null;
         }
     },
 
-    _toJSON: {
+    _parseJSON: {
         value: function (string) {
             var json;
             try {

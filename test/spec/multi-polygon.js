@@ -4,6 +4,12 @@ var MultiPolygon = require("montage-geo/logic/model/multi-polygon").MultiPolygon
 
 describe("A MultiPolygon", function () {
 
+    function roundedBbox(bbox) {
+        return bbox.map(function (coordinate) {
+            return Math.round(coordinate);
+        })
+    }
+
     it("can be created", function () {
         var multipolygon = MultiPolygon.withCoordinates([
             [[[0,0], [0,10], [10,10], [10,0], [0,0]]],
@@ -15,7 +21,7 @@ describe("A MultiPolygon", function () {
         expect(multipolygon.coordinates[1] instanceof Polygon).toBe(true);
         expect(multipolygon.coordinates[0].coordinates[0].length).toBe(5);
         expect(multipolygon.coordinates[1].coordinates[0].length).toBe(5);
-        expect(multipolygon.bounds.bbox.join(",")).toBe("-10,-10,10,10");
+        expect(roundedBbox(multipolygon.bounds.bbox).join(",")).toBe("-10,-10,10,10");
     });
 
     it("can update its bounds", function () {
@@ -23,17 +29,17 @@ describe("A MultiPolygon", function () {
             [[[0,0], [0,10], [10,10], [10,0], [0,0]]],
             [[[0,0], [0,-10], [-10,-10], [-10,0], [0,0]]]
         ]);
-        expect(multipolygon.bounds.bbox.join(",")).toBe("-10,-10,10,10");
+        expect(roundedBbox(multipolygon.bounds.bbox).join(",")).toBe("-10,-10,10,10");
         multipolygon.coordinates.push(Polygon.withCoordinates([
             [[10, 0], [10, 10], [20, 10], [20, 0], [10, 0]]
         ]));
-        expect(multipolygon.bounds.bbox.join(",")).toBe("-10,-10,20,10");
+        expect(roundedBbox(multipolygon.bounds.bbox).join(",")).toBe("-10,-10,20,10");
         multipolygon.coordinates.pop();
-        expect(multipolygon.bounds.bbox.join(",")).toBe("-10,-10,10,10");
+        expect(roundedBbox(multipolygon.bounds.bbox).join(",")).toBe("-10,-10,10,10");
         multipolygon.coordinates[0].coordinates[0].splice(3, 0, Position.withCoordinates(20, 10));
-        expect(multipolygon.bounds.bbox.join(",")).toBe("-10,-10,20,10");
+        expect(roundedBbox(multipolygon.bounds.bbox).join(",")).toBe("-10,-10,20,10");
         multipolygon.coordinates[0].coordinates[0].splice(3, 1);
-        expect(multipolygon.bounds.bbox.join(",")).toBe("-10,-10,10,10");
+        expect(roundedBbox(multipolygon.bounds.bbox).join(",")).toBe("-10,-10,10,10");
     });
 
 

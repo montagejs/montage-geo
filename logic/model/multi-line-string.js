@@ -48,6 +48,20 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
         }
     },
 
+    toGeoJSON: {
+        value: function () {
+            var coordinates = this.coordinates.map(function (lineString) {
+                return lineString.coordinates.map(function (position) {
+                    return [position.longitude, position.latitude];
+                });
+            });
+            return {
+                type: "MultiLineString",
+                coordinates: coordinates
+            }
+        }
+    },
+
     /**
      * @override
      * @method
@@ -73,7 +87,8 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
             minus.forEach(this._removeLineString.bind(this));
             plus.forEach(this._addLineString.bind(this));
             if (this._shouldRecalculate) {
-                this.bounds.setWithPositions(this.positions);
+                this.updateBounds();
+                // this.bounds.setWithPositions(this.positions);
                 this._shouldRecalculate = false;
             }
         }
@@ -85,19 +100,18 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
      */
     handleRangeChange: {
         value: function () {
-            this.bounds.setWithPositions(this.positions);
+            this.updateBounds();
+            // this.bounds.setWithPositions(this.positions);
         }
     },
 
     _addLineString: {
         value: function (lineString) {
             var bbox = lineString.bounds.bbox,
-                cancel = bbox.addRangeChangeListener(this),
-                bounds;
+                cancel = bbox.addRangeChangeListener(this);
             this._childLineStringsRangeChangeCancelers.set(lineString, cancel);
             if (!this._shouldRecalculate) {
-                bounds = this.bounds;
-                lineString.bounds.positions.forEach(bounds.extend.bind(bounds));
+                this.updateBounds();
             }
         }
     },
