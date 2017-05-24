@@ -111,6 +111,15 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         }
     },
 
+    center: {
+        get: function () {
+            var Position = exports.BoundingBox.Position,
+                p1 = Position.withCoordinates(this.xMin, this.yMin),
+                p2 = Position.withCoordinates(this.xMax, this.yMax);
+            return p1.midPointTo(p2);
+        }
+    },
+
     /**
      *
      * Returns this bounding box with the coordinates of
@@ -341,6 +350,21 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             if (this.yMin !== yMin) this.yMin = yMin;
             if (this.xMax !== xMax) this.xMax = xMax;
             if (this.yMax !== yMax) this.yMax = yMax;
+        }
+    },
+
+    /***************************************************************************
+     * Duplicating.
+     */
+
+    clone: {
+        value: function () {
+            var other = new this();
+            other.xMin = this.xMin;
+            other.yMin = this.yMin;
+            other.xMax = this.xMax;
+            other.yMax = this.yMax;
+            return other;
         }
     },
 

@@ -153,6 +153,41 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
             return earthRadius * c;
 
         }
+    },
+
+    /**
+     * Returns the midpoint between 'this' position and the supplied position.
+     *
+     * @param   {Position} destination point.
+     * @returns {Position} Midpoint between this position and the supplied position.
+     *
+     * @example
+     *     var p1 = Position.withCoordinates(0.119, 52.205),
+     *         p2 = Position.withCoordinates(2.351, 48.857);
+     *     var mid = p1.midpointTo(p2);
+     */
+    midPointTo: {
+        value: function (destination) {
+
+            var Position = exports.Position,
+                φ1 = Position.toRadians(this.latitude),
+                λ1 = Position.toRadians(this.longitude),
+                φ2 = Position.toRadians(destination.latitude),
+                Δλ = Position.toRadians(destination.longitude - this.longitude),
+                Bx = Math.cos(φ2) * Math.cos(Δλ),
+                By = Math.cos(φ2) * Math.sin(Δλ),
+                φ3 = Math.atan2(Math.sin(φ1) + Math.sin(φ2), Math.sqrt((Math.cos(φ1) + Bx) * (Math.cos(φ1) + Bx) + By * By)),
+                λ3 = λ1 + Math.atan2(By, Math.cos(φ1) + Bx);
+
+            λ3 = (λ3 + 3 * Math.PI) % (2 * Math.PI) - Math.PI; // normalise to -180..+180°
+            return Position.withCoordinates(Position.toDegrees(λ3), Position.toDegrees(φ3));
+        }
+    },
+
+    toArray: {
+        value: function () {
+            return [this.longitude, this.latitude];
+        }
     }
 
 });

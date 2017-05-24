@@ -29,8 +29,8 @@ describe("A Polygon", function () {
                 [[0,0], [0,10], [10,10], [10,0], [0,0]]
             ]),
             p2 = Polygon.withCoordinates([
-            [[0,0], [0,10], [10,10], [10,0], [0,0]]
-        ]);
+                [[0,0], [0,10], [10,10], [10,0], [0,0]]
+            ]);
         p1.coordinates[0].splice(1, 1, Position.withCoordinates(0, 20));
         p2.coordinates[0].splice(2, 0, Position.withCoordinates(5, 20));
         expect(roundedBbox(p1.bounds.bbox).join(",")).toBe("0,0,10,20");

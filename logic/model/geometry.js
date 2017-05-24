@@ -89,19 +89,9 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
      */
     handleRangeChange: {
         value: function (plus, minus) {
-            var bounds = this.bounds,
-                needsCalculation = plus.length > 0 || minus.some(bounds.isPositionOnBoundary.bind(bounds)),
-                geoBounds;
-
-            if (needsCalculation) {
-                geoBounds = geo.geoBounds({
-                    geometry: this.toGeoJSON(),
-                    type: "Feature"
-                });
-                this.bounds.xMin = geoBounds[0][0];
-                this.bounds.yMin = geoBounds[0][1];
-                this.bounds.xMax = geoBounds[1][0];
-                this.bounds.yMax = geoBounds[1][1];
+            var bounds = this.bounds;
+            if (plus.length > 0 || minus.some(bounds.isPositionOnBoundary.bind(bounds))) {
+                this.updateBounds();
             }
         }
     },
@@ -130,8 +120,6 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
     }
 
 }, {
-
-
 
     /**
      * Converts a value in degrees to radians
