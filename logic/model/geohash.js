@@ -1,41 +1,33 @@
-var Montage = require("montage/core/core").Montage;
-
-var CHARACTERS = '0123456789bcdefghjkmnpqrstuvwxyz';
-
-var PRECISION_SCALE = [
-    0.70924, 22.7529, 729.62, 23409, 744200, 23912100,
-    762450000, 24336000000, 781250000000, 25000000000000
-];
-
-var GEOHASH_NEIGHBOR = {
-    n: [ 'p0r21436x8zb9dcf5h7kjnmqesgutwvy', 'bc01fg45238967deuvhjyznpkmstqrwx' ],
-    s: [ '14365h7k9dcfesgujnmqp0r2twvyx8zb', '238967debc01fg45kmstqrwxuvhjyznp' ],
-    e: [ 'bc01fg45238967deuvhjyznpkmstqrwx', 'p0r21436x8zb9dcf5h7kjnmqesgutwvy' ],
-    w: [ '238967debc01fg45kmstqrwxuvhjyznp', '14365h7k9dcfesgujnmqp0r2twvyx8zb' ]
-};
-
-var GEOHASH_BORDER = {
-    n: [ 'prxz',     'bcfguvyz' ],
-    s: [ '028b',     '0145hjnp' ],
-    e: [ 'bcfguvyz', 'prxz'     ],
-    w: [ '0145hjnp', '028b'     ]
-};
-
 /**
  *
  * A Geohash represents a location (anywhere in the world) using a short alphanumeric string,
  * with greater precision obtained with longer strings.
  *
+ * Geohash is a JavaScript Object subclass rather than a Montage subclass
+ * so hashes can be as lightweight as possible: They need to be
+ * lightweight because many will be created and there's no benefit for them
+ * to be derived from the Montage prototype because they don't use any of the
+ * Montage class functionality.
+ *
  * @class
- * @extends external:Montage
+ * @extends Object
  */
-var Geohash = exports.Geohash = Montage.specialize(/** @lends Geohash.prototype */ {
-
-    constructor: {
-        value: function Geohash(identifier) {
-            this.identifier = identifier;
-        }
+var Geohash = exports.Geohash = function () {},
+    CHARACTERS = '0123456789bcdefghjkmnpqrstuvwxyz',
+    GEOHASH_NEIGHBOR = {
+        n: [ 'p0r21436x8zb9dcf5h7kjnmqesgutwvy', 'bc01fg45238967deuvhjyznpkmstqrwx' ],
+        s: [ '14365h7k9dcfesgujnmqp0r2twvyx8zb', '238967debc01fg45kmstqrwxuvhjyznp' ],
+        e: [ 'bc01fg45238967deuvhjyznpkmstqrwx', 'p0r21436x8zb9dcf5h7kjnmqesgutwvy' ],
+        w: [ '238967debc01fg45kmstqrwxuvhjyznp', '14365h7k9dcfesgujnmqp0r2twvyx8zb' ]
     },
+    GEOHASH_BORDER = {
+        n: [ 'prxz',     'bcfguvyz' ],
+        s: [ '028b',     '0145hjnp' ],
+        e: [ 'bcfguvyz', 'prxz'     ],
+        w: [ '0145hjnp', '028b'     ]
+    };
+
+exports.Geohash.prototype = Object.create({}, /** @lends Geohash.prototype */ {
 
     /************************************************************
      * Properties
@@ -74,7 +66,7 @@ var Geohash = exports.Geohash = Montage.specialize(/** @lends Geohash.prototype 
             }
 
             // append letter for direction to parent
-            return new Geohash(parent.identifier + CHARACTERS.charAt(GEOHASH_NEIGHBOR[direction][type].indexOf(lastCh)));
+            return Geohash.withIdentifier(parent.identifier + CHARACTERS.charAt(GEOHASH_NEIGHBOR[direction][type].indexOf(lastCh)));
         }
     },
 
@@ -130,7 +122,16 @@ var Geohash = exports.Geohash = Montage.specialize(/** @lends Geohash.prototype 
         }
     }
 
-}, {
+});
+
+Object.defineProperties(exports.Geohash, /** @lends Geohash */ {
+
+    // Solve cyclic dependency
+    BoundingBox: {
+        get: function () {
+            return require("./bounding-box").BoundingBox;
+        }
+    },
 
     cache: {
         get: function () {
@@ -206,12 +207,6 @@ var Geohash = exports.Geohash = Montage.specialize(/** @lends Geohash.prototype 
             }
             return hash;
         }
-    },
-
-    // Solve cyclic dependency
-    BoundingBox: {
-        get: function () {
-            return require("./bounding-box").BoundingBox;
-        }
     }
+
 });

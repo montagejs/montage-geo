@@ -1,5 +1,6 @@
 var Montage = require("montage/core/core").Montage,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
+    geo = require("d3-geo"),
     HALF_PI = Math.PI / 180.0;
 
 /**
@@ -24,16 +25,6 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
                 this._bounds = BoundingBox.withCoordinates(Infinity, Infinity, -Infinity, -Infinity);
             }
             return this._bounds;
-        }
-    },
-
-    /**
-     * The bbox property is an alias to this.bounds.bbox
-     * @type {array<number>}
-     */
-    bbox: {
-        get: function () {
-            return this.bounds.bbox;
         }
     },
 
@@ -71,8 +62,20 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
             }
             if (this.coordinates) {
                 this._rangeChangeCanceler = this.coordinates.addRangeChangeListener(this);
+                this.updateBounds();
             }
-            this.bounds.setWithPositions(this.positions);
+        }
+    },
+
+    updateBounds: {
+        value: function () {
+            var json =  this.toGeoJSON(),
+                geoBounds = geo.geoBounds(json);
+            this.bounds.xMin = geoBounds[0][0];
+            this.bounds.yMin = geoBounds[0][1];
+            this.bounds.xMax = geoBounds[1][0];
+            this.bounds.yMax = geoBounds[1][1];
+
         }
     },
 
@@ -87,12 +90,29 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
     handleRangeChange: {
         value: function (plus, minus) {
             var bounds = this.bounds;
-            if (minus.some(bounds.isOnBoundary.bind(bounds))) {
-                bounds.setWithPositions(this.positions);
-            } else {
-                plus.forEach(bounds.extend.bind(bounds));
+            if (plus.length > 0 || minus.some(bounds.isPositionOnBoundary.bind(bounds))) {
+                this.updateBounds();
             }
         }
+    },
+
+    /**
+     * Tests whether this geometry intersects the provided
+     * geometry.
+     *
+     * Subclasses should override this method to implement their
+     * intersection testing logic.
+     *
+     * @method
+     * @param {Geometry|Bounds}
+     * @returns boolean
+     */
+    intersects: {
+        value: function (geometry) {}
+    },
+
+    toGeoJSON: {
+        value: function () {}
     },
 
     _rangeChangeCanceler: {

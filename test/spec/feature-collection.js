@@ -1,4 +1,6 @@
 var FeatureCollection = require("montage-geo/logic/model/feature-collection").FeatureCollection,
+    Bindings = require("montage-geo/frb/bindings"),
+    BoundingBox = require("montage-geo/logic/model/bounding-box").BoundingBox,
     Feature = require("montage-geo/logic/model/feature").Feature,
     Point = require("montage-geo/logic/model/point").Point;
 
@@ -124,5 +126,40 @@ describe("A FeatureCollection", function () {
         expect(collection.get(43)).toBe(undefined);
     });
 
+    it("can filter by bounds intersection", function () {
+        var bounds = BoundingBox.withCoordinates(0, 0, 10, 10),
+            inPoint = Point.withCoordinates([5, 5]),
+            outPoint = Point.withCoordinates([5, -5]),
+            featureCollection = FeatureCollection.withFeatures([inPoint, outPoint]);
+
+        expect(featureCollection.filter(bounds).length).toBe(1);
+
+    });
+
+    it("can observe filter changes", function () {
+        var controller = {
+                bounds: BoundingBox.withCoordinates(0, 0, 10, 10),
+                collection: FeatureCollection.withFeatures([]),
+                features: undefined
+            },
+            point1 = Point.withCoordinates([5, 5]),
+            point2 = Point.withCoordinates([-5, 5]);
+
+        Bindings.defineBinding(controller, "features", {"<-": "collection.filter(bounds)"});
+        expect(controller.features.length).toBe(0);
+        controller.collection.add(point1);
+        expect(controller.features.length).toBe(1);
+        controller.collection.add(point2);
+        expect(controller.features.length).toBe(1);
+        controller.bounds.xMin = -10;
+        expect(controller.features.length).toBe(2);
+        controller.bounds.xMax = 0;
+        expect(controller.features.length).toBe(1);
+        controller.collection.remove(point2);
+        expect(controller.features.length).toBe(0);
+        controller.bounds = BoundingBox.withCoordinates(0, 0, 10, 10);
+        expect(controller.features.length).toBe(1);
+
+    });
 
 });

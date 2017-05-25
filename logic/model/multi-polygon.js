@@ -66,7 +66,8 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
             minus.forEach(this._removePolygon.bind(this));
             plus.forEach(this._addPolygon.bind(this));
             if (this._shouldRecalculate) {
-                this.bounds.setWithPositions(this.positions);
+                // this.bounds.setWithPositions(this.positions);
+                this.updateBounds();
                 this._shouldRecalculate = false;
             }
         }
@@ -74,17 +75,35 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
 
     handleRangeChange: {
         value: function () {
-            this.bounds.setWithPositions(this.positions);
+            this.updateBounds();
+            // this.bounds.setWithPositions(this.positions);
+        }
+    },
+
+    toGeoJSON: {
+        value: function () {
+            var coordinates = this.coordinates && this.coordinates.map(function (polygons) {
+                    return polygons.coordinates.map(function (rings) {
+                        return rings.map(function (position) {
+                            return [position.longitude, position.latitude];
+                        });
+                    });
+                }) || [[[]]];
+            return {
+                type: "MultiPolygon",
+                coordinates: coordinates
+            }
         }
     },
 
     _addPolygon: {
         value: function (polygon) {
-            var bbox = polygon.bbox,
+            var bbox = polygon.bounds.bbox,
                 cancel = bbox.addRangeChangeListener(this);
             this._childPolygonRangeChangeCancelers.set(polygon, cancel);
             if (!this._shouldRecalculate) {
-                polygon.bounds.positions.forEach(this.bounds.extend.bind(this.bounds));
+                this.updateBounds();
+                // polygon.bounds.positions.forEach(this.bounds.extend.bind(this.bounds));
             }
         }
     },
@@ -96,7 +115,7 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
                 bounds = this.bounds;
             this._childPolygonRangeChangeCancelers.delete(polygon);
             this._shouldRecalculate =   this._shouldRecalculate ||
-                                        positions.some(bounds.isOnBoundary.bind(bounds));
+                                        positions.some(bounds.isPositionOnBoundary.bind(bounds));
             if (cancel) cancel();
         }
     },

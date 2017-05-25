@@ -39,10 +39,20 @@ describe("A BoundingBox", function () {
 
     });
 
+    it("can test if a position is on a boundary", function () {
+        var bounds = BoundingBox.withCoordinates(0, 0, 10, 10),
+            isInBounds = Position.withCoordinates(5, 5),
+            notOnBoundary = Position.withCoordinates(-10, 10),
+            onBoundary = Position.withCoordinates(5, 10);
+        expect(bounds.isPositionOnBoundary(isInBounds)).toBe(false);
+        expect(bounds.isPositionOnBoundary(notOnBoundary)).toBe(false);
+        expect(bounds.isPositionOnBoundary(onBoundary)).toBe(true);
+
+    });
+
     it("can test for equality", function () {
         var bounds = BoundingBox.withCoordinates(0, 0, 10, 10),
             otherBounds = BoundingBox.withCoordinates(0, 0, 10, 10);
-
         expect(bounds.equals(otherBounds)).toBe(true);
     });
 
@@ -140,8 +150,8 @@ describe("A BoundingBox", function () {
     });
 
     it ("can access its geohashes", function () {
-        var bounds = BoundingBox.withCoordinates(-179, -85, -1, 85);
-        expect(bounds.hashes.size).toBe(16);
+        var bounds = BoundingBox.withCoordinates(-180, -85, 180, 85);
+        expect(bounds.hashes.size).toBe(32);
     });
 
 });

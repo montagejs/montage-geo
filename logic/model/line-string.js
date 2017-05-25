@@ -77,7 +77,20 @@ var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.
             var clockWise = ((ty3 - ty1) * (tx2 - tx1)) - ((ty2 - ty1) * (tx3 - tx1));
             return clockWise > 0 ? true : clockWise < 0 ? false : true;
         }
+    },
+
+    toGeoJSON: {
+        value: function () {
+            var coordinates = this.coordinates.map(function (coordinate) {
+                return [coordinate.longitude, coordinate.latitude]
+            });
+            return {
+                type: "LineString",
+                coordinates: coordinates
+            };
+        }
     }
+
 
 }, {
 

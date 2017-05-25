@@ -27,6 +27,17 @@ exports.MultiPoint = Geometry.specialize(/** @lends MultiPoint.prototype */ {
                         return bounds.contains(position);
                     });
         }
+    },
+
+    toGeoJSON: {
+        value: function () {
+            return {
+                type: "MultiPoint",
+                coordinates: this.coordinates.map(function (position) {
+                    return [position.longitude, position.latitude];
+                })
+            }
+        }
     }
 
 }, {

@@ -58,6 +58,26 @@ exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
         }
     },
 
+
+    /**
+     * Returns the destination Point having travelled the given distance along a geodesic
+     * path given by initial bearing from ‘this’ Point, using Vincenty direct solution.
+     *
+     * @param   {number} distance - Distance travelled along the geodesic in meters.
+     * @param   {number} initialBearing - Initial bearing in degrees from north.
+     * @returns {Position} Destination Point.
+     *
+     * @example
+     *   var p1 = Point.withCoordinates([144.42487, -37.95103]);
+     *   var p2 = p1.destination(54972.271, 306.86816);
+     */
+    destination: {
+        value: function (distance, bearing) {
+            var destination = this.coordinates.destination(distance, bearing);
+            return exports.Point.withCoordinates([destination.longitude, destination.latitude]);
+        }
+    },
+
     /**
      * Calculates the distance between two points.
 
@@ -88,17 +108,6 @@ s     */
         }
     },
 
-    makeDistanceObserver: {
-        value: function (observeDestination) {
-            var self = this;
-            return function observeDistance(emit, scope) {
-                return observeDestination(function replaceDestination(destination) {
-                    return self.observeDistance(emit, destination);
-                }, scope);
-            }.bind(this);
-        }
-    },
-
     makeBearingObserver: {
         value: function (observeDestination) {
             var self = this;
@@ -110,9 +119,70 @@ s     */
         }
     },
 
+    makeDestinationObserver: {
+        value: function () {
+            var self = this,
+                wrapped = function (observeDistance, observeBearing) {
+                    return function observeDestination(emit, scope) {
+                        var cancelObserveDistance = observeDistance(function replaceDistance(newDistance) {
+                                return self.observeDestination(emit, newDistance, scope.parameters.bearing);
+                            }, scope),
+                            cancelObserveBearing = observeBearing(function replaceBearing(newBearing) {
+                                return self.observeDestination(emit, scope.parameters.distance, newBearing);
+                            }, scope);
+                        return function cancelDestinationObserver() {
+                            cancelObserveBearing();
+                            cancelObserveDistance();
+                        }
+                    }
+                };
+            return wrapped.call(this, arguments[0], arguments[1]);
+        }
+    },
+
+    makeDistanceObserver: {
+        value: function (observeDestination) {
+            var self = this;
+            return function observeDistance(emit, scope) {
+                return observeDestination(function replaceDestination(destination) {
+                    return self.observeDistance(emit, destination);
+                }, scope);
+            }.bind(this);
+        }
+    },
+
     observeBearing: {
         value: function (emit, destination) {
             this._observe(emit, destination, this.bearing.bind(this));
+        }
+    },
+
+    observeDestination: {
+        value: function (emit, distance, bearing) {
+            var self = this,
+                latitudeListenerCanceler,
+                longitudeListenerCanceler,
+                cancel;
+
+            function update() {
+                if (cancel) {
+                    cancel();
+                }
+                cancel = emit(self.destination(distance, bearing));
+            }
+
+            update();
+            latitudeListenerCanceler = this.addPathChangeListener("coordinates.latitude", update);
+            longitudeListenerCanceler = this.addPathChangeListener("coordinates.longitude", update);
+
+            return function cancelObserver() {
+                latitudeListenerCanceler();
+                longitudeListenerCanceler();
+                if (cancel) {
+                    cancel();
+                }
+            };
+
         }
     },
 
@@ -124,8 +194,7 @@ s     */
 
     _observe: {
         value: function (emit, destination, callback) {
-            var self = this,
-                destinationLatitudeHandler,
+            var destinationLatitudeHandler,
                 destinationLongitudeHandler,
                 originLatitudeHandler,
                 originLongitudeHandler,
@@ -154,9 +223,20 @@ s     */
                 }
             };
         }
+    },
+
+    toGeoJSON: {
+        value: function () {
+            var position = this.coordinates;
+            return {
+                type: "Point",
+                coordinates: [position.longitude, position.latitude]
+            };
+        }
     }
 
 }, {
+
 
     /**
      * Returns a newly initialized point with the specified coordinates.

@@ -4,8 +4,8 @@ var Montage = require("montage/core/core").Montage,
 
 /**
  * A feature collection represents a group of features.  Every
- * feature collection has a coordinates property which is an
- * array of features.  The features array cannot be set directly
+ * feature collection has a features property which is an
+ * array of its features.  The features array cannot be set directly
  * but you may alter its content.
  *
  * @class
@@ -37,13 +37,15 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
     },
 
     /**
-     * A feature collectionMAY have a member named "bbox" to
+     * A feature collection MAY have a member named "bounds" to
      * include information on the coordinate range for its Features'
      * Geometries
      *
-     * @type {array<number>}
+     * @type {BoundingBox}
+     * TODO: update the bounding box when features are added and removed
+     * from the collection.
      */
-    bbox: {
+    bounds: {
         value: undefined
     },
 
@@ -103,7 +105,76 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
     },
 
     /************************************************************
-     * Convenience Methods
+     * Filtering
+     */
+
+    /**
+     * Returns an array of the collection's features that intersects with the
+     * provided bounds.
+     * @method
+     * @param {BoundingBox} bounds          - The bounds to test for intersection
+     * @returns {array<Feature>} features   - The features in this collection that
+     *                                        intersects the provided bounds.
+     */
+    filter: {
+        value: function (bounds) {
+            return this.features.filter(function (feature) {
+                return feature.intersects(bounds);
+            })
+        }
+    },
+
+    makeFilterObserver: {
+        value: function (observeBounds) {
+            var self = this;
+            return function observeFilter(emit, scope) {
+                return observeBounds(function replaceBounds(bounds) {
+                    return self.observeFilter(emit, bounds);
+                }, scope);
+            }.bind(this);
+        }
+    },
+
+    observeFilter: {
+        value: function (emit, bounds) {
+            var self = this,
+                cancel,
+                boundsWestChangeListenerCanceler,
+                boundsEastChangeListenerCanceler,
+                boundsSouthChangeListenerCanceler,
+                boundsNorthChangeListenerCanceler,
+                featuresRangeChangeListenerCanceler;
+            function update() {
+                if (cancel) {
+                    cancel();
+                }
+                cancel = emit(self.filter(bounds));
+            }
+            update();
+            boundsWestChangeListenerCanceler = bounds.addPathChangeListener("xMin", update);
+            boundsEastChangeListenerCanceler = bounds.addPathChangeListener("xMax", update);
+            boundsSouthChangeListenerCanceler = bounds.addPathChangeListener("yMin", update);
+            boundsNorthChangeListenerCanceler = bounds.addPathChangeListener("yMax", update);
+            featuresRangeChangeListenerCanceler = this.features.addRangeChangeListener(function (plus, minus) {
+                if (plus.length || minus.length) {
+                    update();
+                }
+            });
+            return function cancelObserver() {
+                boundsWestChangeListenerCanceler();
+                boundsEastChangeListenerCanceler();
+                boundsSouthChangeListenerCanceler();
+                boundsNorthChangeListenerCanceler();
+                featuresRangeChangeListenerCanceler();
+                if (cancel) {
+                    cancel();
+                }
+            };
+        }
+    },
+
+    /************************************************************
+     * Collection Methods
      */
 
     /**

@@ -4,18 +4,24 @@ var LineString = require("montage-geo/logic/model/line-string").LineString,
 
 describe("A LineString", function () {
 
+    function roundedBbox(bbox) {
+        return bbox.map(function (coordinate) {
+            return Math.round(coordinate);
+        })
+    }
+
     it("can be created", function () {
         var line = LineString.withCoordinates([[0, 0], [0, 10]]);
         expect(line).toBeDefined();
-        expect(line.bbox.join(",")).toBe("0,0,0,10");
+        expect(line.bounds.bbox.join(",")).toBe("0,0,0,10");
     });
 
-    it("can be properly update its bbox", function () {
+    it("can be properly update its bounds", function () {
         var line = LineString.withCoordinates([[0, 0], [0, 10]]),
             position = Position.withCoordinates(10, 10);
-        expect(line.bbox.join(",")).toBe("0,0,0,10");
+        expect(roundedBbox(line.bounds.bbox).join(",")).toBe("0,0,0,10");
         line.coordinates.push(position);
-        expect(line.bbox.join(",")).toBe("0,0,10,10");
+        expect(roundedBbox(line.bounds.bbox).join(",")).toBe("0,0,10,10");
     });
 
 

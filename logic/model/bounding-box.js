@@ -111,6 +111,15 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         }
     },
 
+    center: {
+        get: function () {
+            var Position = exports.BoundingBox.Position,
+                p1 = Position.withCoordinates(this.xMin, this.yMin),
+                p2 = Position.withCoordinates(this.xMax, this.yMax);
+            return p1.midPointTo(p2);
+        }
+    },
+
     /**
      *
      * Returns this bounding box with the coordinates of
@@ -150,14 +159,15 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
      */
     positions: {
         get: function () {
-            var bbox = this.bbox,
+            var Position = exports.BoundingBox.Position,
+                bbox = this.bbox,
                 positions = [],
                 i, j, x, y;
             for (i = 0; i < 2; i += 1) {
                 for (j = 0; j < 2; j += 1) {
                     x = i === 0 ? bbox[0] : bbox[2];
                     y = j === 0 ? bbox[1] : bbox[3];
-                    positions.push(exports.BoundingBox.Position.withCoordinates(x, y));
+                    positions.push(Position.withCoordinates(x, y));
                 }
             }
             return positions;
@@ -251,12 +261,14 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
      * @param {Position}
      * @returns {boolean}
      */
-    isOnBoundary: {
+    isPositionOnBoundary: {
         value: function (position) {
             var lng = position.longitude,
                 lat = position.latitude;
-            return  this.xMin === lng || this.xMax === lng ||
-                this.yMin === lat || this.yMax === lat;
+            return  this.contains(position) && (
+                        this.xMin === lng || this.xMax === lng ||
+                        this.yMin === lat || this.yMax === lat
+                    );
         }
     },
 
@@ -274,10 +286,33 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             var Position = exports.BoundingBox.Position,
                 southWest = Position.withCoordinates(this.xMin, this.yMin),
                 northWest = Position.withCoordinates(this.xMin, this.yMax),
-                southEast = Position.withCoordinates(this.xMax, this.yMin),
                 height = southWest.distance(northWest),
-                width = southWest.distance(southEast);
-            return height * width;
+                spheres = this._divideIfWiderThan180Degrees(),
+                area = 0;
+            spheres.forEach(function (bbox) {
+                var southWest = Position.withCoordinates(bbox[0], bbox[1]),
+                    southEast = Position.withCoordinates(bbox[2], bbox[1]),
+                    width = southWest.distance(southEast);
+                area += height * width;
+            });
+            return area;
+        }
+    },
+
+    // TODO: Rename...
+    _divideIfWiderThan180Degrees: {
+        value: function () {
+            var split = [],
+                width = this.xMax - this.xMin,
+                xMid;
+            if (width >= 180) {
+                xMid = (this.xMin + this.xMax) / 2;
+                split.push([this.xMin, this.yMin, xMid, this.yMax]);
+                split.push([xMid, this.yMin, this.xMax, this.yMax]);
+            } else {
+                split.push(this.bbox);
+            }
+            return split;
         }
     },
 
@@ -318,6 +353,21 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         }
     },
 
+    /***************************************************************************
+     * Duplicating.
+     */
+
+    clone: {
+        value: function () {
+            var other = new this();
+            other.xMin = this.xMin;
+            other.yMin = this.yMin;
+            other.xMax = this.xMax;
+            other.yMax = this.yMax;
+            return other;
+        }
+    },
+
     /******************************************************
      * Utilities
      */
@@ -345,6 +395,13 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
 
 }, {
 
+    // Solve cyclic dependency
+    Position: {
+        get: function () {
+            return require("logic/model/position").Position;
+        }
+    },
+
     withBbox: {
         value: function (bbox, projection) {
             return exports.BoundingBox.withCoordinates(bbox[0], bbox[1], bbox[2], bbox[3], projection);
@@ -361,13 +418,6 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             bounds.xMax = maximums[0];
             bounds.yMax = maximums[1];
             return bounds;
-        }
-    },
-
-    // Solve cyclic dependency
-    Position: {
-        get: function () {
-            return require("logic/model/position").Position
         }
     }
 

@@ -32,7 +32,7 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
             if (this.coordinates && this.coordinates.length) {
                 this._rangeChangeCanceler = this.coordinates[0].addRangeChangeListener(this);
             }
-            this.bounds.setWithPositions(this.positions);
+            this.updateBounds();
         }
     },
 
@@ -73,6 +73,20 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
                 doesContain = i === 0 ? isInPolygon : !isInPolygon;
             }
             return doesContain;
+        }
+    },
+
+    toGeoJSON: {
+        value: function () {
+            var coordinates = this.coordinates && this.coordinates.map(function (rings) {
+                    return rings.map(function (position) {
+                        return [position.longitude, position.latitude];
+                    });
+                }) || [[]];
+            return {
+                type: "Polygon",
+                coordinates: coordinates
+            }
         }
     },
 

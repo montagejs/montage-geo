@@ -1,5 +1,10 @@
 var Montage = require("montage/core/core").Montage,
-    Point = require("./point").Point;
+    LineString = require("./line-string").LineString,
+    MultiLineString = require("./multi-line-string").MultiLineString,
+    MultiPolygon = require("./multi-polygon").MultiPolygon,
+    MultiPoint = require("./multi-point").MultiPoint,
+    Point = require("./point").Point,
+    Polygon = require("./polygon").Polygon;
 
 /**
  *
@@ -23,14 +28,14 @@ exports.Feature = Montage.specialize(/** @lends Feature.prototype */ {
     },
 
     /**
-     * A feature MAY have a member named "bbox" to include information on the
+     * A feature MAY have a member named "bounds" to include information on the
      * coordinate range for its Geometries
      *
-     * @type {array<number>}
+     * @type {BoundingBox}
      */
-    bbox: {
+    bounds: {
         get: function () {
-            return this.geometry && this.geometry.bbox;
+            return this.geometry && this.geometry.bounds;
         }
     },
 
@@ -50,14 +55,27 @@ exports.Feature = Montage.specialize(/** @lends Feature.prototype */ {
      */
     geometry: {
         value: undefined
+    },
+
+    /**
+     * Tests to see if this feature's geometry intersects the provided bounds.
+     * @method
+     * @param {BoundingBox} bounds - The bounds to test for intersection
+     * @returns boolean
+     */
+    intersects: {
+        value: function (bounds) {
+            return this.geometry.intersects(bounds);
+        }
     }
+
 
 }, {
 
     withGeoJSON: {
         value: function (json) {
             var rawGeometry, geometry;
-            json = typeof json === "string" ? this._toJSON(json) : json;
+            json = typeof json === "string" ? this._parseJSON(json) : json;
             rawGeometry = json.geometry || {};
             geometry = exports.Feature._geometryWithTypeAndCoordinates(rawGeometry.type, rawGeometry.coordinates);
             return exports.Feature.withMembers(json.id, json.properties, geometry);
@@ -66,12 +84,17 @@ exports.Feature = Montage.specialize(/** @lends Feature.prototype */ {
 
     _geometryWithTypeAndCoordinates: {
         value: function (type, coordinates) {
-            if (type === "Point") return Point.withCoordinates(coordinates);
+            if (type === "LineString")      return LineString.withCoordinates(coordinates);
+            if (type === "MultiLineString") return MultiLineString.withCoordinates(coordinates);
+            if (type === "MultiPoint")      return MultiPoint.withCoordinates(coordinates);
+            if (type === "MultiPolygon")    return MultiPolygon.withCoordinates(coordinates);
+            if (type === "Point")           return Point.withCoordinates(coordinates);
+            if (type === "Polygon")         return Polygon.withCoordinates(coordinates);
             return null;
         }
     },
 
-    _toJSON: {
+    _parseJSON: {
         value: function (string) {
             var json;
             try {
