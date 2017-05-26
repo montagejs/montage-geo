@@ -419,6 +419,37 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             bounds.yMax = maximums[1];
             return bounds;
         }
+    },
+
+    withTile: {
+        value: function (tile) {
+            function pixelToPosition (pixel) {
+                var Position = exports.BoundingBox.Position,
+                    longitude = (pixel.x - 128) / (256 / 360),
+                    latitude = (2 * Math.atan(Math.exp((pixel.y - 128) / -(256 / (2 * Math.PI)))) -
+                        Math.PI / 2) / (Math.PI / 180);
+                return Position.withCoordinates(longitude, latitude);
+            }
+
+            var tilesPerSide = Math.pow(2, tile.z),
+                southWestPoint = {
+                    x: tile.x * 256 / tilesPerSide,
+                    y: (tile.y + 1) * 256 / tilesPerSide
+                },
+                northEastPoint = {
+                    x: (tile.x + 1) * 256 / tilesPerSide,
+                    y: tile.y * 256 / tilesPerSide
+                },
+                southWestCoordinate = pixelToPosition(southWestPoint),
+                northEastCoordinate = pixelToPosition(northEastPoint);
+
+            return exports.BoundingBox.withCoordinates(
+                southWestCoordinate.longitude,
+                southWestCoordinate.latitude,
+                northEastCoordinate.longitude,
+                northEastCoordinate.latitude
+            );
+        }
     }
 
 });
