@@ -80,7 +80,7 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
 
     /**
      *
-     * Returns the area of this polygon in square meters.
+     * Returns the area of this polygon in square kilometers.
      * @method
      * Reference:
      * Robert. G. Chamberlain and William H. Duquette, "Some Algorithms for
@@ -88,7 +88,7 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
      * Laboratory, Pasadena, CA, June 2007
      * http://trs-new.jpl.nasa.gov/dspace/handle/2014/40409
      *
-     * @return {number} the area of this polygon in square meters
+     * @return {number} the area of this polygon in square kilometers
      */
     area: {
         // TODO: Improve documentation and test.
