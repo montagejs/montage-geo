@@ -184,9 +184,9 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
         }
     },
 
-    toArray: {
+    clone: {
         value: function () {
-            return [this.longitude, this.latitude];
+            return exports.Position.withCoordinates(this.longitude, this.latitude, this.altitude);
         }
     }
 

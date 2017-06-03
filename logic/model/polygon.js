@@ -31,8 +31,10 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
             }
             if (this.coordinates && this.coordinates.length) {
                 this._rangeChangeCanceler = this.coordinates[0].addRangeChangeListener(this);
+                if (this.coordinates[0].length > 2) {
+                    this.updateBounds();
+                }
             }
-            this.updateBounds();
         }
     },
 
@@ -73,6 +75,66 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
                 doesContain = i === 0 ? isInPolygon : !isInPolygon;
             }
             return doesContain;
+        }
+    },
+
+    /**
+     *
+     * Returns the area of this polygon in square meters.
+     * @method
+     * Reference:
+     * Robert. G. Chamberlain and William H. Duquette, "Some Algorithms for
+     * Polygons on a Sphere", JPL Publication 07-03, Jet Propulsion
+     * Laboratory, Pasadena, CA, June 2007
+     * http://trs-new.jpl.nasa.gov/dspace/handle/2014/40409
+     *
+     * @return {number} the area of this polygon in square meters
+     */
+    area: {
+        // TODO: Improve documentation and test.
+        get: function () {
+            var area = 0, i, length;
+            for (i = 0, length = this.coordinates.length; i < length; i += 1) {
+                if (i === 0) {
+                    area += this._area(this.coordinates[i]);
+                } else {
+                    area -= this._area(this.coordinates[i]);
+                }
+            }
+            return area;
+        }
+    },
+
+    _area: {
+        value: function (ring) {
+            var pointsCount = ring.length,
+                area = 0.0,
+                p1, p2, p3, i,
+                lowerIndex, middleIndex, upperIndex;
+            if (pointsCount > 2) {
+                for (i = 0; i < pointsCount; i++) {
+                    if (i === pointsCount - 2) {// N-2
+                        lowerIndex = pointsCount - 2;
+                        middleIndex = pointsCount - 1;
+                        upperIndex = 0;
+                    } else if (i === pointsCount - 1) {// N-1
+                        lowerIndex = pointsCount - 1;
+                        middleIndex = 0;
+                        upperIndex = 1;
+                    } else { // 0 to N-3
+                        lowerIndex = i;
+                        middleIndex = i + 1;
+                        upperIndex = i + 2;
+                    }
+                    p1 = ring[lowerIndex];
+                    p2 = ring[middleIndex];
+                    p3 = ring[upperIndex];
+                    area += (Geometry.toRadians(p3.longitude) -  Geometry.toRadians(p1.longitude)) *
+                        Math.sin(Geometry.toRadians(p2.latitude));
+                }
+                area = area * 6378137.0 * 6378137.0 / 2.0;
+            }
+            return Math.abs(area / 1E6);
         }
     },
 
