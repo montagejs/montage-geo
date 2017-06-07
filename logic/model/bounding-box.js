@@ -219,7 +219,7 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             var geometry = feature.geometry;
             return this.splitAlongAntimeridian().some(function (bounds) {
                 return geometry instanceof GeometryCollection ? geometry.geometries.some(function (geometry) {
-                    return geometry.intersects(bounds);
+                    return geometry.bounds.intersects(bounds);
                 }) : geometry.intersects(bounds)
             });
         }
