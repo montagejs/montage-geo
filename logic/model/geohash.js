@@ -84,8 +84,8 @@ exports.Geohash.prototype = Object.create({}, /** @lends Geohash.prototype */ {
 
             var geohash = this.identifier,
                 evenBit = true,
-                yMin =  -90,
-                yMax =  90,
+                yMin =  -85.06,
+                yMax =  85.06,
                 xMin = -180,
                 xMax = 180,
                 yMid, xMid,

@@ -91,15 +91,15 @@ exports.GeohashCollection = Montage.specialize(/** @lends GeohashCollection.prot
                 head = southWest,
                 latCount = 1,
                 lngCount = 1,
-                i, j,
+                direction, i, j,
                 self = this;
 
-            while (head.identifier !== northWest.identifier) {
+            while (head.identifier.length === northWest.identifier.length && head.identifier !== northWest.identifier) {
                 latCount += 1;
                 head = head.adjacent("N");
             }
 
-            while (head.identifier !== northEast.identifier) {
+            while (head.identifier.length === northEast.identifier.length && head.identifier !== northEast.identifier) {
                 lngCount += 1;
                 head = head.adjacent("E");
             }
@@ -107,7 +107,10 @@ exports.GeohashCollection = Montage.specialize(/** @lends GeohashCollection.prot
             for (i = 0; i < latCount; i += 1) {
                 for (j = 0; j < lngCount; j += 1) {
                     currentSet.add(head);
-                    head = head.adjacent("W");
+                    direction = i % 2 ? "E" : "W";
+                    if (j + 1 < lngCount) {
+                        head = head.adjacent(direction);
+                    }
                 }
                 head = head.adjacent("S");
             }
