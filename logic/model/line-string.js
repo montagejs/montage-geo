@@ -28,7 +28,6 @@ var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.
      */
     intersects: {
         value: function (geometry) {
-
             var isLineString = geometry instanceof LineString,
                 coordinates,
                 positions = this.coordinates,
@@ -105,6 +104,19 @@ var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.
             self.coordinates = coordinates.map(function (coordinate) {
                 return Position.withCoordinates(coordinate);
             });
+            return self;
+        }
+    },
+
+    /**
+     * Returns a newly initialized LineString with the specified coordinates.
+     *
+     * @param {array<array<number>>} coordinates - The position of this point.
+     */
+    withPositions: {
+        value: function (positions) {
+            var self = new this();
+            self.coordinates = positions;
             return self;
         }
     }
