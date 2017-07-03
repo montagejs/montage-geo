@@ -5,26 +5,26 @@
  *
  * Geohash is a JavaScript Object subclass rather than a Montage subclass
  * so hashes can be as lightweight as possible: They need to be
- * lightweight because many will be created and there's no benefit for them
- * to be derived from the Montage prototype because they don't use any of the
+ * lightweight because many will be created and there"s no benefit for them
+ * to be derived from the Montage prototype because they don"t use any of the
  * Montage class functionality.
  *
  * @class
  * @extends Object
  */
 var Geohash = exports.Geohash = function () {},
-    CHARACTERS = '0123456789bcdefghjkmnpqrstuvwxyz',
+    CHARACTERS = "0123456789bcdefghjkmnpqrstuvwxyz",
     GEOHASH_NEIGHBOR = {
-        n: [ 'p0r21436x8zb9dcf5h7kjnmqesgutwvy', 'bc01fg45238967deuvhjyznpkmstqrwx' ],
-        s: [ '14365h7k9dcfesgujnmqp0r2twvyx8zb', '238967debc01fg45kmstqrwxuvhjyznp' ],
-        e: [ 'bc01fg45238967deuvhjyznpkmstqrwx', 'p0r21436x8zb9dcf5h7kjnmqesgutwvy' ],
-        w: [ '238967debc01fg45kmstqrwxuvhjyznp', '14365h7k9dcfesgujnmqp0r2twvyx8zb' ]
+        n: [ "p0r21436x8zb9dcf5h7kjnmqesgutwvy", "bc01fg45238967deuvhjyznpkmstqrwx" ],
+        s: [ "14365h7k9dcfesgujnmqp0r2twvyx8zb", "238967debc01fg45kmstqrwxuvhjyznp" ],
+        e: [ "bc01fg45238967deuvhjyznpkmstqrwx", "p0r21436x8zb9dcf5h7kjnmqesgutwvy" ],
+        w: [ "238967debc01fg45kmstqrwxuvhjyznp", "14365h7k9dcfesgujnmqp0r2twvyx8zb" ]
     },
     GEOHASH_BORDER = {
-        n: [ 'prxz',     'bcfguvyz' ],
-        s: [ '028b',     '0145hjnp' ],
-        e: [ 'bcfguvyz', 'prxz'     ],
-        w: [ '0145hjnp', '028b'     ]
+        n: [ "prxz",     "bcfguvyz" ],
+        s: [ "028b",     "0145hjnp" ],
+        e: [ "bcfguvyz", "prxz"     ],
+        w: [ "0145hjnp", "028b"     ]
     };
 
 exports.Geohash.prototype = Object.create({}, /** @lends Geohash.prototype */ {
@@ -49,19 +49,17 @@ exports.Geohash.prototype = Object.create({}, /** @lends Geohash.prototype */ {
 
             direction = direction.toLowerCase();
 
-            if (geohash.length === 0) throw new Error('Invalid geohash');
-            if ('nsew'.indexOf(direction) == -1) throw new Error('Invalid direction');
+            if (geohash.length === 0) throw new Error("Invalid geohash");
+            if ("nsew".indexOf(direction) == -1) throw new Error("Invalid direction");
 
             geohash = parent && parent.identifier || this.identifier;
-
-
             lastCh = geohash.slice(-1);    // last character of hash
             parent = Geohash.withIdentifier(geohash.slice(0, -1)); // hash without last character
 
             type = geohash.length % 2;
 
-            // check for edge-cases which don't share common prefix
-            if (GEOHASH_BORDER[direction][type].indexOf(lastCh) != -1 && parent.identifier !== '') {
+            // check for edge-cases which don"t share common prefix
+            if (GEOHASH_BORDER[direction][type].indexOf(lastCh) != -1 && parent.identifier !== "") {
                 parent = parent.adjacent(direction);
             }
 
@@ -79,13 +77,32 @@ exports.Geohash.prototype = Object.create({}, /** @lends Geohash.prototype */ {
         }
     },
 
+    neighbors: {
+        get: function () {
+            if (!this._neighbors) {
+                this._neighbors = [
+                    this.adjacent("n"),
+                    this.adjacent("n").adjacent("e"),
+                    this.adjacent("e"),
+                    this.adjacent("s").adjacent("e"),
+                    this.adjacent("s"),
+                    this.adjacent("s").adjacent("w"),
+                    this.adjacent("w"),
+                    this.adjacent("n").adjacent("w")
+                ];
+
+            }
+            return this._neighbors;
+        }
+    },
+
     _makeBounds: {
         value: function() {
 
             var geohash = this.identifier,
                 evenBit = true,
-                yMin =  -85.06,
-                yMax =  85.06,
+                yMin =  -90,
+                yMax =  90,
                 xMin = -180,
                 xMax = 180,
                 yMid, xMid,
@@ -152,7 +169,7 @@ Object.defineProperties(exports.Geohash, /** @lends Geohash */ {
             var index = 0,
                 bit = 0,
                 evenBit = true,
-                identifier = '',
+                identifier = "",
                 yMin =  -90,
                 yMax =  90,
                 xMin = -180,

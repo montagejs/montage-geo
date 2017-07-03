@@ -38,8 +38,8 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
 
     /**
      * A feature collection MAY have a member named "bounds" to
-     * include information on the coordinate range for its Features'
-     * Geometries
+     * include information on the coordinate range for its features'
+     * geometries.
      *
      * @type {BoundingBox}
      * TODO: update the bounding box when features are added and removed
