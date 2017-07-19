@@ -40,13 +40,15 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
 
     /**
      * @method
-     * @param {Polygon} geometry    - The polygon to test for
-     *                                intersection
+     * @param {Polygon|BoundingBox} geometry    - The polygon or bounding box
+     *                                            to test for intersection
      * @returns {boolean}
      */
     intersects: {
         value: function (geometry) {
-            return this.bounds.intersects(geometry.bounds) && this._intersectsPolygon(geometry);
+            var isPolygon = geometry instanceof exports.Polygon;
+            return isPolygon ?  this._intersectsPolygon(geometry) :
+                                this._intersectsBoundingBox(geometry);
         }
     },
 
@@ -155,18 +157,41 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
     /**
      * @method
      * @private
+     * @param {BoundingBox} boundingBox
+     * @return boolean
+     */
+    _intersectsBoundingBox: {
+        value: function (boundingBox) {
+            return this.coordinates[0].some(function (coordinate) {
+                return boundingBox.contains(coordinate);
+            });
+        }
+    },
+
+    /**
+     * @method
+     * @private
      * @param {Polygon} polygon
      * @return boolean
      */
     _intersectsPolygon: {
-        value: function (polygon) {
-            var isIntersecting = false,
-                outerRing = polygon.coordinates[0],
-                i, n;
-            for (i = 0, n = outerRing.length; i < n && !isIntersecting; i += 1) {
-                isIntersecting = this.contains(outerRing[i]);
-            }
-            return isIntersecting;
+        value: function (geometry) {
+            return this._intersectsRing(geometry.coordinates[0]);
+        }
+    },
+
+    /**
+     * @method
+     * @private
+     * @param {Array<Position>} coordinates
+     * @return boolean
+     */
+    _intersectsRing: {
+        value: function (coordinates) {
+            var tester = this.contains.bind(this);
+            return coordinates.some(function (coordinate) {
+                return tester(coordinate);
+            });
         }
     },
 

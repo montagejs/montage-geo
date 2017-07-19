@@ -218,8 +218,8 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         value: function (feature) {
             var geometry = feature.geometry;
             return this.splitAlongAntimeridian().some(function (bounds) {
-                return geometry instanceof GeometryCollection ? geometry.geometries.some(function (geometry) {
-                    return geometry.bounds.intersects(bounds);
+                return geometry instanceof GeometryCollection ? geometry.geometries.some(function (childGeometry) {
+                    return childGeometry.intersects(bounds);
                 }) : geometry.intersects(bounds)
             });
         }
