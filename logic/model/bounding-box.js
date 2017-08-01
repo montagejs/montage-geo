@@ -359,7 +359,7 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
 
     clone: {
         value: function () {
-            var other = new this();
+            var other = new exports.BoundingBox();
             other.xMin = this.xMin;
             other.yMin = this.yMin;
             other.xMax = this.xMax;
