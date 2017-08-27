@@ -215,7 +215,7 @@ Object.defineProperties(exports.Position, /** @lends Position */ {
         value: function () {
             var length = arguments.length, self;
             if (length && Array.isArray(arguments[0])) {
-                return exports.Position.withCoordinates.apply(this, (arguments[0]));
+                return exports.Position.withCoordinates.apply(this, arguments[0]);
             }
             self = new exports.Position();
             if (length > 0) self.longitude = arguments[0];

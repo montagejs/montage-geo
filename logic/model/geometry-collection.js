@@ -16,4 +16,14 @@ exports.GeometryCollection = Montage.specialize(/** @lends GeometryCollection.pr
         }
     }
 
-}, {});
+}, {/** @lends GeometryCollection.prototype */
+
+    withGeometries: {
+        value: function (geometries) {
+            var self = new this();
+            self._geometries = geometries;
+            return self;
+        }
+    }
+
+});
