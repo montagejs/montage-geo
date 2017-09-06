@@ -8,7 +8,7 @@ var Geometry = require("./geometry").Geometry,
  * @class
  * @extends external:Geometry
  */
-exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
+var Point = exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
 
     constructor: {
         value: function Point() {
@@ -45,8 +45,7 @@ exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
      */
 
     /**
-     * Returns the bearing from this point to the provided
-     * point.
+     * Returns the bearing from this point to the provided point.
      *
      * @method
      * @param {Point}
@@ -232,6 +231,17 @@ s     */
                 type: "Point",
                 coordinates: [position.longitude, position.latitude]
             };
+        }
+    },
+
+    /**
+     * Tests whether this Point's coordinates equals the provided one.
+     * @param {Point} - the point to test for equality.
+     * @return {boolean}
+     */
+    equals: {
+        value: function (other) {
+            return other instanceof Point && this.coordinates.equals(other.coordinates);
         }
     }
 

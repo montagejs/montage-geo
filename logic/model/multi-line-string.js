@@ -10,10 +10,12 @@ var Geometry = require("./geometry").Geometry,
  * @class
  * @extends external:Geometry
  */
-exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototype */ {
+var MultiLineString = exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototype */ {
 
     /**
-     * @type {array<Position>}
+     * The coordinates member of a multi-line string is an array of line string
+     * geometries.
+     * @type {array<LineString>}
      */
     coordinates: {
         value: undefined
@@ -143,6 +145,34 @@ exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototy
 
     _shouldRecalculate: {
         value: false
+    },
+
+    /**
+     * Tests whether this Multi-Line String's coordinates member equals the
+     * provided one.  The two geometries are considered equal if they have the
+     * same number of child line-strings and each child is considered equal
+     * to the passed in multi-line string's child at the same position.
+     * @param {MultiLineString} other - the multi-line string to test for
+     *                                  equality.
+     * @return {boolean}
+     */
+    equals: {
+        value: function (other) {
+            var isThis = other instanceof MultiLineString,
+                a = isThis && this.coordinates,
+                b = isThis && other.coordinates;
+            return isThis && a.length === b.length && this._compare(a, b);
+        }
+    },
+
+    _compare: {
+        value: function (a, b) {
+            var isEqual = true, i, n;
+            for (i = 0, n = a.length; i < n && isEqual; i += 1) {
+                isEqual = a[i].equals(b[i]);
+            }
+            return isEqual;
+        }
     }
 
 }, {

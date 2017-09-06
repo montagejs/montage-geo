@@ -10,7 +10,7 @@ var Geometry = require("./geometry").Geometry,
  * @class
  * @extends external:Geometry
  */
-exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ {
+var MultiPolygon = exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ {
 
     /**
      * @type {array<Polygon>>
@@ -135,6 +135,33 @@ exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ 
 
     _coordinatesRangeChangeCanceler: {
         value: undefined
+    },
+
+    /**
+     * Tests whether this Multi-Polygon's coordinates member equals the
+     * provided one.  The two geometries are considered equal if they have the
+     * same number of child polygons and each child is considered equal
+     * to the passed in multi-polygon's child at the same position.
+     * @param {MultiPolygon} other - the multi-polygon to test for equality.
+     * @return {boolean}
+     */
+    equals: {
+        value: function (other) {
+            var isThis = other instanceof MultiPolygon,
+                a = isThis && this.coordinates,
+                b = isThis && other.coordinates;
+            return isThis && a.length === b.length && this._compare(a, b);
+        }
+    },
+
+    _compare: {
+        value: function (a, b) {
+            var isEqual = true, i, n;
+            for (i = 0, n = a.length; i < n && isEqual; i += 1) {
+                isEqual = a[i].equals(b[i]);
+            }
+            return isEqual;
+        }
     }
 
 }, {

@@ -113,5 +113,14 @@ describe("A Point", function () {
         expect(controller.destination.coordinates.longitude.toFixed(2)).toBe("4.04");
     });
 
+    it ("can test for equality", function () {
+        var a = Point.withCoordinates([0, 0]),
+            b = Point.withCoordinates([0, 0]),
+            c = Point.withCoordinates([1, 1]);
+
+        expect(a.equals(b)).toBe(true);
+        expect(a.equals(c)).toBe(false);
+    });
+
 
 });

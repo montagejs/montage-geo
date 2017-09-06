@@ -70,5 +70,36 @@ describe("A Polygon", function () {
         expect(p1.intersects(p2)).toBe(false);
     });
 
+    it("can test for equality", function () {
+        var a = Polygon.withCoordinates([
+                [[0,0], [0,40], [40,40], [40,0], [0,0]],
+                [[10,10], [10,30], [30,30], [30,10], [10,10]]
+            ]),
+            b = Polygon.withCoordinates([
+                [[0,0], [0,40], [40,40], [40,0], [0,0]],
+                [[10,10], [10,30], [30,30], [30,10], [10,10]]
+            ]),
+            c = Polygon.withCoordinates([
+                [[0,0], [0,40], [40,40], [40,0], [0,0]]
+            ]),
+            d = Polygon.withCoordinates([
+                [[0,0], [0,40], [40,40], [40,0], [0,0]],
+                [[10,10], [10,30], [30,0], [30,10], [10,10]]
+            ]),
+            e = Polygon.withCoordinates([
+                [[0,0], [0,40], [40,40], [40,0], [0,0]],
+                [[10,10], [10,30], [30,0], [10,10]]
+            ]);
+
+        expect(a.equals(b)).toBe(true);
+        // c only doesn't have a hole
+        expect(a.equals(c)).toBe(false);
+        // d has a different latitude in the hole's 3rd element
+        expect(a.equals(d)).toBe(false);
+        // e has a different number of positions in its hole.
+        expect(a.equals(e)).toBe(false);
+
+    });
+
 
 });

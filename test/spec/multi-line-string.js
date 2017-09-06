@@ -63,4 +63,45 @@ describe("A MultiLineString", function () {
         expect(multiline.intersects(nonIntersectingBoundingBox)).toBe(false);
     });
 
+    it ("can test for equality", function () {
+        var a = MultiLineString.withCoordinates([
+                [[0, 0], [0, 10]],
+                [[0, 0], [0, -10]],
+                [[0, 0], [10, 0]],
+                [[0, 0], [-10, 0]]
+            ]),
+            b = MultiLineString.withCoordinates([
+                [[0, 0], [0, 10]],
+                [[0, 0], [0, -10]],
+                [[0, 0], [10, 0]],
+                [[0, 0], [-10, 0]]
+            ]),
+            c = MultiLineString.withCoordinates([
+                [[0, 0], [0, 10]],
+                [[0, 0], [10, 0]],
+                [[0, 0], [-10, 0]]
+            ]),
+            d = MultiLineString.withCoordinates([
+                [[0, 0], [0, 10]],
+                [[0, 0], [0, -10]],
+                [[10, 0], [10, 0]],
+                [[0, 0], [-10, 0]]
+            ]),
+            e = MultiLineString.withCoordinates([
+                [[0, 0], [0, 10]],
+                [[0, 0], [0, -10]],
+                [[0, 0], [10, 0], [10, 10]],
+                [[0, 0], [-10, 0]]
+            ]);
+
+        expect(a.equals(b)).toBe(true);
+        // c has fewer line-string children
+        expect(a.equals(c)).toBe(false);
+        // d has a different longitude for the third child line-string's
+        // first element
+        expect(a.equals(d)).toBe(false);
+        // e has an additional position in the third child line-string
+        expect(a.equals(e)).toBe(false);
+    });
+
 });

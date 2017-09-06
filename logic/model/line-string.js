@@ -12,6 +12,14 @@ var Geometry = require("./geometry").Geometry,
 var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.prototype */ {
 
     /**
+     * The "coordinates" member is an array of two or more positions.
+     * @type {array<Position>}
+     */
+    coordinates: {
+        value: undefined
+    },
+
+    /**
      * @override
      * @returns array<Position>
      */
@@ -88,8 +96,35 @@ var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.
                 coordinates: coordinates
             };
         }
-    }
+    },
 
+    /**
+     * Tests whether this LineString's coordinates equals the provided one.
+     * For the two coordinates properties to be considered equal they must
+     * contain the same number of positions, in the same order and with the
+     * exact same values.
+     *
+     * @param {LineString} other - the line string to test for equality.
+     * @return {boolean}
+     */
+    equals: {
+        value: function (other) {
+            var isLineString = other instanceof LineString,
+                a = isLineString && this.coordinates,
+                b = isLineString && other.coordinates;
+            return isLineString && a.length === b.length && this._compare(a, b);
+        }
+    },
+
+    _compare: {
+        value: function (a, b) {
+            var isEqual = true, i, n;
+            for (i = 0, n = a.length; i < n && isEqual; i += 1) {
+                isEqual = a[i].equals(b[i]);
+            }
+            return isEqual;
+        }
+    }
 
 }, {
 

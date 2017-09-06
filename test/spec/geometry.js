@@ -1,5 +1,4 @@
-var Geometry = require("montage-geo/logic/model/geometry").Geometry,
-    Point = require("montage-geo/logic/model/point").Point;
+var Geometry = require("montage-geo/logic/model/geometry").Geometry;
 
 describe("A Geometry", function () {
 

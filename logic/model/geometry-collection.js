@@ -5,7 +5,7 @@ var Montage = require("montage/core/core").Montage;
  * @class
  * @extends external:Montage
  */
-exports.GeometryCollection = Montage.specialize(/** @lends GeometryCollection.prototype */ {
+var GeometryCollection = exports.GeometryCollection = Montage.specialize(/** @lends GeometryCollection.prototype */ {
 
     geometries: {
         get: function () {
@@ -14,6 +14,33 @@ exports.GeometryCollection = Montage.specialize(/** @lends GeometryCollection.pr
             }
             return this._geometries;
         }
+    },
+
+    /**
+     * Tests whether this geometry collection's geometries are equal to the
+     * provided one.  The collection's are considered equal if the two coll-
+     * ections have the same number of children and each child is equal to the
+     * provide collection's child at the same position.
+     * @return {boolean}
+     */
+    equals: {
+        // TODO: Write spec
+        value: function (other) {
+            var isThis = other instanceof GeometryCollection,
+                a = this.geometries,
+                b = other.geometries;
+            return isThis && a.length === b.length && this._compare(a, b);
+        }
+    },
+
+    _compare: {
+        value: function (a, b) {
+            var isEqual = true, i, n;
+            for (i = 0, n = a.length; i < n && isEqual; i += 1) {
+                isEqual = a[i].equals(b[i]);
+            }
+            return isEqual;
+        }
     }
 
 }, {/** @lends GeometryCollection.prototype */
@@ -21,7 +48,7 @@ exports.GeometryCollection = Montage.specialize(/** @lends GeometryCollection.pr
     withGeometries: {
         value: function (geometries) {
             var self = new this();
-            self._geometries = geometries;
+            self._geometries = geometries.slice();
             return self;
         }
     }

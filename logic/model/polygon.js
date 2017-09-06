@@ -11,7 +11,7 @@ var Geometry = require("./geometry").Geometry,
  * @class
  * @extends external:Geometry
  */
-exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
+var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
 
     /**
      * @type {array<array<Position>>
@@ -232,6 +232,45 @@ exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
 
     _rangeChangeCanceler: {
         value: undefined
+    },
+
+    /**
+     * Tests whether this Polygon's coordinates member equals the provided one.
+     * The two polygons are considered equal if they have the same number of
+     * rings and each ring has the same number of positions, in the same order
+     * and each position is equal.
+     * @param {Polygon} other - the polygon to test for equality.
+     * @return {boolean}
+     */
+    equals: {
+        value: function (other) {
+            var isPolygon = other instanceof Polygon,
+                a = isPolygon && this.coordinates,
+                b = isPolygon && other.coordinates;
+
+            return isPolygon && a.length === b.length && this._compareRings(a, b);
+        }
+    },
+
+    _compareRings: {
+        value: function (a, b) {
+            var isEqual = true,
+                i, n;
+            for (i = 0, n = a.length; i < n && isEqual; i += 1) {
+                isEqual = a[i].length === b[i].length && this._compare(a[i], b[i]);
+            }
+            return isEqual;
+        }
+    },
+
+    _compare: {
+        value: function (a, b) {
+            var isEqual = true, i, n;
+            for (i = 0, n = a.length; i < n && isEqual; i += 1) {
+                isEqual = a[i].equals(b[i]);
+            }
+            return isEqual;
+        }
     }
 
 }, {

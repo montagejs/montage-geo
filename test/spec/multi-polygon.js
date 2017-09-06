@@ -42,6 +42,39 @@ describe("A MultiPolygon", function () {
         expect(roundedBbox(multipolygon.bounds.bbox).join(",")).toBe("-10,-10,10,10");
     });
 
+    it ("can test for equality", function () {
+        var a = MultiPolygon.withCoordinates([
+                [[[0,0], [0,10], [10,10], [10,0], [0,0]]],
+                [[[0,0], [0,-10], [-10,-10], [-10,0], [0,0]]]
+            ]),
+            b = MultiPolygon.withCoordinates([
+                [[[0,0], [0,10], [10,10], [10,0], [0,0]]],
+                [[[0,0], [0,-10], [-10,-10], [-10,0], [0,0]]]
+            ]),
+            c = MultiPolygon.withCoordinates([
+                [[[0,0], [0,10], [10,10], [10,0], [0,0]]],
+                [[[0,0], [0,-10], [-10,-10], [-10,0]]]
+            ]),
+            d = MultiPolygon.withCoordinates([
+                [[[0,0], [0,10], [10,10], [10,0], [0,0]]],
+                [[[0,0], [0,-10], [-10,-10], [-10,0], [0,0]]],
+                [[[0,-10], [0,-20], [-10,-20], [-10,-10], [0,-10]]]
+
+            ]),
+            e = MultiPolygon.withCoordinates([
+                [[[0,0], [0,10], [10,10], [10,0], [0,0]]],
+                [[[0,0], [0,-20], [-10,-10], [-10,0], [0,0]]]
+            ]);
+
+        expect(a.equals(b)).toBe(true);
+        // c has one less position in its second polygon's outer ring
+        expect(a.equals(c)).toBe(false);
+        // d has a different number of child polygons
+        expect(a.equals(d)).toBe(false);
+        // e has a different latitude for the 2nd child polygon's latitude in
+        // the outer ring's second position.
+        expect(a.equals(e)).toBe(false);
+    });
 
     // it("can calculate its bbox", function () {
     //     var multiline = MultiLineString.withCoordinates([

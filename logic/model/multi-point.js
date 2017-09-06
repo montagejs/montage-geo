@@ -8,7 +8,7 @@ var Geometry = require("./geometry").Geometry,
  * @class
  * @extends external:Geometry
  */
-exports.MultiPoint = Geometry.specialize(/** @lends MultiPoint.prototype */ {
+var MultiPoint = exports.MultiPoint = Geometry.specialize(/** @lends MultiPoint.prototype */ {
 
     /**
      * @override
@@ -18,6 +18,14 @@ exports.MultiPoint = Geometry.specialize(/** @lends MultiPoint.prototype */ {
         get: function () {
             return this.coordinates;
         }
+    },
+
+    /**
+     * The "coordinates" member is an array of positions.
+     * @type {array<Position>
+     */
+    coordinates: {
+        value: undefined
     },
 
     intersects: {
@@ -37,6 +45,34 @@ exports.MultiPoint = Geometry.specialize(/** @lends MultiPoint.prototype */ {
                     return [position.longitude, position.latitude];
                 })
             }
+        }
+    },
+
+    /**
+     * Tests whether this Multi-Point's coordinates equals the provided one.
+     * For the two coordinates properties to be considered they must contain
+     * the same number of positions, in the same order and with the exact
+     * same values.
+     *
+     * @param {MultiPoint} other - the multi-point to test for equality.
+     * @return {boolean}
+     */
+    equals: {
+        value: function (other) {
+            var isThis = other instanceof MultiPoint,
+                a = isThis && this.coordinates,
+                b = isThis && other.coordinates;
+            return isThis && a.length === b.length && this._compare(a, b);
+        }
+    },
+
+    _compare: {
+        value: function (a, b) {
+            var isEqual = true, i, n;
+            for (i = 0, n = a.length; i < n && isEqual; i += 1) {
+                isEqual = a[i].equals(b[i]);
+            }
+            return isEqual;
         }
     }
 

@@ -41,4 +41,15 @@ describe("A LineString", function () {
         expect(line.intersects(nonIntersectingBoundingBox)).toBe(false);
     });
 
+    it ("can test for equality", function () {
+        var a = LineString.withCoordinates([[0, 0], [10, 0], [10, 10], [0, 10]]),
+            b = LineString.withCoordinates([[0, 0], [10, 0], [10, 10], [0, 10]]),
+            c = LineString.withCoordinates([[0, 0], [10, 0], [10, 10]]),
+            d = LineString.withCoordinates([[0, 0], [10, 0], [10, 10], [10, 10]]);
+
+        expect(a.equals(b)).toBe(true);
+        expect(a.equals(c)).toBe(false);
+        expect(a.equals(d)).toBe(false);
+    });
+
 });
