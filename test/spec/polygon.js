@@ -24,6 +24,13 @@ describe("A Polygon", function () {
         expect(roundedBbox(p1.bounds.bbox).join(",")).toBe("0,0,10,10");
     });
 
+    it("can properly calculate its perimeter", function () {
+        var p1 = Polygon.withCoordinates([
+            [[0,0], [0,10], [10,10], [10,0], [0,0]]
+        ]);
+        expect(Math.round(p1.perimeter / 1000)).toBe(4431);
+    });
+
     it("can properly update its bounds.", function () {
         var p1 = Polygon.withCoordinates([
                 [[0,0], [0,10], [10,10], [10,0], [0,0]]

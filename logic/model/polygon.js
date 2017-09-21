@@ -140,6 +140,39 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
         }
     },
 
+    /**
+     *
+     * Returns the perimeter of this polygon in meters.
+     *
+     * @method
+     * @public
+     * @return Number - the perimeter.
+     */
+    perimeter: {
+        get: function () {
+            var coordinates = this.coordinates[0],
+                perimeter = 0,
+                coordinate, nextCoordinate,
+                i, j, n;
+            for (i = 0, j = 1, n = coordinates.length; i < n; i += 1, j += 1) {
+                coordinate = coordinates[i];
+                nextCoordinate = coordinates[j === n ? 0 : j];
+                perimeter += coordinate.distance(nextCoordinate);
+            }
+            return perimeter;
+        }
+    },
+
+    /**
+     *
+     * Returns this polygon as a GeoJSON object. Please checkout
+     * {@link https://tools.ietf.org/html/rfc7946#section-3.1.6 | IETF Spec}
+     * for more information.
+     *
+     * @method
+     * @public
+     * @return Object - an object in GeoJSON format.
+     */
     toGeoJSON: {
         value: function () {
             var coordinates = this.coordinates && this.coordinates.map(function (rings) {
