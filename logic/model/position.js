@@ -184,6 +184,77 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
         }
     },
 
+    /**
+     * Vincenty direct calculation.
+     * https://github.com/chrisveness/geodesy/blob/master/latlon-vincenty.js
+     * @private
+     * @param   {number} distance - Distance along bearing in meters.
+     * @param   {number} initialBearing - Initial bearing in degrees from north.
+     * @returns (Position} the final position.
+     * @throws  {Error}  If formula failed to converge.
+     */
+    vincentyDirect: {
+        value: function (distance, initialBearing, datum) {
+            datum = datum || exports.Position.DATUM;
+
+            var φ1 = exports.Position.toRadians(this.latitude),
+                λ1 = exports.Position.toRadians(this.longitude),
+                α1 = exports.Position.toRadians(initialBearing),
+                s = distance;
+
+            var a = datum.ellipsoid.a, b = datum.ellipsoid.b, f = datum.ellipsoid.f;
+
+            var sinα1 = Math.sin(α1);
+            var cosα1 = Math.cos(α1);
+
+            var tanU1 = (1 - f) * Math.tan(φ1), cosU1 = 1 / Math.sqrt((1 + tanU1 * tanU1)), sinU1 = tanU1 * cosU1;
+            var σ1 = Math.atan2(tanU1, cosα1);
+            var sinα = cosU1 * sinα1;
+            var cosSqα = 1 - sinα * sinα;
+            var uSq = cosSqα * (a * a - b * b) / (b * b);
+            var A = 1 + uSq / 16384 * (4096 + uSq * (-768 + uSq * (320 - 175 * uSq)));
+            var B = uSq / 1024 * (256 + uSq * (-128 + uSq * (74 - 47 * uSq)));
+
+            var cos2σM, sinσ, cosσ, Δσ;
+
+            var σ = s / (b * A), σʹ, iterations = 0;
+            do {
+                cos2σM = Math.cos(2 * σ1 + σ);
+                sinσ = Math.sin(σ);
+                cosσ = Math.cos(σ);
+                Δσ = B * sinσ * (cos2σM + B / 4 * (cosσ * (-1 + 2 * cos2σM * cos2σM) -
+                    B / 6 * cos2σM * (-3 + 4 * sinσ * sinσ) * (-3 + 4 * cos2σM * cos2σM)));
+                σʹ = σ;
+                σ = s / (b * A) + Δσ;
+            } while (Math.abs(σ - σʹ) > 1e-12 && ++iterations < 200);
+            if (iterations >= 200) throw new Error('Formula failed to converge'); // not possible?
+
+            var x = sinU1 * sinσ - cosU1 * cosσ * cosα1;
+            var φ2 = Math.atan2(sinU1 * cosσ + cosU1 * sinσ * cosα1, (1 - f) * Math.sqrt(sinα * sinα + x * x));
+            var λ = Math.atan2(sinσ * sinα1, cosU1 * cosσ - sinU1 * sinσ * cosα1);
+            var C = f / 16 * cosSqα * (4 + f * (4 - 3 * cosSqα));
+            var L = λ - (1 - C) * f * sinα *
+                (σ + C * sinσ * (cos2σM + C * cosσ * (-1 + 2 * cos2σM * cos2σM)));
+            //var λ2 = (λ1+L+3*Math.PI)%(2*Math.PI) - Math.PI;  // normalise to -180...+180
+            var λ2 = (λ1 + L); // do not normalize
+            var α2 = Math.atan2(sinα, -x);
+            α2 = (α2 + 2 * Math.PI) % (2 * Math.PI); // normalise to 0...360
+
+            return exports.Position.withCoordinates(
+                this._normalizeLongitude(exports.Position.toDegrees(λ2)), exports.Position.toDegrees(φ2)
+            );
+        }
+    },
+
+    _normalizeLongitude: {
+        value: function (longitude) {
+            return  longitude > 180 ? ((longitude + 180) % 360) - 180 :
+                    longitude < -180 ? ((longitude - 180) % 360) + 180 :
+                    longitude;
+        }
+    },
+
+
     clone: {
         value: function () {
             return exports.Position.withCoordinates(this.longitude, this.latitude, this.altitude);
@@ -196,6 +267,16 @@ Object.defineProperties(exports.Position, /** @lends Position */ {
 
     EARTH_RADIUS: {
         value: 6371e3
+    },
+
+    DATUM: {
+        value: {
+            ellipsoid: {
+                a: 6378137,
+                b: 6356752.31425,
+                f: 1 / 298.257223563
+            }
+        }
     },
 
     /**

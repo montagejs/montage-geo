@@ -57,7 +57,6 @@ var Point = exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
         }
     },
 
-
     /**
      * Returns the destination Point having travelled the given distance along a geodesic
      * path given by initial bearing from ‘this’ Point, using Vincenty direct solution.
