@@ -162,4 +162,39 @@ describe("A FeatureCollection", function () {
 
     });
 
+    it("can observe changes to child geometries", function () {
+        var collection = FeatureCollection.withFeatures([lahaina]);
+        collection.addContentPropertyChangeListener("geometry", function (value, key, object) {
+            expect(value.coordinates.latitude).toBe(0);
+            expect(value.coordinates.longitude).toBe(0);
+            expect(key).toBe("geometry");
+            expect(object).toBe(lahaina);
+        });
+
+        lahaina.geometry = Point.withCoordinates([0, 0]);
+
+    });
+
+    it("can observe changes to child geometries added to the collection", function () {
+        var collection = FeatureCollection.withFeatures();
+        collection.addContentPropertyChangeListener("geometry", function (value, key, object) {
+            expect(value.coordinates.latitude).toBe(0);
+            expect(value.coordinates.longitude).toBe(0);
+            expect(key).toBe("geometry");
+            expect(object).toBe(lahaina);
+        });
+        collection.features.push(lahaina);
+        lahaina.geometry = Point.withCoordinates([0, 0]);
+
+    });
+
+    it("can cancel unneeded observers", function () {
+        var collection = FeatureCollection.withFeatures([lahaina]),
+            handler = function () {};
+        collection.addContentPropertyChangeListener("geometry", handler);
+        expect(collection._contentPropertyChangeCancellers.get(handler).size).toBe(1);
+        collection.features.splice(0, Infinity);
+        expect(collection._contentPropertyChangeCancellers.get(handler).size).toBe(0);
+    });
+
 });

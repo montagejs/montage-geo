@@ -249,6 +249,37 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
         }
     },
 
+    addContentPropertyChangeListener: {
+        value: function (name, handler) {
+            var contentPropertyChangeCancellers = this._contentPropertyChangeCancellers.get(handler) || new Map();
+            this._contentPropertyChangeListeners[name] = this._contentPropertyChangeListeners[name] || new Set();
+            this._contentPropertyChangeListeners[name].add(handler);
+            this.features.forEach(function (feature) {
+                var cancel = feature.addOwnPropertyChangeListener(name, handler);
+                contentPropertyChangeCancellers.set(feature, cancel);
+            });
+            this._contentPropertyChangeCancellers.set(handler, contentPropertyChangeCancellers);
+        }
+    },
+
+    _contentPropertyChangeCancellers: {
+        get: function () {
+            if (!this.__contentPropertyChangeCancellers) {
+                this.__contentPropertyChangeCancellers = new Map();
+            }
+            return this.__contentPropertyChangeCancellers;
+        }
+    },
+
+    _contentPropertyChangeListeners: {
+        get: function () {
+            if (!this.__contentPropertyChangeListeners) {
+                this.__contentPropertyChangeListeners = {};
+            }
+            return this.__contentPropertyChangeListeners;
+        }
+    },
+
     _deregisterFeatures: {
         value: function () {
             var i, length;
@@ -262,6 +293,7 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
         value: function (feature) {
             if (this._featuresSet.has(feature)) this._featuresSet.delete(feature);
             if (feature.id && this._featuresMap.has(feature.id)) this._featuresMap.delete(feature.id);
+            this._removePropertyChangeObservers(feature);
         }
     },
 
@@ -274,6 +306,7 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
                 // in this case?
                 // TODO: Determine why this is necessary
                 this._featuresSet.delete(duplicate);
+                this._removePropertyChangeObservers(duplicate);
             }
         }
     },
@@ -293,7 +326,34 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
             if (feature.id) {
                 this._deregisterDuplicate(feature.id);
                 this._featuresMap.set(feature.id, feature);
+                this._addPropertyChangeObservers(feature);
             }
+        }
+    },
+
+    _addPropertyChangeObservers: {
+        value: function (feature) {
+            var self = this,
+                propertyName, handlers;
+            for (propertyName in this._contentPropertyChangeListeners) {
+                handlers = this._contentPropertyChangeListeners[propertyName];
+                handlers.forEach(function (handler) {
+                    var contentPropertyChangeCancellers = self._contentPropertyChangeCancellers.get(handler) || new Map(),
+                        cancel = feature.addOwnPropertyChangeListener(propertyName, handler);
+                    contentPropertyChangeCancellers.set(feature, cancel);
+                    self._contentPropertyChangeCancellers.set(handler, contentPropertyChangeCancellers)
+                });
+            }
+        }
+    },
+
+    _removePropertyChangeObservers: {
+        value: function (feature) {
+            this._contentPropertyChangeCancellers.forEach(function (cancelMap) {
+                var cancel = cancelMap.get(feature);
+                cancel && cancel();
+                cancelMap.delete(feature);
+            });
         }
     }
 
