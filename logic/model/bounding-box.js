@@ -1,6 +1,7 @@
 var Montage = require("montage/core/core").Montage,
     GeometryCollection = require("logic/model/geometry-collection").GeometryCollection,
-    GeohashCollection = require("logic/model/geohash-collection").GeohashCollection;
+    GeohashCollection = require("logic/model/geohash-collection").GeohashCollection,
+    Position = require("logic/model/position").Position;
 
 /**
  *
@@ -320,6 +321,11 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
      * Mutating
      */
 
+    /**
+     * Extend this bounding box with the provided position.
+     * @public
+     * @param {Position}
+     */
     extend: {
         value: function (position) {
             var lng = position.longitude,
@@ -328,6 +334,26 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             if (this.xMax < lng) this.xMax = lng;
             if (this.yMin > lat) this.yMin = lat;
             if (this.yMax < lat) this.yMax = lat;
+        }
+    },
+
+    /**
+     * Extend this bounding box in each direction by the number of meters
+     * provided.
+     * @public
+     * @param {number}
+     */
+    buffer: {
+        value: function (meters) {
+            var distance = Math.sqrt(Math.pow(meters, 2) + Math.pow(meters, 2)),
+                southWest = Position.withCoordinates(this.xMin, this.yMin),
+                northEast = Position.withCoordinates(this.xMax, this.yMax);
+            southWest = southWest.vincentyDirect(distance, 225);
+            northEast = northEast.vincentyDirect(distance, 45);
+            this.xMin = southWest.longitude;
+            this.yMin = southWest.latitude;
+            this.xMax = northEast.longitude;
+            this.yMax = northEast.latitude;
         }
     },
 

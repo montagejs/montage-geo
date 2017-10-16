@@ -154,4 +154,14 @@ describe("A BoundingBox", function () {
         expect(bounds.hashes.size).toBe(32);
     });
 
+    it ("can be properly calculate its buffer", function () {
+        var bounds = BoundingBox.withCoordinates(0, 0, 10, 10);
+        bounds.buffer(100000);
+        expect(Math.round(bounds.xMin * 10) / 10).toBe(-0.9);
+        expect(Math.round(bounds.yMin * 10) / 10).toBe(-0.9);
+        expect(Math.round(bounds.xMax * 10) / 10).toBe(10.9);
+        expect(Math.round(bounds.yMax * 10) / 10).toBe(10.9);
+    })
+
+
 });

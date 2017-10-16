@@ -221,7 +221,7 @@ var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */
 
     /**
      * Returns this circle as a Montage-Geo Polygon.  The ring of
-     * the polygon is converted to geodesic coordinates using the vincenty
+     * the circle is converted to geodesic coordinates using the vincenty
      * direct method.
      *
      * @returns {Polygon}
@@ -260,7 +260,7 @@ var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */
     }
 
 }, {
-    
+
     /**
      * Returns a newly initialized circle with the specified center and radius.
      *
