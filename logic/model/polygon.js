@@ -13,6 +13,20 @@ var Geometry = require("./geometry").Geometry,
  */
 var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
 
+    addCoordinatesListener: {
+        value: function (listener, handlerName) {
+            var cancelers = [
+                this.addRangeAtPathChangeListener("coordinates", listener, handlerName),
+                this.addRangeAtPathChangeListener("coordinates[0]", listener, handlerName)
+            ];
+            return function () {
+                cancelers.forEach(function (fn) {
+                    fn();
+                });
+            };
+        }
+    },
+
     /**
      * @type {array<array<Position>>
      */

@@ -5,8 +5,10 @@ var FeatureCollection = require("montage-geo/logic/model/feature-collection").Fe
     Point = require("montage-geo/logic/model/point").Point;
 
 describe("A FeatureCollection", function () {
+    var lahaina, kahului;
 
-    var lahaina = Feature.withGeoJSON({
+    beforeEach(function () {
+        lahaina = Feature.withGeoJSON({
             id: 42,
             properties: {
                 name: "Lahaina"
@@ -15,7 +17,7 @@ describe("A FeatureCollection", function () {
                 type: "Point",
                 coordinates: [-156.6825, 20.8783]
             }
-        }),
+        });
         kahului = Feature.withGeoJSON({
             id: 43,
             properties: {
@@ -26,6 +28,8 @@ describe("A FeatureCollection", function () {
                 coordinates: [-156.4729, 20.8893]
             }
         });
+    });
+    
 
 
     it("can be created", function () {
@@ -175,17 +179,65 @@ describe("A FeatureCollection", function () {
 
     });
 
-    it("can observe changes to child geometries added to the collection", function () {
-        var collection = FeatureCollection.withFeatures();
-        collection.addContentPropertyChangeListener("geometry", function (value, key, object) {
-            expect(value.coordinates.latitude).toBe(0);
-            expect(value.coordinates.longitude).toBe(0);
-            expect(key).toBe("geometry");
-            expect(object).toBe(lahaina);
-        });
+    it("can update bounds for child geometries", function () {
+        var collection = FeatureCollection.withFeatures([lahaina, kahului]),
+            bounds = collection.bounds;
+
+        expect(bounds.xMax.toFixed(4)).toBe('-156.4729');
+        expect(bounds.xMin.toFixed(4)).toBe('-156.6825');
+        expect(bounds.yMax.toFixed(4)).toBe('20.8893');
+        expect(bounds.yMin.toFixed(4)).toBe('20.8783');
+    });
+    
+    it("can update bounds for child geometry changes", function () {
+        var collection = FeatureCollection.withFeatures([lahaina, kahului]),
+            bounds;
+
+        lahaina.geometry = Point.withCoordinates([0, 0]);
+        bounds = collection.bounds;
+        expect(bounds.xMax).toBe(0);
+        expect(bounds.xMin.toFixed(4)).toBe('-156.4729');
+        expect(bounds.yMax.toFixed(4)).toBe('20.8893');
+        expect(bounds.yMin).toBe(0);
+    });
+
+    it("can update bounds for child geometries added to the collection", function () {
+        var collection = FeatureCollection.withFeatures([kahului]),
+            bounds;
+
         collection.features.push(lahaina);
         lahaina.geometry = Point.withCoordinates([0, 0]);
+        bounds = collection.bounds;
+        expect(bounds.xMax).toBe(0);
+        expect(bounds.xMin.toFixed(4)).toBe('-156.4729');
+        expect(bounds.yMax.toFixed(4)).toBe('20.8893');
+        expect(bounds.yMin).toBe(0);
+    });
 
+    it("can update bounds for internal geometry changes on children", function () {
+        var collection = FeatureCollection.withFeatures([lahaina, kahului]),
+            bounds;
+        
+        lahaina.geometry = Point.withCoordinates([0, 0]);
+        bounds = collection.bounds;
+        expect(bounds.xMax).toBe(0);
+        expect(bounds.xMin.toFixed(4)).toBe('-156.4729');
+        expect(bounds.yMax.toFixed(4)).toBe('20.8893');
+        expect(bounds.yMin).toBe(0);
+    });
+
+    it("can update bounds for internal geometry changes on children added to the collection", function () {
+        var collection = FeatureCollection.withFeatures([kahului]),
+            bounds;
+
+        collection.features.push(lahaina);
+        lahaina.geometry.coordinates.latitude = 0;
+        lahaina.geometry.coordinates.longitude = 0;
+        bounds = collection.bounds;
+        expect(bounds.xMax).toBe(0);
+        expect(bounds.xMin.toFixed(4)).toBe('-156.4729');
+        expect(bounds.yMax.toFixed(4)).toBe('20.8893');
+        expect(bounds.yMin).toBe(0);
     });
 
     it("can cancel unneeded observers", function () {

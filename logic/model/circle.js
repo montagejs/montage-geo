@@ -13,9 +13,23 @@ var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */
 
     constructor: {
         value: function Circle() {
-            this.addPathChangeListener("coordinates.latitude", this, "coordinatesDidChange");
-            this.addPathChangeListener("coordinates.longitude", this, "coordinatesDidChange");
-            this.addPathChangeListener("radius", this, "coordinatesDidChange");
+            this.addCoordinatesListener(this, "coordinatesDidChange");
+        }
+    },
+
+    addCoordinatesListener: {
+        value: function (listener, handlerName) {
+            var cancelers = [
+                this.addPathChangeListener("coordinates.latitude", listener, handlerName),
+                this.addPathChangeListener("coordinates.longitude", listener, handlerName),
+                this.addPathChangeListener("radius", listener, handlerName)
+            ];
+            
+            return function () {
+                cancelers.forEach(function (fn) {
+                    fn();
+                });
+            };
         }
     },
 

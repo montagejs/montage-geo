@@ -324,16 +324,27 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
     /**
      * Extend this bounding box with the provided position.
      * @public
-     * @param {Position}
+     * @param {Position|BoundingBox}
      */
     extend: {
-        value: function (position) {
-            var lng = position.longitude,
-                lat = position.latitude;
-            if (this.xMin > lng) this.xMin = lng;
-            if (this.xMax < lng) this.xMax = lng;
-            if (this.yMin > lat) this.yMin = lat;
-            if (this.yMax < lat) this.yMax = lat;
+        value: function (positionOrBounds) {
+            var xMin, yMin, xMax, yMax;
+            if (positionOrBounds instanceof this.constructor) {
+                xMin = positionOrBounds.xMin;
+                xMax = positionOrBounds.xMax;
+                yMin = positionOrBounds.yMin;
+                yMax = positionOrBounds.yMax;
+            } else {
+                xMin = xMax = positionOrBounds.longitude;
+                yMin = yMax = positionOrBounds.latitude;
+            }
+
+            if (this.xMin > xMin) this.xMin = xMin;
+            if (this.xMax < xMax) this.xMax = xMax;
+            if (this.yMin > yMin) this.yMin = yMin;
+            if (this.yMax < yMax) this.yMax = yMax;
+
+
         }
     },
 

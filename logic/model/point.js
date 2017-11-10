@@ -12,8 +12,22 @@ var Point = exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
 
     constructor: {
         value: function Point() {
-            this.addPathChangeListener("coordinates.latitude", this, "coordinatesDidChange");
-            this.addPathChangeListener("coordinates.longitude", this, "coordinatesDidChange");
+            this.addCoordinatesListener(this, "coordinatesDidChange");
+        }
+    },
+
+    addCoordinatesListener: {
+        value: function (listener, handlerName) {
+            var cancelers = [
+                this.addPathChangeListener("coordinates.latitude", listener, handlerName),
+                this.addPathChangeListener("coordinates.longitude", listener, handlerName)
+            ];
+            
+            return function () {
+                cancelers.forEach(function (fn) {
+                    fn();
+                });
+            }
         }
     },
 

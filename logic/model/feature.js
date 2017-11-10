@@ -1,4 +1,5 @@
 var Montage = require("montage/core/core").Montage,
+    Geometry = require("./geometry").Geometry,
     LineString = require("./line-string").LineString,
     MultiLineString = require("./multi-line-string").MultiLineString,
     MultiPolygon = require("./multi-polygon").MultiPolygon,
@@ -14,6 +15,28 @@ var Montage = require("montage/core/core").Montage,
  * @extends external:Montage
  */
 exports.Feature = Montage.specialize(/** @lends Feature.prototype */ {
+
+    constructor: {
+        value: function Feature() {
+            this.addPathChangeListener("geometry", this, "geometryDidChange");
+        }
+    },
+
+    geometryDidChange: {
+        value: function () {
+            if (this.geometry) {
+                this._coordinateChangeCanceler = this.geometry.addCoordinatesListener(this, "_handleGeometryCoordinateChange");
+            }
+        }
+    },
+
+    _handleGeometryCoordinateChange: {
+        value: function () {
+            this.dispatchBeforeOwnPropertyChange("geometry", this.geometry);
+            this.dispatchOwnPropertyChange("geometry", this.geometry);
+        }
+    },
+
 
     /**
      * If a Feature has a commonly used identifier, that identifier
@@ -122,7 +145,7 @@ exports.Feature = Montage.specialize(/** @lends Feature.prototype */ {
             var self = new this();
             if (id) self.id = id;
             self.properties = properties || null;
-            self.geometry = geometry || null;
+            self.geometry = geometry instanceof Geometry ? geometry : null;
             return self;
         }
     }

@@ -1,6 +1,9 @@
 var Montage = require("montage/core/core").Montage,
     Map = require("collections/map"),
-    Set = require("collections/set");
+    Set = require("collections/set"),
+    BoundingBox = require("logic/model/bounding-box").BoundingBox;
+
+
 
 /**
  * A feature collection represents a group of features.  Every
@@ -17,6 +20,29 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
         value: function FeatureCollection() {
             this._features = [];
             this._features.addRangeChangeListener(this);
+            var self = this;
+            this.addRangeAtPathChangeListener("features.map{ geometry }", this, "_updateBounds");
+        }
+    },
+
+
+    _updateBounds: {
+        value: function () {
+            var self = this,
+                featureBounds, bounds; 
+                
+            this.features.forEach(function (feature) {
+                featureBounds = feature.geometry && feature.geometry.bounds;
+                bounds = bounds || featureBounds && featureBounds.clone();
+                if (bounds && featureBounds) {
+                    bounds.extend(featureBounds);
+                }
+            });
+
+            this.bounds = bounds;
+            if (bounds) {
+                // console.log("FeatureCollection.updateBounds", this.name, this.bounds.bbox, this.uuid);
+            }
         }
     },
 

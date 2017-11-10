@@ -15,7 +15,13 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
 
     constructor: {
         value: function Geometry() {
-            this.addPathChangeListener("coordinates", this, "coordinatesDidChange");
+            this.addCoordinatesListener(this, "coordinatesDidChange");
+        }
+    },
+
+    addCoordinatesListener: {
+        value: function (listener, handlerName) {
+            return this.addRangeAtPathChangeListener("coordinates", listener, handlerName);
         }
     },
 
