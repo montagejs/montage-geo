@@ -11,18 +11,32 @@ describe("A Point", function () {
         expect(point.coordinates instanceof Position).toBe(true);
     });
 
+    // TODO: Determine best way to properly observe point bounds.
     it("can be properly update its bounds", function () {
         var coordinates = [-156.6825, 20.8783],
             point = Point.withCoordinates(coordinates);
-        expect(point.bounds.bbox.join(",")).toBe("-156.6825,20.8783,-156.6825,20.8783");
+        expect(point.bounds().bbox.join(",")).toBe("-156.6825,20.8783,-156.6825,20.8783");
         point.coordinates.longitude = -156.683;
-        expect(point.bounds.bbox.join(",")).toBe("-156.683,20.8783,-156.683,20.8783");
+        expect(point.bounds().bbox.join(",")).toBe("-156.683,20.8783,-156.683,20.8783");
         point.coordinates.latitude = 20.9;
-        expect(point.bounds.bbox.join(",")).toBe("-156.683,20.9,-156.683,20.9");
+        expect(point.bounds().bbox.join(",")).toBe("-156.683,20.9,-156.683,20.9");
         point.coordinates = Position.withCoordinates(0, 0);
-        expect(point.bounds.bbox.join(",")).toBe("0,0,0,0");
+        expect(point.bounds().bbox.join(",")).toBe("0,0,0,0");
     });
-
+    
+    it('can create an observer for bounds', function () {
+        var point = Point.withCoordinates([-5.4253, 50.0359]),
+            controller = {
+                point: point,
+                bounds: undefined
+            };
+    
+        Bindings.defineBinding(controller, "bounds", {"<-": "point.bounds()"});
+        expect(controller.bounds.bbox.join(",")).toBe("-5.4253,50.0359,-5.4253,50.0359");
+        point.coordinates.longitude = 0;
+        expect(controller.bounds.bbox.join(",")).toBe("0,50.0359,0,50.0359");
+        
+    });
 
     it("can calculate initial bearing to another point", function () {
 
