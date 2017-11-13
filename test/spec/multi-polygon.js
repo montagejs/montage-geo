@@ -1,4 +1,5 @@
 var MultiPolygon = require("montage-geo/logic/model/multi-polygon").MultiPolygon,
+    Bindings = require("montage-geo/frb/bindings"),
     Polygon = require("montage-geo/logic/model/polygon").Polygon,
     Position = require("montage-geo/logic/model/position").Position;
 
@@ -21,7 +22,7 @@ describe("A MultiPolygon", function () {
         expect(multipolygon.coordinates[1] instanceof Polygon).toBe(true);
         expect(multipolygon.coordinates[0].coordinates[0].length).toBe(5);
         expect(multipolygon.coordinates[1].coordinates[0].length).toBe(5);
-        expect(roundedBbox(multipolygon.bounds.bbox).join(",")).toBe("-10,-10,10,10");
+        expect(roundedBbox(multipolygon.bounds().bbox).join(",")).toBe("-10,-10,10,10");
     });
 
     it("can update its bounds", function () {
@@ -29,17 +30,35 @@ describe("A MultiPolygon", function () {
             [[[0,0], [0,10], [10,10], [10,0], [0,0]]],
             [[[0,0], [0,-10], [-10,-10], [-10,0], [0,0]]]
         ]);
-        expect(roundedBbox(multipolygon.bounds.bbox).join(",")).toBe("-10,-10,10,10");
+        expect(roundedBbox(multipolygon.bounds().bbox).join(",")).toBe("-10,-10,10,10");
         multipolygon.coordinates.push(Polygon.withCoordinates([
             [[10, 0], [10, 10], [20, 10], [20, 0], [10, 0]]
         ]));
-        expect(roundedBbox(multipolygon.bounds.bbox).join(",")).toBe("-10,-10,20,10");
+        expect(roundedBbox(multipolygon.bounds().bbox).join(",")).toBe("-10,-10,20,10");
         multipolygon.coordinates.pop();
-        expect(roundedBbox(multipolygon.bounds.bbox).join(",")).toBe("-10,-10,10,10");
+        expect(roundedBbox(multipolygon.bounds().bbox).join(",")).toBe("-10,-10,10,10");
         multipolygon.coordinates[0].coordinates[0].splice(3, 0, Position.withCoordinates(20, 10));
-        expect(roundedBbox(multipolygon.bounds.bbox).join(",")).toBe("-10,-10,20,10");
+        expect(roundedBbox(multipolygon.bounds().bbox).join(",")).toBe("-10,-10,20,10");
         multipolygon.coordinates[0].coordinates[0].splice(3, 1);
-        expect(roundedBbox(multipolygon.bounds.bbox).join(",")).toBe("-10,-10,10,10");
+        expect(roundedBbox(multipolygon.bounds().bbox).join(",")).toBe("-10,-10,10,10");
+    });
+    
+    it("can create an observer for its bounds", function () {
+        var geometry = MultiPolygon.withCoordinates([
+                [[[0,0], [0,10], [10,10], [10,0], [0,0]]],
+                [[[0,0], [0,-10], [-10,-10], [-10,0], [0,0]]]
+            ]),
+            controller = {
+                geometry: geometry,
+                bounds: undefined
+            };
+        
+        Bindings.defineBinding(controller, "bounds", {"<-": "geometry.bounds()"});
+        expect(controller.bounds.bbox.join(",")).toBe("-10,-10,10,10");
+        geometry.coordinates.push(Polygon.withCoordinates([[[10,10], [10,20], [20,20], [20,0], [10,10]]]));
+        expect(controller.bounds.bbox.join(",")).toBe("-10,-10,20,20");
+        geometry.coordinates.pop();
+        expect(controller.bounds.bbox.join(",")).toBe("-10,-10,10,10");
     });
 
     it ("can test for equality", function () {
@@ -75,51 +94,5 @@ describe("A MultiPolygon", function () {
         // the outer ring's second position.
         expect(a.equals(e)).toBe(false);
     });
-
-    // it("can calculate its bbox", function () {
-    //     var multiline = MultiLineString.withCoordinates([
-    //         [[0, 0], [0, 10]],
-    //         [[0, 0], [0, -10]],
-    //         [[0, 0], [10, 0]],
-    //         [[0, 0], [-10, 0]]
-    //     ]);
-    //     expect(multiline.positions.length).toBe(8);
-    //     expect(multiline.bbox.join(",")).toBe("-10,-10,10,10");
-    //     multiline.coordinates[0].push(Position.withCoordinates(0, 20));
-    //     expect(multiline.bbox.join(",")).toBe("-10,-10,10,20");
-    //     multiline.coordinates.push([
-    //         Position.withCoordinates(20, 0),
-    //         Position.withCoordinates(30, 0)
-    //     ]);
-    //     expect(multiline.bbox.join(",")).toBe("-10,-10,30,20");
-    //     multiline.coordinates.pop();
-    //     expect(multiline.bbox.join(",")).toBe("-10,-10,10,20");
-    // });
-    //
-    // it("can test for intersection with a line string", function () {
-    //     var multiline = MultiLineString.withCoordinates([
-    //             [[0, 0], [0, 10]],
-    //             [[0, 0], [0, -10]],
-    //             [[0, 0], [10, 0]],
-    //             [[0, 0], [-10, 0]]
-    //         ]),
-    //         intersectingLine = LineString.withCoordinates([[-5, -5], [-5, 5]]),
-    //         nonIntersectingLine = LineString.withCoordinates([[-5, -5], [-5, -15]]);
-    //     expect(multiline.intersects(intersectingLine)).toBe(true);
-    //     expect(multiline.intersects(nonIntersectingLine)).toBe(false);
-    // });
-    //
-    // it("can test for intersection with a bounding box", function () {
-    //     var multiline = MultiLineString.withCoordinates([
-    //             [[0, 0], [0, 10]],
-    //             [[0, 0], [0, -10]],
-    //             [[0, 0], [10, 0]],
-    //             [[0, 0], [-10, 0]]
-    //         ]),
-    //         intersectingBoundingBox = BoundingBox.withCoordinates(-7.5, -5, -2.5, 5),
-    //         nonIntersectingBoundingBox = BoundingBox.withCoordinates(-5, -5, -15, -15);
-    //     expect(multiline.intersects(intersectingBoundingBox)).toBe(true);
-    //     expect(multiline.intersects(nonIntersectingBoundingBox)).toBe(false);
-    // });
-
+    
 });

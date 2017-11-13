@@ -1,4 +1,5 @@
 var Geometry = require("./geometry").Geometry,
+    BoundingBox = require("logic/model/bounding-box").BoundingBox,
     LineString = require("./line-string").LineString,
     Map = require("collections/map");
 
@@ -20,20 +21,52 @@ var MultiLineString = exports.MultiLineString = Geometry.specialize(/** @lends M
     coordinates: {
         value: undefined
     },
-
-    /**
-     * @override
-     * @returns array<Position>
-     */
-    positions: {
-        get: function () {
-            var positions = [];
-            if (this.coordinates) {
-                this.coordinates.forEach(function (lineString) {
-                    positions.push.apply(positions, lineString.positions);
-                });
+    
+    bounds: {
+        value: function () {
+            return this.coordinates.map(function (lineString) {
+                return lineString.bounds();
+            }).reduce(function (bounds, childBounds) {
+                bounds.extend(childBounds)
+                return bounds;
+            }, BoundingBox.withCoordinates(Infinity, Infinity, -Infinity, -Infinity));
+        }
+    },
+    
+    makeBoundsObserver: {
+        value: function () {
+            var self = this;
+            return function observeBounds(emit, scope) {
+                return self.observeBounds(emit);
+            }.bind(this);
+        }
+    },
+    
+    observeBounds: {
+        value: function (emit) {
+            var self = this,
+                coordinatesPathChangeListener,
+                coordinatesRangeChangeListener,
+                cancel;
+            
+            function update() {
+                if (cancel) {
+                    cancel();
+                }
+                cancel = emit(self.bounds());
             }
-            return positions;
+            
+            update();
+            coordinatesPathChangeListener = this.addPathChangeListener("coordinates", update);
+            coordinatesRangeChangeListener = this.coordinates.addRangeChangeListener(update);
+            
+            return function cancelObserver() {
+                coordinatesPathChangeListener();
+                coordinatesRangeChangeListener();
+                if (cancel) {
+                    cancel();
+                }
+            };
         }
     },
 

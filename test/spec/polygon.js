@@ -1,4 +1,5 @@
 var Polygon = require("montage-geo/logic/model/polygon").Polygon,
+    Bindings = require("montage-geo/frb/bindings"),
     Position = require("montage-geo/logic/model/position").Position;
 
 describe("A Polygon", function () {
@@ -21,7 +22,7 @@ describe("A Polygon", function () {
         var p1 = Polygon.withCoordinates([
             [[0,0], [0,10], [10,10], [10,0], [0,0]]
         ]);
-        expect(roundedBbox(p1.bounds.bbox).join(",")).toBe("0,0,10,10");
+        expect(roundedBbox(p1.bounds().bbox).join(",")).toBe("0,0,10,10");
     });
 
     it("can properly calculate its perimeter", function () {
@@ -40,10 +41,10 @@ describe("A Polygon", function () {
             ]);
         p1.coordinates[0].splice(1, 1, Position.withCoordinates(0, 20));
         p2.coordinates[0].splice(2, 0, Position.withCoordinates(5, 20));
-        expect(roundedBbox(p1.bounds.bbox).join(",")).toBe("0,0,10,20");
-        expect(roundedBbox(p2.bounds.bbox).join(",")).toBe("0,0,10,20");
+        expect(roundedBbox(p1.bounds().bbox).join(",")).toBe("0,0,10,20");
+        expect(roundedBbox(p2.bounds().bbox).join(",")).toBe("0,0,10,20");
         p2.coordinates[0].splice(2, 1);
-        expect(roundedBbox(p2.bounds.bbox).join(",")).toBe("0,0,10,10");
+        expect(roundedBbox(p2.bounds().bbox).join(",")).toBe("0,0,10,10");
         p1.coordinates = [
             [
                 Position.withCoordinates(10, 10),
@@ -53,9 +54,26 @@ describe("A Polygon", function () {
                 Position.withCoordinates(10, 10)
             ]
         ];
-        expect(roundedBbox(p1.bounds.bbox).join(",")).toBe("10,10,20,20");
+        expect(roundedBbox(p1.bounds().bbox).join(",")).toBe("10,10,20,20");
     });
-
+    
+    it("can create an observer for its bounds", function () {
+        var geometry = Polygon.withCoordinates([
+                [[0,0], [0,10], [10,10], [10,0], [0,0]]
+            ]),
+            controller = {
+                geometry: geometry,
+                bounds: undefined
+            };
+        
+        Bindings.defineBinding(controller, "bounds", {"<-": "geometry.bounds()"});
+        expect(controller.bounds.bbox.join(",")).toBe("0,0,10,10");
+        geometry.coordinates[0].push(Position.withCoordinates(20, 20));
+        expect(controller.bounds.bbox.join(",")).toBe("0,0,20,20");
+        geometry.coordinates[0].pop();
+        expect(controller.bounds.bbox.join(",")).toBe("0,0,10,10");
+    });
+    
     it("can test another polygon for intersection", function () {
         var p1 = Polygon.withCoordinates([
                 [[0,0], [0,10], [10,10], [10,0], [0,0]]

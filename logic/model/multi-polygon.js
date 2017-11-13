@@ -1,5 +1,5 @@
 var Geometry = require("./geometry").Geometry,
-    Map = require("collections/map"),
+    BoundingBox = require("logic/model/bounding-box").BoundingBox,
     Polygon = require("./polygon").Polygon;
 
 /**
@@ -18,19 +18,55 @@ var MultiPolygon = exports.MultiPolygon = Geometry.specialize(/** @lends MultiPo
     coordinates: {
         value: undefined
     },
-
-    /**
-     * @override
-     * @returns array<Position>
-     */
-    positions: {
-        get: function () {
-            return this.coordinates ? this.coordinates.reduce(function (accumulator, polygon) {
-                return accumulator.concat(polygon.bounds.positions);
-            }, []) : [];
+    
+    bounds: {
+        value: function () {
+            return this.coordinates.map(function (polygon) {
+                return polygon.bounds();
+            }).reduce(function (bounds, childBounds) {
+                bounds.extend(childBounds);
+                return bounds;
+            }, BoundingBox.withCoordinates(Infinity, Infinity, -Infinity, -Infinity));
         }
     },
-
+    
+    makeBoundsObserver: {
+        value: function () {
+            var self = this;
+            return function observeBounds(emit, scope) {
+                return self.observeBounds(emit);
+            }.bind(this);
+        }
+    },
+    
+    observeBounds: {
+        value: function (emit) {
+            var self = this,
+                coordinatesPathChangeListener,
+                coordinatesRangeChangeListener,
+                cancel;
+    
+            function update() {
+                if (cancel) {
+                    cancel();
+                }
+                cancel = emit(self.bounds());
+            }
+    
+            update();
+            coordinatesPathChangeListener = this.addPathChangeListener("coordinates", update);
+            coordinatesRangeChangeListener = this.coordinates.addRangeChangeListener(update);
+    
+            return function cancelObserver() {
+                coordinatesPathChangeListener();
+                coordinatesRangeChangeListener();
+                if (cancel) {
+                    cancel();
+                }
+            };
+        }
+    },
+    
     /**
      * @method
      * @param {Polygon} geometry    - The polygon to test for
@@ -44,42 +80,10 @@ var MultiPolygon = exports.MultiPolygon = Geometry.specialize(/** @lends MultiPo
             });
         }
     },
-
-    coordinatesDidChange: {
-        value: function () {
-            if (this._coordinatesRangeChangeCanceler) {
-                this._coordinatesRangeChangeCanceler();
-            }
-            this._childPolygonRangeChangeCancelers.forEach(function (cancel) {
-                cancel();
-            });
-            this._childPolygonRangeChangeCancelers.clear();
-            if (this.coordinates) {
-                this.coordinates.forEach(this._addPolygon.bind(this));
-                this._coordinatesRangeChangeCanceler = this.coordinates.addRangeChangeListener(this, "childPolygon");
-            }
-        }
-    },
-
-    handleChildPolygonRangeChange: {
-        value: function (plus, minus) {
-            minus.forEach(this._removePolygon.bind(this));
-            plus.forEach(this._addPolygon.bind(this));
-            if (this._shouldRecalculate) {
-                // this.bounds.setWithPositions(this.positions);
-                this.updateBounds();
-                this._shouldRecalculate = false;
-            }
-        }
-    },
-
-    handleRangeChange: {
-        value: function () {
-            this.updateBounds();
-            // this.bounds.setWithPositions(this.positions);
-        }
-    },
-
+    
+    /**
+     * @deprecated
+     */
     toGeoJSON: {
         value: function () {
             var coordinates = this.coordinates && this.coordinates.map(function (polygons) {
@@ -94,47 +98,6 @@ var MultiPolygon = exports.MultiPolygon = Geometry.specialize(/** @lends MultiPo
                 coordinates: coordinates
             }
         }
-    },
-
-    _addPolygon: {
-        value: function (polygon) {
-            var bbox = polygon.bounds.bbox,
-                cancel = bbox.addRangeChangeListener(this);
-            this._childPolygonRangeChangeCancelers.set(polygon, cancel);
-            if (!this._shouldRecalculate) {
-                this.updateBounds();
-                // polygon.bounds.positions.forEach(this.bounds.extend.bind(this.bounds));
-            }
-        }
-    },
-
-    _removePolygon: {
-        value: function (polygon) {
-            var cancel = this._childPolygonRangeChangeCancelers.get(polygon),
-                positions = polygon.bounds.positions,
-                bounds = this.bounds;
-            this._childPolygonRangeChangeCancelers.delete(polygon);
-            this._shouldRecalculate =   this._shouldRecalculate ||
-                                        positions.some(bounds.isPositionOnBoundary.bind(bounds));
-            if (cancel) cancel();
-        }
-    },
-
-    _childPolygonRangeChangeCancelers: {
-        get: function () {
-            if (!this.__childPolygonRangeChangeCancelers) {
-                this.__childPolygonRangeChangeCancelers = new Map();
-            }
-            return this.__childPolygonRangeChangeCancelers;
-        }
-    },
-
-    _shouldRecalculate: {
-        value: false
-    },
-
-    _coordinatesRangeChangeCanceler: {
-        value: undefined
     },
 
     /**

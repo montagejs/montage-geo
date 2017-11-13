@@ -13,9 +13,6 @@ var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */
 
     constructor: {
         value: function Circle() {
-            this.addPathChangeListener("coordinates.latitude", this, "coordinatesDidChange");
-            this.addPathChangeListener("coordinates.longitude", this, "coordinatesDidChange");
-            this.addPathChangeListener("radius", this, "coordinatesDidChange");
         }
     },
 
@@ -192,16 +189,6 @@ var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */
         }
     },
 
-    /**
-     * @override
-     * @method
-     */
-    coordinatesDidChange: {
-        value: function () {
-
-        }
-    },
-
     /****************************************************************
      * Utilities
      */
@@ -210,7 +197,7 @@ var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */
      * Returns this circle as a GeoJSON object of type Polygon.  The ring of
      * the polygon is converted to geodesic coordinates using the vincenty
      * direct method.
-     *
+     * @deprecated
      * @returns {object}
      */
     toGeoJSON: {
@@ -227,10 +214,10 @@ var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */
      * @returns {Polygon}
      */
     toPolygon: {
-        value: function (steps) {
+        value: function (stepCount) {
             var ring = [],
                 arc = 360,
-                steps = steps || 72,
+                steps = stepCount || 72,
                 stepSize = arc / 72,
                 theta = 0,
                 center = this.coordinates,

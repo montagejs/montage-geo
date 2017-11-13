@@ -1,6 +1,5 @@
 var Montage = require("montage/core/core").Montage,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
-    geo = require("d3-geo"),
     HALF_PI = Math.PI / 180.0;
 
 /**
@@ -15,16 +14,13 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
 
     constructor: {
         value: function Geometry() {
-            this.addPathChangeListener("coordinates", this, "coordinatesDidChange");
+            // this.addPathChangeListener("coordinates", this, "coordinatesDidChange");
         }
     },
 
     bounds: {
-        get: function () {
-            if (!this._bounds) {
-                this._bounds = BoundingBox.withCoordinates(Infinity, Infinity, -Infinity, -Infinity);
-            }
-            return this._bounds;
+        value: function () {
+            return BoundingBox.withCoordinates(Infinity, Infinity, -Infinity, -Infinity);
         }
     },
 
@@ -35,67 +31,7 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
     coordinates: {
         value: undefined
     },
-
-    /**
-     * Returns all the positions of this geometry.  Subclasses should
-     * override this method to implement their strategy for returning
-     * their positions.  This property is not observable.
-     *
-     * @returns {array<Position>|undefined}
-     */
-    positions: {
-        get: function () {
-            return undefined;
-        }
-    },
-
-    /**
-     * This method is called when the geometry's coordinates
-     * change.
-     *
-     * @method
-     */
-    coordinatesDidChange: {
-        value: function () {
-            if (this._rangeChangeCanceler) {
-                this._rangeChangeCanceler();
-            }
-            if (this.coordinates) {
-                this._rangeChangeCanceler = this.coordinates.addRangeChangeListener(this);
-                this.updateBounds();
-            }
-        }
-    },
-
-    updateBounds: {
-        value: function () {
-            var json =  this.toGeoJSON(),
-                geoBounds = geo.geoBounds(json);
-            this.bounds.xMin = geoBounds[0][0];
-            this.bounds.yMin = geoBounds[0][1];
-            this.bounds.xMax = geoBounds[1][0];
-            this.bounds.yMax = geoBounds[1][1];
-
-        }
-    },
-
-    /**
-     * This method is called when the positions are added or removed
-     * from the geometry's coordinates.
-     *
-     * Subclasses may choose to override this method.
-     *
-     * @method
-     */
-    handleRangeChange: {
-        value: function (plus, minus) {
-            var bounds = this.bounds;
-            if (plus.length > 0 || minus.some(bounds.isPositionOnBoundary.bind(bounds))) {
-                this.updateBounds();
-            }
-        }
-    },
-
+    
     /**
      * Tests whether this geometry intersects the provided
      * geometry.

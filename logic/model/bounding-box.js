@@ -322,11 +322,31 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
      */
 
     /**
-     * Extend this bounding box with the provided position.
+     * Extend this bounding box with the provided position or bounding box.
      * @public
-     * @param {Position}
+     * @param {Position|BoundingBox}
      */
     extend: {
+        value: function (value) {
+            if (value instanceof exports.BoundingBox) {
+                this._extendWithBoundingBox(value);
+            } else if (value instanceof Position) {
+                this._extendWithPosition(value);
+            }
+        }
+    },
+    
+    _extendWithBoundingBox: {
+        value: function (box) {
+            var coordinates = box.coordinates[0].slice(0, 4),
+                i, n;
+            for (i = 0, n = 4; i < n; i += 1) {
+                this._extendWithPosition(coordinates[i]);
+            }
+        }
+    },
+    
+    _extendWithPosition: {
         value: function (position) {
             var lng = position.longitude,
                 lat = position.latitude;

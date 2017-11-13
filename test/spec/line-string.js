@@ -1,4 +1,5 @@
 var LineString = require("montage-geo/logic/model/line-string").LineString,
+    Bindings = require("montage-geo/frb/bindings"),
     BoundingBox = require("montage-geo/logic/model/bounding-box").BoundingBox,
     Position = require("montage-geo/logic/model/position").Position;
 
@@ -13,18 +14,34 @@ describe("A LineString", function () {
     it("can be created", function () {
         var line = LineString.withCoordinates([[0, 0], [0, 10]]);
         expect(line).toBeDefined();
-        expect(line.bounds.bbox.join(",")).toBe("0,0,0,10");
+        expect(line.bounds().bbox.join(",")).toBe("0,0,0,10");
     });
 
     it("can be properly update its bounds", function () {
         var line = LineString.withCoordinates([[0, 0], [0, 10]]),
             position = Position.withCoordinates(10, 10);
-        expect(roundedBbox(line.bounds.bbox).join(",")).toBe("0,0,0,10");
+        expect(roundedBbox(line.bounds().bbox).join(",")).toBe("0,0,0,10");
         line.coordinates.push(position);
-        expect(roundedBbox(line.bounds.bbox).join(",")).toBe("0,0,10,10");
+        expect(roundedBbox(line.bounds().bbox).join(",")).toBe("0,0,10,10");
     });
-
-
+    
+    it("can create an observer for its bounds", function () {
+        var geometry = LineString.withCoordinates([
+                [0, 0], [10, 10]
+            ]),
+            controller = {
+                geometry: geometry,
+                bounds: undefined
+            };
+        
+        Bindings.defineBinding(controller, "bounds", {"<-": "geometry.bounds()"});
+        expect(controller.bounds.bbox.join(",")).toBe("0,0,10,10");
+        geometry.coordinates.push(Position.withCoordinates(20, 20));
+        expect(controller.bounds.bbox.join(",")).toBe("0,0,20,20");
+        geometry.coordinates.pop();
+        expect(controller.bounds.bbox.join(",")).toBe("0,0,10,10");
+    });
+    
     it("can test for intersection with another line string", function () {
         var line = LineString.withCoordinates([[0, 0], [0, 10]]),
             intersectingLine = LineString.withCoordinates([[-5, 5], [5, 5]]),

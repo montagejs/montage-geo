@@ -92,13 +92,13 @@ s     */
      * @override
      * @method
      */
-    coordinatesDidChange: {
-        value: function () {
-            // if (this.coordinates) {
-            //     this.bounds.setWithPositions(this.positions);
-            // }
-        }
-    },
+    // coordinatesDidChange: {
+    //     value: function () {
+    //         // if (this.coordinates) {
+    //         //     this.bounds.setWithPositions(this.positions);
+    //         // }
+    //     }
+    // },
     
     bounds: {
         value: function () {
@@ -117,6 +117,34 @@ s     */
         }
     },
     
+    observeBounds: {
+        value: function (emit) {
+            var self = this,
+                latitudeListenerCanceler,
+                longitudeListenerCanceler,
+                cancel;
+            
+            function update() {
+                if (cancel) {
+                    cancel();
+                }
+                cancel = emit(self.bounds());
+            }
+            
+            update();
+            latitudeListenerCanceler = this.addPathChangeListener("coordinates.latitude", update);
+            longitudeListenerCanceler = this.addPathChangeListener("coordinates.longitude", update);
+            
+            return function cancelObserver() {
+                latitudeListenerCanceler();
+                longitudeListenerCanceler();
+                if (cancel) {
+                    cancel();
+                }
+            };
+        }
+    },
+    
     makeBearingObserver: {
         value: function (observeDestination) {
             var self = this;
@@ -125,34 +153,6 @@ s     */
                     return self.observeBearing(emit, destination);
                 }, scope);
             }.bind(this);
-        }
-    },
-    
-    observeBounds: {
-        value: function (emit) {
-            var self = this,
-                latitudeListenerCanceler,
-                longitudeListenerCanceler,
-                cancel;
-    
-            function update() {
-                if (cancel) {
-                    cancel();
-                }
-                cancel = emit(self.bounds());
-            }
-    
-            update();
-            latitudeListenerCanceler = this.addPathChangeListener("coordinates.latitude", update);
-            longitudeListenerCanceler = this.addPathChangeListener("coordinates.longitude", update);
-    
-            return function cancelObserver() {
-                latitudeListenerCanceler();
-                longitudeListenerCanceler();
-                if (cancel) {
-                    cancel();
-                }
-            };
         }
     },
 

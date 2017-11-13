@@ -1,4 +1,5 @@
 var MultiLineString = require("montage-geo/logic/model/multi-line-string").MultiLineString,
+    Bindings = require("montage-geo/frb/bindings"),
     BoundingBox = require("montage-geo/logic/model/bounding-box").BoundingBox,
     LineString = require("montage-geo/logic/model/line-string").LineString,
     Position = require("montage-geo/logic/model/position").Position;
@@ -27,16 +28,35 @@ describe("A MultiLineString", function () {
             [[0, 0], [10, 0]],
             [[0, 0], [-10, 0]]
         ]);
-        expect(multiline.positions.length).toBe(8);
-        expect(multiline.bounds.bbox.join(",")).toBe("-10,-10,10,10");
+        expect(multiline.bounds().bbox.join(",")).toBe("-10,-10,10,10");
         multiline.coordinates[0].coordinates.push(Position.withCoordinates(0, 20));
-        expect(multiline.bounds.bbox.join(",")).toBe("-10,-10,10,20");
+        expect(multiline.bounds().bbox.join(",")).toBe("-10,-10,10,20");
         multiline.coordinates.push(LineString.withCoordinates([[20, 0], [30, 0]]));
-        expect(multiline.bounds.bbox.join(",")).toBe("-10,-10,30,20");
+        expect(multiline.bounds().bbox.join(",")).toBe("-10,-10,30,20");
         multiline.coordinates.pop();
-        expect(multiline.bounds.bbox.join(",")).toBe("-10,-10,10,20");
+        expect(multiline.bounds().bbox.join(",")).toBe("-10,-10,10,20");
     });
-
+    
+    it("can create an observer for its bounds", function () {
+        var geometry = MultiLineString.withCoordinates([
+                [[0, 0], [0, 10]],
+                [[0, 0], [0, -10]],
+                [[0, 0], [10, 0]],
+                [[0, 0], [-10, 0]]
+            ]),
+            controller = {
+                geometry: geometry,
+                bounds: undefined
+            };
+        
+        Bindings.defineBinding(controller, "bounds", {"<-": "geometry.bounds()"});
+        expect(controller.bounds.bbox.join(",")).toBe("-10,-10,10,10");
+        geometry.coordinates.push(LineString.withCoordinates([[10, 10], [20, 20]]));
+        expect(controller.bounds.bbox.join(",")).toBe("-10,-10,20,20");
+        geometry.coordinates.pop();
+        expect(controller.bounds.bbox.join(",")).toBe("-10,-10,10,10");
+    });
+    
     it("can test for intersection with a line string", function () {
         var multiline = MultiLineString.withCoordinates([
                 [[0, 0], [0, 10]],

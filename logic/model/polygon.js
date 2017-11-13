@@ -1,4 +1,5 @@
 var Geometry = require("./geometry").Geometry,
+    BoundingBox = require("logic/model/bounding-box").BoundingBox,
     Position = require("./position").Position;
 
 /**
@@ -19,22 +20,57 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
     coordinates: {
         value: undefined
     },
-
-    /**
-     * @override
-     * @method
-     */
-    coordinatesDidChange: {
+    
+    bounds: {
         value: function () {
-            if (this._rangeChangeCanceler) {
-                this._rangeChangeCanceler();
+            var bounds = BoundingBox.withCoordinates(Infinity, Infinity, -Infinity, -Infinity),
+                coordinates = this.coordinates && this.coordinates[0],
+                length = coordinates && coordinates.length || 0, i;
+            for (i = 0; i < length; i += 1) {
+                bounds.extend(coordinates[i]);
             }
-            if (this.coordinates && this.coordinates.length) {
-                this._rangeChangeCanceler = this.coordinates[0].addRangeChangeListener(this);
-                if (this.coordinates[0].length > 2) {
-                    this.updateBounds();
+            return bounds;
+        }
+    },
+    
+    makeBoundsObserver: {
+        value: function () {
+            var self = this;
+            return function observeBounds(emit, scope) {
+                return self.observeBounds(emit);
+            }.bind(this);
+        }
+    },
+    
+    observeBounds: {
+        value: function (emit) {
+            var self = this,
+                coordinatesPathChangeListener,
+                coordinatesRangeChangeListener,
+                cancel;
+            
+            function update() {
+                if (cancel) {
+                    cancel();
                 }
+                cancel = emit(self.bounds());
             }
+            
+            update();
+            coordinatesPathChangeListener = this.addPathChangeListener("coordinates", update);
+            if (this.coordinates && this.coordinates.length) {
+                coordinatesRangeChangeListener = this.coordinates[0].addRangeChangeListener(update);
+            }
+            
+            return function cancelObserver() {
+                coordinatesPathChangeListener();
+                if (coordinatesRangeChangeListener) {
+                    coordinatesRangeChangeListener();
+                }
+                if (cancel) {
+                    cancel();
+                }
+            };
         }
     },
 
@@ -49,16 +85,6 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
             var isPolygon = geometry instanceof exports.Polygon;
             return isPolygon ?  this._intersectsPolygon(geometry) :
                                 this._intersectsBoundingBox(geometry);
-        }
-    },
-
-    /**
-     * @override
-     * @returns array<Position>
-     */
-    positions: {
-        get: function () {
-            return this.coordinates && this.coordinates[0];
         }
     },
 
@@ -171,6 +197,7 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
      *
      * @method
      * @public
+     * @deprecated
      * @return Object - an object in GeoJSON format.
      */
     toGeoJSON: {
