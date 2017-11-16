@@ -1,4 +1,5 @@
 var Montage = require("montage/core/core").Montage,
+    BoundingBox = require("logic/model/bounding-box").BoundingBox,
     Map = require("collections/map"),
     Set = require("collections/set");
 
@@ -42,11 +43,18 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
      * geometries.
      *
      * @type {BoundingBox}
-     * TODO: update the bounding box when features are added and removed
-     * from the collection.
      */
     bounds: {
-        value: undefined
+        value: function () {
+            return this.features.length ? this.features.map(function (feature) {                
+                return feature.geometry.bounds();
+            }).reduce(function (bounds, childBounds) {
+                if (childBounds && !bounds.equals(childBounds)) {
+                    bounds.extend(childBounds);
+                }
+                return bounds;
+            }, BoundingBox.withCoordinates(Infinity, Infinity, -Infinity, -Infinity)) : null;
+        }
     },
 
     _featuresMap: {

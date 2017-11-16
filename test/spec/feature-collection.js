@@ -5,8 +5,10 @@ var FeatureCollection = require("montage-geo/logic/model/feature-collection").Fe
     Point = require("montage-geo/logic/model/point").Point;
 
 describe("A FeatureCollection", function () {
+    var lahaina, kahului;
 
-    var lahaina = Feature.withGeoJSON({
+    beforeEach(function () {
+        lahaina = Feature.withGeoJSON({
             id: 42,
             properties: {
                 name: "Lahaina"
@@ -15,7 +17,7 @@ describe("A FeatureCollection", function () {
                 type: "Point",
                 coordinates: [-156.6825, 20.8783]
             }
-        }),
+        });
         kahului = Feature.withGeoJSON({
             id: 43,
             properties: {
@@ -26,7 +28,8 @@ describe("A FeatureCollection", function () {
                 coordinates: [-156.4729, 20.8893]
             }
         });
-
+    });
+    
 
     it("can be created", function () {
         var collection = FeatureCollection.withFeatures();
@@ -173,6 +176,25 @@ describe("A FeatureCollection", function () {
 
         lahaina.geometry = Point.withCoordinates([0, 0]);
 
+    });
+
+    it("can calculate own bounds from children", function () {
+        var child1 = new Feature(),
+            child2 = new Feature(),
+            collection, bounds;
+
+            child1.geometry = FeatureCollection.withFeatures();
+            child2.geometry = FeatureCollection.withFeatures([lahaina]);
+            collection = FeatureCollection.withFeatures([child1, child2, kahului]);
+            // [-156.6825, 20.8783]
+            //-156.4729, 20.8893]
+            bounds = collection.bounds();
+        
+        expect(bounds.xMax).toEqual(-156.4729);
+        expect(bounds.xMin).toEqual(-156.6825);
+        expect(bounds.yMax).toEqual(20.8893);
+        expect(bounds.yMin).toEqual(20.8783);
+        
     });
 
     it("can observe changes to child geometries added to the collection", function () {

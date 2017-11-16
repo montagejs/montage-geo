@@ -20,12 +20,35 @@ describe("A Feature", function () {
                 type: "Point",
                 coordinates: [-156.6825, 20.8783]
             }
-        };
-        var feature = Feature.withGeoJSON(json);
+        },
+        bounds;
+        var feature = Feature.withGeoJSON(json),
+            bounds = feature.bounds();
         expect(feature instanceof Feature).toBe(true);
         expect(feature.id).toBe(42);
         expect(feature.properties && feature.properties.name).toBe("Lahaina");
         expect(feature.geometry instanceof Point).toBe(true);
+        
     });
 
+
+    it("can get bounds as function", function () {
+        var json = {
+                id: 42,
+                properties: {
+                    name: "Lahaina"
+                },
+                geometry: {
+                    type: "Point",
+                    coordinates: [-156.6825, 20.8783]
+                }
+            },
+            feature = Feature.withGeoJSON(json),
+            bounds = feature.bounds();
+
+        expect(bounds.xMax).toBe(-156.6825);
+        expect(bounds.xMin).toBe(-156.6825);
+        expect(bounds.yMax).toBe(20.8783);
+        expect(bounds.yMin).toBe(20.8783);
+    });
 });

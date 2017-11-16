@@ -34,7 +34,7 @@ exports.Feature = Montage.specialize(/** @lends Feature.prototype */ {
      * @type {BoundingBox}
      */
     bounds: {
-        get: function () {
+        value: function () {
             return this.geometry && this.geometry.bounds();
         }
     },
