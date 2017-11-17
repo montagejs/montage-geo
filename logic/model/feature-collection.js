@@ -259,7 +259,8 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
 
     addContentPropertyChangeListener: {
         value: function (name, handler) {
-            var contentPropertyChangeCancellers = this._contentPropertyChangeCancellers.get(handler) || new Map();
+            var self = this,
+                contentPropertyChangeCancellers = this._contentPropertyChangeCancellers.get(handler) || new Map();
             this._contentPropertyChangeListeners[name] = this._contentPropertyChangeListeners[name] || new Set();
             this._contentPropertyChangeListeners[name].add(handler);
             this.features.forEach(function (feature) {
@@ -267,6 +268,12 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
                 contentPropertyChangeCancellers.set(feature, cancel);
             });
             this._contentPropertyChangeCancellers.set(handler, contentPropertyChangeCancellers);
+            return function cancel() {
+                contentPropertyChangeCancellers.forEach(function (canceller) {
+                    canceller();
+                });
+                self._contentPropertyChangeCancellers.delete(handler);
+            };
         }
     },
 
