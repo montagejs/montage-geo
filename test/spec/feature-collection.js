@@ -227,43 +227,5 @@ describe("A FeatureCollection", function () {
         collection.features.splice(0, Infinity);
         expect(collection._contentPropertyChangeCancellers.get(handler).size).toBe(0);
     });
-    
-    it("can test a property for changes", function () {
-        var sid = {
-                name: "Sid",
-                type: "Person"
-            },
-            nancy = {
-                name: "Nancy",
-                type: "Person"
-            },
-            poncho = {
-                name: "Poncho",
-                type: "Dog"
-            },
-            controller = {
-                content: [sid, nancy, poncho],
-                grouped: undefined,
-                mapped: undefined,
-                flattened: undefined
-            };
-    
-        Bindings.defineBinding(controller, "grouped", {"<-": "content.group{type}.sorted{.0}"});
-        expect(controller.grouped).toEqual([
-            ['Dog', [
-                poncho
-            ]],
-            ['Person', [
-                sid, nancy
-            ]]
-        ]);
-        Bindings.defineBinding(controller, "mapped", {"<-": "grouped.map{.1.sorted{name}}"});
-        expect(controller.mapped).toEqual([
-            [poncho],
-            [nancy, sid]
-        ]);
-        Bindings.defineBinding(controller, "flattened", {"<-": "content.group{type}.sorted{.0}.map{.1.sorted{name}}.flatten()"});
-        expect(controller.flattened).toEqual([poncho, nancy, sid]);
-    });
 
 });
