@@ -46,7 +46,7 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
      */
     bounds: {
         value: function () {
-            return this.features.length ? this.features.map(function (feature) {                
+            return this.features.length ? this.features.map(function (feature) {
                 return feature.geometry.bounds();
             }).reduce(function (bounds, childBounds) {
                 if (childBounds && !bounds.equals(childBounds)) {
@@ -90,10 +90,7 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
      */
     add: {
         value: function () {
-            var i, length;
-            for (i = 0, length = arguments.length; i < length; i += 1) {
-                this.features.push(arguments[i]);
-            }
+            this.features.splice.apply(this.features, [this.features.length, 0].concat(Array.prototype.slice.call(arguments)));
         }
     },
 

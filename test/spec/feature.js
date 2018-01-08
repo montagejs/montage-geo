@@ -12,18 +12,16 @@ describe("A Feature", function () {
 
     it("can be created with JSON", function () {
         var json = {
-            id: 42,
-            properties: {
-                name: "Lahaina"
+                id: 42,
+                properties: {
+                    name: "Lahaina"
+                },
+                geometry: {
+                    type: "Point",
+                    coordinates: [-156.6825, 20.8783]
+                }
             },
-            geometry: {
-                type: "Point",
-                coordinates: [-156.6825, 20.8783]
-            }
-        },
-        bounds;
-        var feature = Feature.withGeoJSON(json),
-            bounds = feature.bounds();
+            feature = Feature.withGeoJSON(json);
         expect(feature instanceof Feature).toBe(true);
         expect(feature.id).toBe(42);
         expect(feature.properties && feature.properties.name).toBe("Lahaina");

@@ -63,6 +63,14 @@ describe("A FeatureCollection", function () {
         expect(collection.has(kahului)).toBe(true);
         expect(collection.get(42)).toBe(lahaina);
         expect(collection.get(43)).toBe(kahului);
+        collection.clear();
+        expect(collection.size).toBe(0);
+        collection.add.apply(collection, [lahaina, kahului]);
+        expect(collection.size).toBe(2);
+        expect(collection.has(lahaina)).toBe(true);
+        expect(collection.has(kahului)).toBe(true);
+        expect(collection.get(42)).toBe(lahaina);
+        expect(collection.get(43)).toBe(kahului);
     });
 
     it("can remove multiple features", function () {
