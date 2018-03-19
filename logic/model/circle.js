@@ -222,11 +222,12 @@ var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */
                 theta = 0,
                 center = this.coordinates,
                 radius = this.radius,
-                angle, i;
+                position, angle, i;
 
             for (i = 0; i < steps; i += 1) {
                 angle = theta + (stepSize * i);
-                ring.push(center.vincentyDirect(radius, angle));
+                position = center.vincentyDirect(radius, angle);
+                ring.push([position.longitude, position.latitude]);
             }
 
             return Polygon.withCoordinates([ring]);
