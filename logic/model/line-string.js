@@ -28,7 +28,7 @@ var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.
                 yMax = -Infinity,
                 coordinates = this.coordinates,
                 coordinate, i, n;
-        
+
             for (i = 0, n = coordinates && coordinates.length || 0; i < n; i += 1) {
                 coordinate = coordinates[i];
                 xMin = Math.min(xMin, coordinate.longitude);
@@ -36,11 +36,11 @@ var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.
                 xMax = Math.max(xMax, coordinate.longitude);
                 yMax = Math.max(yMax, coordinate.latitude);
             }
-        
+
             return BoundingBox.withCoordinates(xMin, yMin, xMax, yMax);
         }
     },
-    
+
     makeBoundsObserver: {
         value: function () {
             var self = this;
@@ -49,25 +49,25 @@ var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.
             }.bind(this);
         }
     },
-    
+
     observeBounds: {
         value: function (emit) {
             var self = this,
                 coordinatesPathChangeListener,
                 cooordinatesRangeChangeListener,
                 cancel;
-            
+
             function update() {
                 if (cancel) {
                     cancel();
                 }
                 cancel = emit(self.bounds());
             }
-            
+
             update();
             coordinatesPathChangeListener = this.addPathChangeListener("coordinates", update);
             cooordinatesRangeChangeListener = this.coordinates.addRangeChangeListener(update);
-            
+
             return function cancelObserver() {
                 coordinatesPathChangeListener();
                 cooordinatesRangeChangeListener();
@@ -144,6 +144,21 @@ var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.
                 type: "LineString",
                 coordinates: coordinates
             };
+        }
+    },
+
+    /**
+     * Returns a copy of this LineString.
+     *
+     * @method
+     * @returns {Geometry}
+     */
+    clone: {
+        value: function () {
+            var coordinates = this.coordinates.map(function (coordinate) {
+                return [coordinate.longitude, coordinate.latitude];
+            });
+            return exports.LineString.withCoordinates(coordinates);
         }
     },
 

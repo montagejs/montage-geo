@@ -23,19 +23,33 @@ describe("A Point", function () {
         point.coordinates = Position.withCoordinates(0, 0);
         expect(point.bounds().bbox.join(",")).toBe("0,0,0,0");
     });
-    
+
     it('can create an observer for bounds', function () {
         var point = Point.withCoordinates([-5.4253, 50.0359]),
             controller = {
                 point: point,
                 bounds: undefined
             };
-    
+
         Bindings.defineBinding(controller, "bounds", {"<-": "point.bounds()"});
         expect(controller.bounds.bbox.join(",")).toBe("-5.4253,50.0359,-5.4253,50.0359");
         point.coordinates.longitude = 0;
         expect(controller.bounds.bbox.join(",")).toBe("0,50.0359,0,50.0359");
-        
+
+    });
+
+    it("can create an observer for MGRS", function () {
+        var point = Point.withCoordinates([-156.6825, 20.8783]),
+            controller = {
+                point: point,
+                mgrs: undefined
+            };
+
+        Bindings.defineBinding(controller, "mgrs", {"<-": "point.mgrs()"});
+        expect(controller.mgrs).toBe("4QGJ4109910417");
+        point.coordinates.latitude = 0;
+        point.coordinates.longitude = 0;
+        expect(controller.mgrs).toBe("31NAA6602100000");
     });
 
     it("can calculate initial bearing to another point", function () {
@@ -134,6 +148,13 @@ describe("A Point", function () {
 
         expect(a.equals(b)).toBe(true);
         expect(a.equals(c)).toBe(false);
+    });
+
+    it ("can clone itself", function () {
+        var a = Point.withCoordinates([0, 0]),
+            b = a.clone();
+
+        expect(a.equals(b)).toBe(true);
     });
 
 

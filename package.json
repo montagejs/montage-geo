@@ -7,7 +7,8 @@
     "collections": "~5.0.x",
     "d3-geo": "^1.6.3",
     "frb": "~4.0.x",
-    "montage": "montagejs/montage#master"
+    "montage": "montagejs/montage#master",
+    "proj4": "~2.3.6"
   },
   "devDependencies": {
     "concurrently": "^3.4.0",

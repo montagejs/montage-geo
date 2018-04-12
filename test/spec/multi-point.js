@@ -30,7 +30,7 @@ describe("A MultiPoint", function () {
                 geometry: geometry,
                 bounds: undefined
             };
-    
+
         Bindings.defineBinding(controller, "bounds", {"<-": "geometry.bounds()"});
         expect(controller.bounds.bbox.join(",")).toBe("0,0,10,10");
         geometry.coordinates.push(Position.withCoordinates(20, 20));
@@ -38,7 +38,7 @@ describe("A MultiPoint", function () {
         geometry.coordinates.pop();
         expect(controller.bounds.bbox.join(",")).toBe("0,0,10,10");
     });
-    
+
     it ("can test for equality", function () {
         var a = MultiPoint.withCoordinates([[0, 0], [10, 0], [10, 10], [0, 10]]),
             b = MultiPoint.withCoordinates([[0, 0], [10, 0], [10, 10], [0, 10]]),
@@ -48,6 +48,13 @@ describe("A MultiPoint", function () {
         expect(a.equals(b)).toBe(true);
         expect(a.equals(c)).toBe(false);
         expect(a.equals(d)).toBe(false);
+    });
+
+    it ("can clone itself", function () {
+        var a = MultiPoint.withCoordinates([[0, 0], [10, 0], [10, 10], [0, 10]]),
+            b = a.clone();
+
+        expect(a.equals(b)).toBe(true);
     });
 
 });

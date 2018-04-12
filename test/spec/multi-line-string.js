@@ -36,7 +36,7 @@ describe("A MultiLineString", function () {
         multiline.coordinates.pop();
         expect(multiline.bounds().bbox.join(",")).toBe("-10,-10,10,20");
     });
-    
+
     it("can create an observer for its bounds", function () {
         var geometry = MultiLineString.withCoordinates([
                 [[0, 0], [0, 10]],
@@ -48,7 +48,7 @@ describe("A MultiLineString", function () {
                 geometry: geometry,
                 bounds: undefined
             };
-        
+
         Bindings.defineBinding(controller, "bounds", {"<-": "geometry.bounds()"});
         expect(controller.bounds.bbox.join(",")).toBe("-10,-10,10,10");
         geometry.coordinates.push(LineString.withCoordinates([[10, 10], [20, 20]]));
@@ -56,7 +56,7 @@ describe("A MultiLineString", function () {
         geometry.coordinates.pop();
         expect(controller.bounds.bbox.join(",")).toBe("-10,-10,10,10");
     });
-    
+
     it("can test for intersection with a line string", function () {
         var multiline = MultiLineString.withCoordinates([
                 [[0, 0], [0, 10]],
@@ -122,6 +122,18 @@ describe("A MultiLineString", function () {
         expect(a.equals(d)).toBe(false);
         // e has an additional position in the third child line-string
         expect(a.equals(e)).toBe(false);
+    });
+
+    it ("can clone itself", function () {
+        var a = MultiLineString.withCoordinates([
+                [[0, 0], [0, 10]],
+                [[0, 0], [0, -10]],
+                [[0, 0], [10, 0]],
+                [[0, 0], [-10, 0]]
+            ]),
+            b = a.clone();
+
+        expect(a.equals(b)).toBe(true);
     });
 
 });

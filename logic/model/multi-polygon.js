@@ -18,7 +18,7 @@ var MultiPolygon = exports.MultiPolygon = Geometry.specialize(/** @lends MultiPo
     coordinates: {
         value: undefined
     },
-    
+
     bounds: {
         value: function () {
             return this.coordinates.map(function (polygon) {
@@ -29,7 +29,7 @@ var MultiPolygon = exports.MultiPolygon = Geometry.specialize(/** @lends MultiPo
             }, BoundingBox.withCoordinates(Infinity, Infinity, -Infinity, -Infinity));
         }
     },
-    
+
     makeBoundsObserver: {
         value: function () {
             var self = this;
@@ -38,25 +38,25 @@ var MultiPolygon = exports.MultiPolygon = Geometry.specialize(/** @lends MultiPo
             }.bind(this);
         }
     },
-    
+
     observeBounds: {
         value: function (emit) {
             var self = this,
                 coordinatesPathChangeListener,
                 coordinatesRangeChangeListener,
                 cancel;
-    
+
             function update() {
                 if (cancel) {
                     cancel();
                 }
                 cancel = emit(self.bounds());
             }
-    
+
             update();
             coordinatesPathChangeListener = this.addPathChangeListener("coordinates", update);
             coordinatesRangeChangeListener = this.coordinates.addRangeChangeListener(update);
-    
+
             return function cancelObserver() {
                 coordinatesPathChangeListener();
                 coordinatesRangeChangeListener();
@@ -66,7 +66,7 @@ var MultiPolygon = exports.MultiPolygon = Geometry.specialize(/** @lends MultiPo
             };
         }
     },
-    
+
     /**
      * @method
      * @param {Polygon} geometry    - The polygon to test for
@@ -80,7 +80,7 @@ var MultiPolygon = exports.MultiPolygon = Geometry.specialize(/** @lends MultiPo
             });
         }
     },
-    
+
     /**
      * @deprecated
      */
@@ -114,6 +114,25 @@ var MultiPolygon = exports.MultiPolygon = Geometry.specialize(/** @lends MultiPo
                 a = isThis && this.coordinates,
                 b = isThis && other.coordinates;
             return isThis && a.length === b.length && this._compare(a, b);
+        }
+    },
+
+    /**
+     * Returns a copy of this LineString.
+     *
+     * @method
+     * @returns {Geometry}
+     */
+    clone: {
+        value: function () {
+            var coordinates = this.coordinates.map(function (polygon) {
+                return polygon.coordinates.map(function (ring) {
+                    return ring.map(function (coordinate) {
+                        return [coordinate.longitude, coordinate.latitude];
+                    });
+                })
+            });
+            return exports.MultiPolygon.withCoordinates(coordinates);
         }
     },
 

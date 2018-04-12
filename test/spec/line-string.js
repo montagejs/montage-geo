@@ -24,7 +24,7 @@ describe("A LineString", function () {
         line.coordinates.push(position);
         expect(roundedBbox(line.bounds().bbox).join(",")).toBe("0,0,10,10");
     });
-    
+
     it("can create an observer for its bounds", function () {
         var geometry = LineString.withCoordinates([
                 [0, 0], [10, 10]
@@ -33,7 +33,7 @@ describe("A LineString", function () {
                 geometry: geometry,
                 bounds: undefined
             };
-        
+
         Bindings.defineBinding(controller, "bounds", {"<-": "geometry.bounds()"});
         expect(controller.bounds.bbox.join(",")).toBe("0,0,10,10");
         geometry.coordinates.push(Position.withCoordinates(20, 20));
@@ -41,7 +41,7 @@ describe("A LineString", function () {
         geometry.coordinates.pop();
         expect(controller.bounds.bbox.join(",")).toBe("0,0,10,10");
     });
-    
+
     it("can test for intersection with another line string", function () {
         var line = LineString.withCoordinates([[0, 0], [0, 10]]),
             intersectingLine = LineString.withCoordinates([[-5, 5], [5, 5]]),
@@ -67,6 +67,13 @@ describe("A LineString", function () {
         expect(a.equals(b)).toBe(true);
         expect(a.equals(c)).toBe(false);
         expect(a.equals(d)).toBe(false);
+    });
+
+    it ("can test clone itself", function () {
+        var a = LineString.withCoordinates([[0, 0], [10, 0], [10, 10], [0, 10]]),
+            b = a.clone();
+
+        expect(a.equals(b)).toBe(true);
     });
 
 });

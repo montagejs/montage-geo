@@ -1,5 +1,5 @@
-var HALF_PI = Math.PI / 180.0;
-
+var Projection = require("logic/model/projection").Projection,
+    HALF_PI = Math.PI / 180.0;
 /**
  *
  * A position represents a physical location on the Earth.
@@ -13,7 +13,14 @@ var HALF_PI = Math.PI / 180.0;
  * @class
  * @extends Object
  */
-exports.Position = function () {};
+exports.Position = function Position() {};
+
+var Defaults = {
+    longitude: 0,
+    latitude: 0,
+    altitude: 0
+};
+
 
 exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ {
 
@@ -34,6 +41,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
      */
     altitude: {
         configurable: true,
+        enumerable: true,
         writable: true,
         value: 0
     },
@@ -44,6 +52,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
      */
     latitude: {
         configurable: true,
+        enumerable: true,
         writable: true,
         value: 0
     },
@@ -54,8 +63,17 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
      */
     longitude: {
         configurable: true,
+        enumerable: true,
         writable: true,
         value: 0
+    },
+
+    mgrs: {
+        value: function () {
+            return Projection.forSrid("MGRS").projectPoint([
+                this.longitude, this.latitude
+            ]);
+        }
     },
 
     equals: {
@@ -65,6 +83,57 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
                     this.latitude === other.latitude
         }
     },
+
+    /*****************************************************
+     * Serialization
+     */
+
+    serializableProperties: {
+        value: ["altitude", "latitude", "longitude"]
+    },
+
+    serializeSelf: {
+        value: function (serializer) {
+            this._setPropertyWithDefaults(serializer, "longitude", this.longitude);
+            this._setPropertyWithDefaults(serializer, "latitude", this.latitude);
+            this._setPropertyWithDefaults(serializer, "altitude", this.altitude);
+        }
+    },
+
+    deserializeSelf: {
+        value: function (deserializer) {
+            this.longitude = this._getPropertyWithDefaults(deserializer, "longitude");
+            this.latitude = this._getPropertyWithDefaults(deserializer, "latitude");
+            this.altitude = this._getPropertyWithDefaults(deserializer, "altitude");
+        }
+    },
+
+    getInfoForObject: {
+        value: function () {
+            return this._montage_metadata;
+        }
+    },
+
+    _montage_metadata: {
+        enumerable: false,
+        writable: true,
+        value: undefined
+    },
+
+    _setPropertyWithDefaults: {
+        value:function (serializer, propertyName, value) {
+            if (value != Defaults[propertyName]) {
+                serializer.setProperty(propertyName, value);
+            }
+        }
+    },
+
+    _getPropertyWithDefaults: {
+        value:function (deserializer, propertyName) {
+            return deserializer.getProperty(propertyName) || Defaults[propertyName];
+        }
+    },
+
 
     /*****************************************************
      * Measurement
@@ -253,7 +322,6 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
                     longitude;
         }
     },
-
 
     clone: {
         value: function () {

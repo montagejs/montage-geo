@@ -11,6 +11,16 @@ var Geometry = require("./geometry").Geometry,
  */
 var Point = exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
 
+    serializeSelf: {
+        value: function (serializer) {
+        }
+    },
+
+    deserializeSelf: {
+        value: function (deserializer) {
+        }
+    },
+
     /**
      * @type {Position}
      */
@@ -77,10 +87,21 @@ var Point = exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
      *
      * @param {Point} point - the destination.
      * @return {number} The distance between the two points in meters.
-s     */
+     */
     distance: {
         value: function (point) {
             return this.coordinates.distance(point.coordinates);
+        }
+    },
+
+    /**
+     * Returns this point in the MGRS reference system.
+     * @method
+     * @return {string}
+     */
+    mgrs: {
+        value: function () {
+            return this.coordinates.mgrs();
         }
     },
 
@@ -92,14 +113,6 @@ s     */
      * @override
      * @method
      */
-    // coordinatesDidChange: {
-    //     value: function () {
-    //         // if (this.coordinates) {
-    //         //     this.bounds.setWithPositions(this.positions);
-    //         // }
-    //     }
-    // },
-    
     bounds: {
         value: function () {
             var longitude = this.coordinates.longitude,
@@ -116,25 +129,34 @@ s     */
             }.bind(this);
         }
     },
-    
+
+    makeMgrsObserver: {
+        value: function () {
+            var self = this;
+            return function observeMgrs(emit, scope) {
+                return self.observeMgrs(emit);
+            }.bind(this);
+        }
+    },
+
     observeBounds: {
         value: function (emit) {
             var self = this,
                 latitudeListenerCanceler,
                 longitudeListenerCanceler,
                 cancel;
-            
+
             function update() {
                 if (cancel) {
                     cancel();
                 }
                 cancel = emit(self.bounds());
             }
-            
+
             update();
             latitudeListenerCanceler = this.addPathChangeListener("coordinates.latitude", update);
             longitudeListenerCanceler = this.addPathChangeListener("coordinates.longitude", update);
-            
+
             return function cancelObserver() {
                 latitudeListenerCanceler();
                 longitudeListenerCanceler();
@@ -144,7 +166,35 @@ s     */
             };
         }
     },
-    
+
+    observeMgrs: {
+        value: function (emit) {
+            var self = this,
+                latitudeListenerCanceler,
+                longitudeListenerCanceler,
+                cancel;
+
+            function update() {
+                if (cancel) {
+                    cancel();
+                }
+                cancel = emit(self.mgrs());
+            }
+
+            update();
+            latitudeListenerCanceler = this.addPathChangeListener("coordinates.latitude", update);
+            longitudeListenerCanceler = this.addPathChangeListener("coordinates.longitude", update);
+
+            return function cancelObserver() {
+                latitudeListenerCanceler();
+                longitudeListenerCanceler();
+                if (cancel) {
+                    cancel();
+                }
+            };
+        }
+    },
+
     makeBearingObserver: {
         value: function (observeDestination) {
             var self = this;
@@ -259,6 +309,20 @@ s     */
                     cancel();
                 }
             };
+        }
+    },
+
+    /**
+     * Returns a copy of this Point.
+     *
+     * @method
+     * @returns {Geometry}
+     */
+    clone: {
+        value: function () {
+            return exports.Point.withCoordinates([
+                this.coordinates.longitude, this.coordinates.latitude
+            ]);
         }
     },
 

@@ -56,7 +56,7 @@ describe("A Polygon", function () {
         ];
         expect(roundedBbox(p1.bounds().bbox).join(",")).toBe("10,10,20,20");
     });
-    
+
     it("can create an observer for its bounds", function () {
         var geometry = Polygon.withCoordinates([
                 [[0,0], [0,10], [10,10], [10,0], [0,0]]
@@ -65,7 +65,7 @@ describe("A Polygon", function () {
                 geometry: geometry,
                 bounds: undefined
             };
-        
+
         Bindings.defineBinding(controller, "bounds", {"<-": "geometry.bounds()"});
         expect(controller.bounds.bbox.join(",")).toBe("0,0,10,10");
         geometry.coordinates[0].push(Position.withCoordinates(20, 20));
@@ -73,7 +73,7 @@ describe("A Polygon", function () {
         geometry.coordinates[0].pop();
         expect(controller.bounds.bbox.join(",")).toBe("0,0,10,10");
     });
-    
+
     it("can test another polygon for intersection", function () {
         var p1 = Polygon.withCoordinates([
                 [[0,0], [0,10], [10,10], [10,0], [0,0]]
@@ -124,6 +124,16 @@ describe("A Polygon", function () {
         // e has a different number of positions in its hole.
         expect(a.equals(e)).toBe(false);
 
+    });
+
+    it("can clone itself", function () {
+        var a = Polygon.withCoordinates([
+                [[0,0], [0,40], [40,40], [40,0], [0,0]],
+                [[10,10], [10,30], [30,30], [30,10], [10,10]]
+            ]),
+            b = a.clone();
+
+        expect(a.equals(b)).toBe(true);
     });
 
 

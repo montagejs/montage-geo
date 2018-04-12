@@ -20,7 +20,7 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
     coordinates: {
         value: undefined
     },
-    
+
     bounds: {
         value: function () {
             var bounds = BoundingBox.withCoordinates(Infinity, Infinity, -Infinity, -Infinity),
@@ -32,7 +32,24 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
             return bounds;
         }
     },
-    
+
+    /**
+     * Returns a copy of this Polygon.
+     *
+     * @method
+     * @returns {Polygon}
+     */
+    clone: {
+        value: function () {
+            var rings = this.coordinates && this.coordinates.map(function (rings) {
+                return rings.map(function (position) {
+                    return [position.longitude, position.latitude];
+                });
+            }) || [[]];
+            return Polygon.withCoordinates(rings);
+        }
+    },
+
     makeBoundsObserver: {
         value: function () {
             var self = this;
@@ -41,27 +58,27 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
             }.bind(this);
         }
     },
-    
+
     observeBounds: {
         value: function (emit) {
             var self = this,
                 coordinatesPathChangeListener,
                 coordinatesRangeChangeListener,
                 cancel;
-            
+
             function update() {
                 if (cancel) {
                     cancel();
                 }
                 cancel = emit(self.bounds());
             }
-            
+
             update();
             coordinatesPathChangeListener = this.addPathChangeListener("coordinates", update);
             if (this.coordinates && this.coordinates.length) {
                 coordinatesRangeChangeListener = this.coordinates[0].addRangeChangeListener(update);
             }
-            
+
             return function cancelObserver() {
                 coordinatesPathChangeListener();
                 if (coordinatesRangeChangeListener) {

@@ -12,12 +12,6 @@ var Montage = require("montage/core/core").Montage,
  */
 exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
 
-    constructor: {
-        value: function Geometry() {
-            // this.addPathChangeListener("coordinates", this, "coordinatesDidChange");
-        }
-    },
-
     bounds: {
         value: function () {
             return BoundingBox.withCoordinates(Infinity, Infinity, -Infinity, -Infinity);
@@ -31,7 +25,7 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
     coordinates: {
         value: undefined
     },
-    
+
     /**
      * Tests whether this geometry intersects the provided
      * geometry.
@@ -47,12 +41,18 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
         value: function (geometry) {}
     },
 
-    toGeoJSON: {
+    /**
+     * Returns a copy of this geometry.
+     *
+     * @method
+     * @returns {Geometry}
+     */
+    clone: {
         value: function () {}
     },
 
-    _rangeChangeCanceler: {
-        value: undefined
+    toGeoJSON: {
+        value: function () {}
     }
 
 }, {

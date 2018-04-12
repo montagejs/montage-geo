@@ -1,0 +1,84 @@
+{
+    "root": {
+        "prototype": "core/meta/module-object-descriptor",
+        "properties": {
+            "name": "Position",
+            "propertyDescriptors": [
+                {
+                    "@": "longitude",
+                    "@": "latitude",
+                    "@": "altitude"
+                }
+            ],
+            "propertyDescriptorGroups": {
+                "Coordinates": [
+                    {
+                        "@": "longitude"
+                    },
+                    {
+                        "@": "latitude"
+                    },
+                    {
+                        "@": "altitude"
+                    }
+                ]
+            },
+            "propertyValidationRules": {},
+            "objectDescriptorModule": {
+                "%": "logic/model/position.mjson"
+            },
+            "exportName": "Position",
+            "module": {
+                "%": "logic/model"
+            }
+        }
+    },
+    "longitude": {
+        "prototype": "core/meta/property-descriptor",
+        "properties": {
+            "name": "longitude",
+            "objectDescriptor": {
+                "@": "root"
+            },
+            "cardinality": 1,
+            "mandatory": true,
+            "denyDelete": false,
+            "readOnly": true,
+            "valueType": "number",
+            "enumValues": [],
+            "helpKey": ""
+        }
+    },
+    "latitude": {
+        "prototype": "core/meta/property-descriptor",
+        "properties": {
+            "name": "latitude",
+            "objectDescriptor": {
+                "@": "root"
+            },
+            "cardinality": 1,
+            "mandatory": true,
+            "denyDelete": false,
+            "readOnly": true,
+            "valueType": "number",
+            "enumValues": [],
+            "helpKey": ""
+        }
+    },
+    "altitude": {
+        "prototype": "core/meta/property-descriptor",
+        "properties": {
+            "name": "altitude",
+            "objectDescriptor": {
+                "@": "root"
+            },
+            "cardinality": 1,
+            "mandatory": false,
+            "denyDelete": false,
+            "readOnly": true,
+            "valueType": "number",
+            "enumValues": [],
+            "helpKey": ""
+        }
+    }
+}

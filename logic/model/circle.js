@@ -245,6 +245,19 @@ var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */
                     this.coordinates.equals(other.coordinates) &&
                     other.radius === this.radius;
         }
+    },
+
+    /**
+     * Returns a copy of this Circle.
+     *
+     * @method
+     * @returns {Circle}
+     */
+    clone: {
+        value: function () {
+            var center = this.coordinates;
+            return Circle.withCoordinates([center.longitude, center.latitude], this.radius);
+        }
     }
 
 }, {

@@ -42,7 +42,7 @@ describe("A MultiPolygon", function () {
         multipolygon.coordinates[0].coordinates[0].splice(3, 1);
         expect(roundedBbox(multipolygon.bounds().bbox).join(",")).toBe("-10,-10,10,10");
     });
-    
+
     it("can create an observer for its bounds", function () {
         var geometry = MultiPolygon.withCoordinates([
                 [[[0,0], [0,10], [10,10], [10,0], [0,0]]],
@@ -52,7 +52,7 @@ describe("A MultiPolygon", function () {
                 geometry: geometry,
                 bounds: undefined
             };
-        
+
         Bindings.defineBinding(controller, "bounds", {"<-": "geometry.bounds()"});
         expect(controller.bounds.bbox.join(",")).toBe("-10,-10,10,10");
         geometry.coordinates.push(Polygon.withCoordinates([[[10,10], [10,20], [20,20], [20,0], [10,10]]]));
@@ -94,5 +94,15 @@ describe("A MultiPolygon", function () {
         // the outer ring's second position.
         expect(a.equals(e)).toBe(false);
     });
-    
+
+    it ("can clone itself", function () {
+        var a = MultiPolygon.withCoordinates([
+                [[[0,0], [0,10], [10,10], [10,0], [0,0]]],
+                [[[0,0], [0,-10], [-10,-10], [-10,0], [0,0]]]
+            ]),
+            b = a.clone();
+
+        expect(a.equals(b)).toBe(true);
+    });
+
 });

@@ -21,7 +21,7 @@ var MultiLineString = exports.MultiLineString = Geometry.specialize(/** @lends M
     coordinates: {
         value: undefined
     },
-    
+
     bounds: {
         value: function () {
             return this.coordinates.map(function (lineString) {
@@ -32,7 +32,7 @@ var MultiLineString = exports.MultiLineString = Geometry.specialize(/** @lends M
             }, BoundingBox.withCoordinates(Infinity, Infinity, -Infinity, -Infinity));
         }
     },
-    
+
     makeBoundsObserver: {
         value: function () {
             var self = this;
@@ -41,25 +41,25 @@ var MultiLineString = exports.MultiLineString = Geometry.specialize(/** @lends M
             }.bind(this);
         }
     },
-    
+
     observeBounds: {
         value: function (emit) {
             var self = this,
                 coordinatesPathChangeListener,
                 coordinatesRangeChangeListener,
                 cancel;
-            
+
             function update() {
                 if (cancel) {
                     cancel();
                 }
                 cancel = emit(self.bounds());
             }
-            
+
             update();
             coordinatesPathChangeListener = this.addPathChangeListener("coordinates", update);
             coordinatesRangeChangeListener = this.coordinates.addRangeChangeListener(update);
-            
+
             return function cancelObserver() {
                 coordinatesPathChangeListener();
                 coordinatesRangeChangeListener();
@@ -195,6 +195,23 @@ var MultiLineString = exports.MultiLineString = Geometry.specialize(/** @lends M
                 a = isThis && this.coordinates,
                 b = isThis && other.coordinates;
             return isThis && a.length === b.length && this._compare(a, b);
+        }
+    },
+
+    /**
+     * Returns a copy of this MultiLineString.
+     *
+     * @method
+     * @returns {Geometry}
+     */
+    clone: {
+        value: function () {
+            var coordinates = this.coordinates.map(function (lineString) {
+                return lineString.coordinates.map(function (coordinate) {
+                    return [coordinate.longitude, coordinate.latitude];
+                });
+            });
+            return exports.MultiLineString.withCoordinates(coordinates);
         }
     },
 

@@ -127,5 +127,14 @@ describe("A Circle", function () {
         expect(Math.round(controller.perimeter)).toBe(63);
     });
 
-    //62.83
+    it("can clone itself", function () {
+        var coordinates = [-156.6825, 20.8783],
+            radius = 10,
+            circle1 = Circle.withCoordinates(coordinates, radius),
+            circle2 = circle1.clone();
+
+        expect(circle1.coordinates.equals(circle2.coordinates)).toBe(true);
+        expect(circle2.radius).toBe(10);
+    });
+
 });

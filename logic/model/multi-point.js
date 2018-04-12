@@ -28,7 +28,7 @@ var MultiPoint = exports.MultiPoint = Geometry.specialize(/** @lends MultiPoint.
     coordinates: {
         value: undefined
     },
-    
+
     bounds: {
         value: function () {
             var xMin = Infinity,
@@ -37,7 +37,7 @@ var MultiPoint = exports.MultiPoint = Geometry.specialize(/** @lends MultiPoint.
                 yMax = -Infinity,
                 coordinates = this.coordinates,
                 coordinate, i, n;
-            
+
             for (i = 0, n = coordinates && coordinates.length || 0; i < n; i += 1) {
                 coordinate = coordinates[i];
                 xMin = Math.min(xMin, coordinate.longitude);
@@ -49,7 +49,7 @@ var MultiPoint = exports.MultiPoint = Geometry.specialize(/** @lends MultiPoint.
             return BoundingBox.withCoordinates(xMin, yMin, xMax, yMax);
         }
     },
-    
+
     makeBoundsObserver: {
         value: function () {
             var self = this;
@@ -58,25 +58,25 @@ var MultiPoint = exports.MultiPoint = Geometry.specialize(/** @lends MultiPoint.
             }.bind(this);
         }
     },
-    
+
     observeBounds: {
         value: function (emit) {
             var self = this,
                 coordinatesPathChangeListener,
                 coordinatesRangeChangeListener,
                 cancel;
-            
+
             function update() {
                 if (cancel) {
                     cancel();
                 }
                 cancel = emit(self.bounds());
             }
-            
+
             update();
             coordinatesPathChangeListener = this.addPathChangeListener("coordinates", update);
             coordinatesRangeChangeListener = this.coordinates.addRangeChangeListener(update);
-            
+
             return function cancelObserver() {
                 coordinatesPathChangeListener();
                 coordinatesRangeChangeListener();
@@ -86,7 +86,7 @@ var MultiPoint = exports.MultiPoint = Geometry.specialize(/** @lends MultiPoint.
             };
         }
     },
-    
+
     intersects: {
         value: function (bounds) {
             return  this.bounds().intersects(bounds) &&
@@ -122,6 +122,21 @@ var MultiPoint = exports.MultiPoint = Geometry.specialize(/** @lends MultiPoint.
                 a = isThis && this.coordinates,
                 b = isThis && other.coordinates;
             return isThis && a.length === b.length && this._compare(a, b);
+        }
+    },
+
+    /**
+     * Returns a copy of this MultiPoint.
+     *
+     * @method
+     * @returns {Geometry}
+     */
+    clone: {
+        value: function () {
+            var coordinates = this.coordinates.map(function (coordinate) {
+                return [coordinate.longitude, coordinate.latitude];
+            });
+            return exports.MultiPoint.withCoordinates(coordinates);
         }
     },
 
