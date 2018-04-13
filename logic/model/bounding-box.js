@@ -328,9 +328,9 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
      */
     extend: {
         value: function (value) {
-            if (value instanceof exports.BoundingBox) {
+            if (value && value instanceof exports.BoundingBox) {
                 this._extendWithBoundingBox(value);
-            } else if (value instanceof Position) {
+            } else if (value && value instanceof exports.BoundingBox.Position) {
                 this._extendWithPosition(value);
             }
         }
@@ -365,7 +365,8 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
      */
     buffer: {
         value: function (meters) {
-            var distance = Math.sqrt(Math.pow(meters, 2) + Math.pow(meters, 2)),
+            var Position = exports.BoundingBox.Position,
+                distance = Math.sqrt(Math.pow(meters, 2) + Math.pow(meters, 2)),
                 southWest = Position.withCoordinates(this.xMin, this.yMin),
                 northEast = Position.withCoordinates(this.xMax, this.yMax);
             southWest = southWest.vincentyDirect(distance, 225);
