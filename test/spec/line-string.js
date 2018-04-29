@@ -1,7 +1,9 @@
 var LineString = require("montage-geo/logic/model/line-string").LineString,
     Bindings = require("montage-geo/frb/bindings"),
     BoundingBox = require("montage-geo/logic/model/bounding-box").BoundingBox,
-    Position = require("montage-geo/logic/model/position").Position;
+    Deserializer = require("montage/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
+    Position = require("montage-geo/logic/model/position").Position,
+    Serializer = require("montage/core/serialization/serializer/montage-serializer").MontageSerializer;
 
 describe("A LineString", function () {
 
@@ -15,6 +17,23 @@ describe("A LineString", function () {
         var line = LineString.withCoordinates([[0, 0], [0, 10]]);
         expect(line).toBeDefined();
         expect(line.bounds().bbox.join(",")).toBe("0,0,0,10");
+    });
+
+    it("can serialize", function () {
+        var l1 = LineString.withCoordinates([[0, 0], [0, 10]]),
+            serializer = new Serializer().initWithRequire(require),
+            serialized = serializer.serializeObject(l1);
+        expect(serialized).not.toBeNull();
+    });
+
+    it("can deserialize", function (done) {
+        var l1 = LineString.withCoordinates([[0, 0], [0, 10]]),
+            serialized = new Serializer().initWithRequire(require).serializeObject(l1);
+        new Deserializer().init(serialized, require).deserializeObject().then(function (lineString) {
+            expect(lineString.constructor.name).toBe("LineString");
+            expect(l1.equals(lineString)).toBe(true);
+            done();
+        });
     });
 
     it("can be properly update its bounds", function () {

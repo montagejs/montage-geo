@@ -15,6 +15,10 @@ var Montage = require("montage/core/core").Montage,
  */
 exports.Feature = Montage.specialize(/** @lends Feature.prototype */ {
 
+    constructor: {
+        value: function Feature() {}
+    },
+
     /**
      * If a Feature has a commonly used identifier, that identifier
      * SHOULD be included as a member of the Feature object with the name
@@ -54,7 +58,7 @@ exports.Feature = Montage.specialize(/** @lends Feature.prototype */ {
      * @type {Geometry|null}
      */
     geometry: {
-        value: undefined
+        value: null
     },
 
     /**
@@ -67,8 +71,27 @@ exports.Feature = Montage.specialize(/** @lends Feature.prototype */ {
         value: function (bounds) {
             return this.geometry.intersects(bounds);
         }
-    }
+    },
 
+    /*****************************************************
+     * Serialization
+     */
+
+    serializeSelf: {
+        value: function (serializer) {
+            serializer.setProperty("id", this.id);
+            serializer.setProperty("geometry", this.geometry);
+            serializer.setProperty("properties", this.properties);
+        }
+    },
+
+    deserializeSelf: {
+        value: function (deserializer) {
+            this.id = deserializer.getProperty("id");
+            this.geometry = deserializer.getProperty("geometry");
+            this.properties = deserializer.getProperty("properties");
+        }
+    }
 
 }, {
 

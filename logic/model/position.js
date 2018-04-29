@@ -1,5 +1,5 @@
-var Projection = require("logic/model/projection").Projection,
-    HALF_PI = Math.PI / 180.0;
+var HALF_PI = Math.PI / 180.0, Position;
+
 /**
  *
  * A position represents a physical location on the Earth.
@@ -13,7 +13,7 @@ var Projection = require("logic/model/projection").Projection,
  * @class
  * @extends Object
  */
-exports.Position = function Position() {};
+Position = exports.Position = function Position() {};
 
 var Defaults = {
     longitude: 0,
@@ -66,14 +66,6 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
         enumerable: true,
         writable: true,
         value: 0
-    },
-
-    mgrs: {
-        value: function () {
-            return Projection.forSrid("MGRS").projectPoint([
-                this.longitude, this.latitude
-            ]);
-        }
     },
 
     equals: {
@@ -133,7 +125,6 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
             return deserializer.getProperty(propertyName) || Defaults[propertyName];
         }
     },
-
 
     /*****************************************************
      * Measurement

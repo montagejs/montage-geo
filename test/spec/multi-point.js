@@ -1,6 +1,8 @@
 var MultiPoint = require("montage-geo/logic/model/multi-point").MultiPoint,
     Bindings = require("montage-geo/frb/bindings"),
-    Position = require("montage-geo/logic/model/position").Position;
+    Deserializer = require("montage/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
+    Position = require("montage-geo/logic/model/position").Position,
+    Serializer = require("montage/core/serialization/serializer/montage-serializer").MontageSerializer;
 
 describe("A MultiPoint", function () {
 
@@ -11,6 +13,28 @@ describe("A MultiPoint", function () {
         expect(geometry).toBeDefined();
         expect(geometry.coordinates.length).toBe(4);
         expect(geometry.bounds().bbox.join(",")).toBe("0,0,10,10");
+    });
+
+    it("can serialize", function () {
+        var p1 = MultiPoint.withCoordinates([
+                [0, 0], [10, 0], [10, 10], [0, 10]
+            ]),
+            serializer = new Serializer().initWithRequire(require),
+            serialized = serializer.serializeObject(p1);
+        expect(serialized).not.toBeNull();
+    });
+
+    it("can deserialize", function (done) {
+        var p1 = MultiPoint.withCoordinates([
+                [0, 0], [10, 0], [10, 10], [0, 10]
+            ]),
+            serializer = new Serializer().initWithRequire(require),
+            serialized = serializer.serializeObject(p1);
+        new Deserializer().init(serialized, require).deserializeObject().then(function (point) {
+            expect(point.constructor.name).toBe("MultiPoint");
+            expect(p1.equals(point)).toBe(true);
+            done();
+        });
     });
 
     it("can observe changes to coordinates", function () {

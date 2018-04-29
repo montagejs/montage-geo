@@ -1,7 +1,9 @@
 var MultiPolygon = require("montage-geo/logic/model/multi-polygon").MultiPolygon,
     Bindings = require("montage-geo/frb/bindings"),
+    Deserializer = require("montage/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
     Polygon = require("montage-geo/logic/model/polygon").Polygon,
-    Position = require("montage-geo/logic/model/position").Position;
+    Position = require("montage-geo/logic/model/position").Position,
+    Serializer = require("montage/core/serialization/serializer/montage-serializer").MontageSerializer;
 
 describe("A MultiPolygon", function () {
 
@@ -23,6 +25,31 @@ describe("A MultiPolygon", function () {
         expect(multipolygon.coordinates[0].coordinates[0].length).toBe(5);
         expect(multipolygon.coordinates[1].coordinates[0].length).toBe(5);
         expect(roundedBbox(multipolygon.bounds().bbox).join(",")).toBe("-10,-10,10,10");
+    });
+
+
+    it("can serialize", function () {
+        var p1 = MultiPolygon.withCoordinates([
+                [[[0,0], [0,10], [10,10], [10,0], [0,0]]],
+                [[[0,0], [0,-10], [-10,-10], [-10,0], [0,0]]]
+            ]),
+            serializer = new Serializer().initWithRequire(require),
+            serialized = serializer.serializeObject(p1);
+        expect(serialized).not.toBeNull();
+    });
+
+    it("can deserialize", function (done) {
+        var p1 = MultiPolygon.withCoordinates([
+                [[[0,0], [0,10], [10,10], [10,0], [0,0]]],
+                [[[0,0], [0,-10], [-10,-10], [-10,0], [0,0]]]
+            ]),
+            serializer = new Serializer().initWithRequire(require),
+            serialized = serializer.serializeObject(p1);
+        new Deserializer().init(serialized, require).deserializeObject().then(function (polygon) {
+            expect(polygon.constructor.name).toBe("MultiPolygon");
+            expect(p1.equals(polygon)).toBe(true);
+            done();
+        });
     });
 
     it("can update its bounds", function () {

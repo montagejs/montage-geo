@@ -11,6 +11,12 @@ var Geometry = require("./geometry").Geometry,
  */
 var MultiPoint = exports.MultiPoint = Geometry.specialize(/** @lends MultiPoint.prototype */ {
 
+    constructor: {
+        value: function MultiPoint() {
+
+        }
+    },
+
     /**
      * @override
      * @returns array<Position>

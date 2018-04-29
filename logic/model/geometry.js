@@ -26,6 +26,22 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
         value: undefined
     },
 
+    /*****************************************************
+     * Serialization
+     */
+
+    serializeSelf: {
+        value: function (serializer) {
+            serializer.setProperty("coordinates", this.coordinates);
+        }
+    },
+
+    deserializeSelf: {
+        value: function (deserializer) {
+            this.coordinates = deserializer.getProperty("coordinates");
+        }
+    },
+
     /**
      * Tests whether this geometry intersects the provided
      * geometry.

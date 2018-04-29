@@ -1,8 +1,10 @@
 var MultiLineString = require("montage-geo/logic/model/multi-line-string").MultiLineString,
     Bindings = require("montage-geo/frb/bindings"),
     BoundingBox = require("montage-geo/logic/model/bounding-box").BoundingBox,
+    Deserializer = require("montage/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
     LineString = require("montage-geo/logic/model/line-string").LineString,
-    Position = require("montage-geo/logic/model/position").Position;
+    Position = require("montage-geo/logic/model/position").Position,
+    Serializer = require("montage/core/serialization/serializer/montage-serializer").MontageSerializer;
 
 describe("A MultiLineString", function () {
 
@@ -19,6 +21,34 @@ describe("A MultiLineString", function () {
         expect(multiline.coordinates[0].coordinates[0].latitude).toBe(0);
         expect(multiline.coordinates[0].coordinates[1].longitude).toBe(0);
         expect(multiline.coordinates[0].coordinates[1].latitude).toBe(10);
+    });
+
+    it("can serialize", function () {
+        var l1 = MultiLineString.withCoordinates([
+                [[0, 0], [0, 10]],
+                [[0, 0], [0, -10]],
+                [[0, 0], [10, 0]],
+                [[0, 0], [-10, 0]]
+            ]),
+            serializer = new Serializer().initWithRequire(require),
+            serialized = serializer.serializeObject(l1);
+        expect(serialized).not.toBeNull();
+    });
+
+    it("can deserialize", function (done) {
+        var l1 = MultiLineString.withCoordinates([
+                [[0, 0], [0, 10]],
+                [[0, 0], [0, -10]],
+                [[0, 0], [10, 0]],
+                [[0, 0], [-10, 0]]
+            ]),
+            serializer = new Serializer().initWithRequire(require),
+            serialized = serializer.serializeObject(l1);
+        new Deserializer().init(serialized, require).deserializeObject().then(function (lineString) {
+            expect(lineString.constructor.name).toBe("MultiLineString");
+            expect(l1.equals(lineString)).toBe(true);
+            done();
+        });
     });
 
     it("can calculate its bounds", function () {

@@ -1,8 +1,10 @@
 var FeatureCollection = require("montage-geo/logic/model/feature-collection").FeatureCollection,
     Bindings = require("montage-geo/frb/bindings"),
     BoundingBox = require("montage-geo/logic/model/bounding-box").BoundingBox,
+    Deserializer = require("montage/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
     Feature = require("montage-geo/logic/model/feature").Feature,
-    Point = require("montage-geo/logic/model/point").Point;
+    Point = require("montage-geo/logic/model/point").Point,
+    Serializer = require("montage/core/serialization/serializer/montage-serializer").MontageSerializer;
 
 describe("A FeatureCollection", function () {
     var lahaina, kahului;
@@ -29,12 +31,44 @@ describe("A FeatureCollection", function () {
             }
         });
     });
-    
+
 
     it("can be created", function () {
         var collection = FeatureCollection.withFeatures();
         expect(collection).toBeDefined();
         expect(collection.size).toBe(0);
+    });
+
+    it("can serialize", function () {
+        var collection = FeatureCollection.withFeatures(),
+            serializer = new Serializer().initWithRequire(require),
+            serialized;
+        collection.add(lahaina, kahului);
+        serialized = serializer.serializeObject(collection);
+        expect(serialized).not.toBeNull();
+    });
+
+    it("can deserialize", function (done) {
+        var collection = FeatureCollection.withFeatures(),
+            serializer = new Serializer().initWithRequire(require),
+            serialized;
+        collection.add(lahaina, kahului);
+        serialized = serializer.serializeObject(collection);
+        new Deserializer().init(serialized, require).deserializeObject().then(function (c1) {
+            var i, n, f1, f2, isEqual = true;
+            expect(c1.constructor.name).toBe("FeatureCollection");
+            expect(c1.features.length === collection.features.length).toBe(true);
+            expect(c1.size === collection.size).toBe(true);
+            for (i = 0, n = c1.features.length; i < n && isEqual; i += 1) {
+                f1 = c1.features[i];
+                f2 = collection.features[i];
+                isEqual =   f1.geometry.equals(f2.geometry) &&
+                            f1.id === f2.id &&
+                            JSON.stringify(f1.properties) === JSON.stringify(f2.properties);
+            }
+            expect(isEqual).toBe(true);
+            done();
+        });
     });
 
     it("can add a feature", function () {
@@ -197,12 +231,12 @@ describe("A FeatureCollection", function () {
             // [-156.6825, 20.8783]
             //-156.4729, 20.8893]
             bounds = collection.bounds();
-        
+
         expect(bounds.xMax).toEqual(-156.4729);
         expect(bounds.xMin).toEqual(-156.6825);
         expect(bounds.yMax).toEqual(20.8893);
         expect(bounds.yMin).toEqual(20.8783);
-        
+
     });
 
     it("can observe changes to child geometries added to the collection", function () {

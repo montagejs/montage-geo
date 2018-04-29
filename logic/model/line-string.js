@@ -12,6 +12,10 @@ var Geometry = require("./geometry").Geometry,
  */
 var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.prototype */ {
 
+    constructor: {
+        value: function LineString() {}
+    },
+
     /**
      * The "coordinates" member is an array of two or more positions.
      * @type {array<Position>}

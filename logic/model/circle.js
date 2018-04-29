@@ -12,8 +12,7 @@ var Geometry = require("./geometry").Geometry,
 var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */ {
 
     constructor: {
-        value: function Circle() {
-        }
+        value: function Circle() {}
     },
 
     /**
@@ -23,6 +22,37 @@ var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */
     coordinates: {
         value: undefined
     },
+
+    /**
+     * The radius of the circle in meters.
+     * @type {number}
+     */
+    radius: {
+        value: undefined
+    },
+
+
+    /*****************************************************
+     * Serialization
+     */
+
+    serializeSelf: {
+        value: function (serializer) {
+            serializer.setProperty("coordinates", this.coordinates);
+            serializer.setProperty("radius", this.radius);
+        }
+    },
+
+    deserializeSelf: {
+        value: function (deserializer) {
+            this.coordinates = deserializer.getProperty("coordinates");
+            this.radius = deserializer.getProperty("radius");
+        }
+    },
+
+    /****************************************************************
+     * Intersection
+     */
 
     /**
      * Tests whether the provided point is within this circle.

@@ -1,5 +1,7 @@
 var Point = require("montage-geo/logic/model/point").Point,
     Bindings = require("montage-geo/frb/bindings"),
+    Deserializer = require("montage/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
+    Serializer = require("montage/core/serialization/serializer/montage-serializer").MontageSerializer,
     Position = require("montage-geo/logic/model/position").Position;
 
 describe("A Point", function () {
@@ -36,6 +38,14 @@ describe("A Point", function () {
         point.coordinates.longitude = 0;
         expect(controller.bounds.bbox.join(",")).toBe("0,50.0359,0,50.0359");
 
+    });
+
+    it("can convert to MGRS", function (){
+        var p1 = Point.withCoordinates([-156.6825, 20.8783]),
+            p2 = Point.withCoordinates([0, 0]);
+
+        expect(p1.mgrs()).toBe("4QGJ4109910417");
+        expect(p2.mgrs()).toBe("31NAA6602100000");
     });
 
     it("can create an observer for MGRS", function () {
@@ -157,5 +167,24 @@ describe("A Point", function () {
         expect(a.equals(b)).toBe(true);
     });
 
+    it("can serialize", function () {
+        var p1 = Point.withCoordinates([-156.6825, 20.8783]),
+            serializer = new Serializer().initWithRequire(require),
+            serializedPoint = serializer.serializeObject(p1);
+        expect(serializedPoint).not.toBeNull();
+    });
+
+    it("can deserialize", function (done) {
+        var p1 = Point.withCoordinates([-156.6825, 20.8783]),
+            serializedPoint = new Serializer().initWithRequire(require).serializeObject(p1);
+        new Deserializer().init(serializedPoint, require).deserializeObject().then(function (point) {
+            var coordinates = point.coordinates;
+            expect(point.constructor.name).toBe("Point");
+            expect(coordinates.longitude).toBe(-156.6825);
+            expect(coordinates.latitude).toBe(20.8783);
+            expect(coordinates.altitude).toBe(0);
+            done();
+        });
+    });
 
 });

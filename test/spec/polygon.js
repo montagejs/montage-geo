@@ -1,6 +1,8 @@
 var Polygon = require("montage-geo/logic/model/polygon").Polygon,
     Bindings = require("montage-geo/frb/bindings"),
-    Position = require("montage-geo/logic/model/position").Position;
+    Deserializer = require("montage/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
+    Position = require("montage-geo/logic/model/position").Position,
+    Serializer = require("montage/core/serialization/serializer/montage-serializer").MontageSerializer;
 
 describe("A Polygon", function () {
 
@@ -16,6 +18,28 @@ describe("A Polygon", function () {
         ]);
         expect(p1.coordinates.length).toBe(1);
         expect(p1.coordinates[0].length).toBe(5);
+    });
+
+    it("can serialize", function () {
+        var p1 = Polygon.withCoordinates([
+                [[0,0], [0,10], [10,10], [10,0], [0,0]]
+            ]),
+            serializer = new Serializer().initWithRequire(require),
+            serialized = serializer.serializeObject(p1);
+        expect(serialized).not.toBeNull();
+    });
+
+    it("can deserialize", function (done) {
+        var p1 = Polygon.withCoordinates([
+                [[0,0], [0,10], [10,10], [10,0], [0,0]]
+            ]),
+            serializer = new Serializer().initWithRequire(require),
+            serialized = serializer.serializeObject(p1);
+        new Deserializer().init(serialized, require).deserializeObject().then(function (polygon) {
+            expect(polygon.constructor.name).toBe("Polygon");
+            expect(p1.equals(polygon)).toBe(true);
+            done();
+        });
     });
 
     it("can properly create its bounds.", function () {

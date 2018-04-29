@@ -37,6 +37,23 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
         }
     },
 
+    /*****************************************************
+     * Serialization
+     */
+
+    serializeSelf: {
+        value: function (serializer) {
+            serializer.setProperty("features", this.features);
+        }
+    },
+
+    deserializeSelf: {
+        value: function (deserializer) {
+            var features = this.features;
+            features.splice.apply(features, [0, Infinity].concat(deserializer.getProperty("features")));
+        }
+    },
+
     /**
      * A feature collection MAY have a member named "bounds" to
      * include information on the coordinate range for its features'

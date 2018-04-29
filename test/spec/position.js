@@ -22,7 +22,6 @@ describe("A Position", function () {
         expect(mid.longitude).toBe(1.2746141006781915);
     });
 
-    // Needs serialization changes...
     it("can serialize", function () {
         var p1 = Position.withCoordinates([-156.6825, 20.8783]),
             serializer = new Serializer().initWithRequire(require),
@@ -40,14 +39,6 @@ describe("A Position", function () {
             expect(position.altitude).toBe(0);
             done();
         });
-    });
-
-    it("can convert to MGRS", function (){
-        var p1 = Position.withCoordinates([-156.6825, 20.8783]),
-            p2 = Position.withCoordinates([0, 0]);
-
-        expect(p1.mgrs()).toBe("4QGJ4109910417");
-        expect(p2.mgrs()).toBe("31NAA6602100000");
     });
 
     it("can properly monitor a set", function () {

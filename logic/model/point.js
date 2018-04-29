@@ -1,6 +1,7 @@
 var Geometry = require("./geometry").Geometry,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
-    Position = require("./position").Position;
+    Position = require("./position").Position,
+    Projection = require("./projection").Projection;
 
 /**
  *
@@ -11,14 +12,8 @@ var Geometry = require("./geometry").Geometry,
  */
 var Point = exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
 
-    serializeSelf: {
-        value: function (serializer) {
-        }
-    },
-
-    deserializeSelf: {
-        value: function (deserializer) {
-        }
+    constructor: {
+        value: function Point() {}
     },
 
     /**
@@ -101,7 +96,10 @@ var Point = exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
      */
     mgrs: {
         value: function () {
-            return this.coordinates.mgrs();
+            var coordinates = this.coordinates;
+            return Projection.forSrid("MGRS").projectPoint([
+                coordinates.longitude, coordinates.latitude
+            ]);
         }
     },
 
