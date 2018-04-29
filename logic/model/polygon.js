@@ -141,7 +141,7 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
      */
     area: {
         // TODO: Improve documentation and test.
-        get: function () {
+        value: function () {
             var area = 0, i, length;
             for (i = 0, length = this.coordinates.length; i < length; i += 1) {
                 if (i === 0) {
@@ -151,6 +151,58 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
                 }
             }
             return area;
+        }
+    },
+    
+    makeAreaObserver: {
+        value: function () {
+            var self = this;
+            return function observeArea(emit) {
+                return self.observeArea(emit);
+            };
+        }
+    },
+    
+    observeArea: {
+        value: function (emit) {
+            var callback = this.area.bind(this),
+                coordinates = this.coordinates,
+                ringsHandler, ringHandlers = [],
+                cancel;
+            
+            function update() {
+                if (cancel) {
+                    cancel();
+                }
+                cancel = emit(callback());
+                clearObservers();
+                initializeObservers();
+            }
+
+            function clearObservers() {
+                var canceller;
+                if (ringsHandler) {
+                    ringsHandler();
+                }
+                while (canceller = ringHandlers.pop()) {
+                    canceller();
+                }
+            }
+            
+            function initializeObservers() {
+                ringsHandler = coordinates.addRangeChangeListener(update);
+                coordinates.forEach(function (ring) {
+                    ringHandlers.push(ring.addRangeChangeListener(update));
+                });
+            }
+
+            update();
+            return function cancelObserver() {
+                clearObservers();
+                if (cancel) {
+                    cancel();
+                }
+            };
         }
     },
 
@@ -196,7 +248,7 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
      * @return Number - the perimeter.
      */
     perimeter: {
-        get: function () {
+        value: function () {
             var coordinates = this.coordinates[0],
                 perimeter = 0,
                 coordinate, nextCoordinate,
@@ -207,6 +259,53 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
                 perimeter += coordinate.distance(nextCoordinate);
             }
             return perimeter;
+        }
+    },
+    
+    makePerimeterObserver: {
+        value: function () {
+            var self = this;
+            return function observePerimeter(emit) {
+                return self.observePerimeter(emit);
+            };
+        }
+    },
+    
+    observePerimeter: {
+        value: function (emit) {
+            var callback = this.perimeter.bind(this),
+                coordinates = this.coordinates,
+                rangeChangeListener,
+                cancel;
+            
+            function update() {
+                if (cancel) {
+                    cancel();
+                }
+                cancel = emit(callback());
+                clearObserver();
+                initializeObserver();
+            }
+            
+            function clearObserver() {
+                if (rangeChangeListener) {
+                    rangeChangeListener();
+                }
+            }
+            
+            function initializeObserver() {
+                if (coordinates && coordinates.length) {
+                    rangeChangeListener = coordinates[0].addRangeChangeListener(update);
+                }
+            }
+            
+            update();
+            return function cancelObserver() {
+                clearObserver();
+                if (cancel) {
+                    cancel();
+                }
+            };
         }
     },
 
