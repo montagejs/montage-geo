@@ -76,6 +76,34 @@ describe("A Circle", function () {
         expect(controller.contains).toBe(false);
     });
 
+    it("can calculate its bounds", function () {
+        var coordinates = [-156.6825, 20.8783],
+            radius = 10000,
+            circle = Circle.withCoordinates(coordinates, radius);
+        expect(circle.bounds().bbox.map(function (direction) {
+            return direction.toFixed(2);
+        }).join(":")).toBe("-156.78:20.79:-156.59:20.97");
+    });
+
+    it("can observe its bounds", function () {
+        var coordinates = [-156.6825, 20.8783],
+            radius = 10000,
+            circle = Circle.withCoordinates(coordinates, radius),
+            controller = {
+                circle: circle,
+                bounds: undefined
+            };
+
+        Bindings.defineBinding(controller, "bounds", {"<-": "circle.bounds()"});
+        expect(controller.bounds.bbox.map(function (direction) {
+            return direction.toFixed(2);
+        }).join(":")).toBe("-156.78:20.79:-156.59:20.97");
+        circle.radius = 5000;
+        expect(controller.bounds.bbox.map(function (direction) {
+            return direction.toFixed(2);
+        }).join(":")).toBe("-156.73:20.83:-156.63:20.92");
+    });
+
     it("can calculate its area", function () {
         var coordinates = [-156.6825, 20.8783],
             radius = 10,
