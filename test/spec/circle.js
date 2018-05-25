@@ -12,6 +12,7 @@ describe("A Circle", function () {
             radius = 10000,
             circle = Circle.withCoordinates(coordinates, radius);
         expect(circle instanceof Circle).toBe(true);
+        expect(circle.identifier).toBeDefined();
         expect(circle.coordinates instanceof Position).toBe(true);
         expect(circle.coordinates.equals(Position.withCoordinates(coordinates))).toBe(true);
         expect(circle.radius === 10000).toBe(true);
@@ -30,7 +31,6 @@ describe("A Circle", function () {
             serializedCircle = serializer.serializeObject(c1);
         new Deserializer().init(serializedCircle, require).deserializeObject().then(function (circle) {
             var coordinates = circle.coordinates;
-            expect(circle.constructor.name).toBe("Circle");
             expect(coordinates.longitude).toBe(-156.6825);
             expect(coordinates.latitude).toBe(20.8783);
             expect(coordinates.altitude).toBe(0);

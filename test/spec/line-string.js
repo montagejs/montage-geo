@@ -15,6 +15,7 @@ describe("A LineString", function () {
 
     it("can be created", function () {
         var line = LineString.withCoordinates([[0, 0], [0, 10]]);
+        expect(line.identifier).toBeDefined();
         expect(line).toBeDefined();
         expect(line.bounds().bbox.join(",")).toBe("0,0,0,10");
     });
@@ -30,7 +31,6 @@ describe("A LineString", function () {
         var l1 = LineString.withCoordinates([[0, 0], [0, 10]]),
             serialized = new Serializer().initWithRequire(require).serializeObject(l1);
         new Deserializer().init(serialized, require).deserializeObject().then(function (lineString) {
-            expect(lineString.constructor.name).toBe("LineString");
             expect(l1.equals(lineString)).toBe(true);
             done();
         });

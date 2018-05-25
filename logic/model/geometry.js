@@ -1,5 +1,8 @@
 var Montage = require("montage/core/core").Montage,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
+    Uuid = require("montage/core/uuid").Uuid,
+    DASH_REG_EX = /-/g,
+    IDENTIFIER_PREFIX = "G",
     HALF_PI = Math.PI / 180.0;
 
 /**
@@ -12,9 +15,35 @@ var Montage = require("montage/core/core").Montage,
  */
 exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
 
+    constructor: {
+        value: function Geometry() {
+            this.identifier = IDENTIFIER_PREFIX;
+            this.identifier += Uuid.generate().replace(DASH_REG_EX, "");
+        }
+    },
+
+    /*****************************************************
+     * Properties
+     */
+
+    /**
+     * The global identifier for this Geometry.  Used during serialization to
+     * uniquely identify objects.
+     *
+     * @type {string}
+     */
+    identifier: {
+        value: undefined
+    },
+
+    /**
+     * The envelope for this Geometry.  This function should be overriden by
+     * subclasses.
+     * @type {BoundingBox}
+     */
     bounds: {
         value: function () {
-            return BoundingBox.withCoordinates(Infinity, Infinity, -Infinity, -Infinity);
+            return undefined;
         }
     },
 
@@ -32,12 +61,14 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
 
     serializeSelf: {
         value: function (serializer) {
+            serializer.setProperty("identifier", this.identifier);
             serializer.setProperty("coordinates", this.coordinates);
         }
     },
 
     deserializeSelf: {
         value: function (deserializer) {
+            this.identifier = deserializer.getProperty("identifier");
             this.coordinates = deserializer.getProperty("coordinates");
         }
     },

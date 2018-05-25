@@ -9,6 +9,7 @@ describe("A Point", function () {
     it("can be created", function () {
         var coordinates = [-156.6825, 20.8783],
             point = Point.withCoordinates(coordinates);
+        expect(point.identifier).toBeDefined();
         expect(point instanceof Point).toBe(true);
         expect(point.coordinates instanceof Position).toBe(true);
     });
@@ -179,7 +180,6 @@ describe("A Point", function () {
             serializedPoint = new Serializer().initWithRequire(require).serializeObject(p1);
         new Deserializer().init(serializedPoint, require).deserializeObject().then(function (point) {
             var coordinates = point.coordinates;
-            expect(point.constructor.name).toBe("Point");
             expect(coordinates.longitude).toBe(-156.6825);
             expect(coordinates.latitude).toBe(20.8783);
             expect(coordinates.altitude).toBe(0);

@@ -1,4 +1,8 @@
-var HALF_PI = Math.PI / 180.0, Position;
+var HALF_PI = Math.PI / 180.0, Position,
+    Uuid = require("montage/core/uuid").Uuid,
+    DASH_REG_EX = /-/g,
+    IDENTIFIER_PREFIX = "P";
+
 
 /**
  *
@@ -13,7 +17,10 @@ var HALF_PI = Math.PI / 180.0, Position;
  * @class
  * @extends Object
  */
-Position = exports.Position = function Position() {};
+Position = exports.Position = function Position() {
+    this.identifier = IDENTIFIER_PREFIX;
+    this.identifier += Uuid.generate().replace(DASH_REG_EX, "");
+};
 
 var Defaults = {
     longitude: 0,
@@ -33,6 +40,18 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
         configurable: true,
         writable: true,
         value: exports.Position
+    },
+
+    /**
+     * The global identifier for this Position.  Used during serialization to
+     * uniquely identify objects.
+     *
+     * @type {string}
+     */
+    identifier: {
+        enumerable: true,
+        writable: true,
+        value: undefined
     },
 
     /**
@@ -184,7 +203,6 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
             return exports.Position.withCoordinates(lambdaTwo, thetaTwo);
         }
     },
-
 
     /**
      * Calculates the distance between two Position.

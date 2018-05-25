@@ -11,6 +11,7 @@ describe("A MultiPoint", function () {
             [0, 0], [10, 0], [10, 10], [0, 10]
         ]);
         expect(geometry).toBeDefined();
+        expect(geometry.identifier).toBeDefined();
         expect(geometry.coordinates.length).toBe(4);
         expect(geometry.bounds().bbox.join(",")).toBe("0,0,10,10");
     });
@@ -31,7 +32,6 @@ describe("A MultiPoint", function () {
             serializer = new Serializer().initWithRequire(require),
             serialized = serializer.serializeObject(p1);
         new Deserializer().init(serialized, require).deserializeObject().then(function (point) {
-            expect(point.constructor.name).toBe("MultiPoint");
             expect(p1.equals(point)).toBe(true);
             done();
         });

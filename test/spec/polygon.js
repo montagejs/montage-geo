@@ -16,6 +16,7 @@ describe("A Polygon", function () {
         var p1 = Polygon.withCoordinates([
             [[0,0], [0,10], [10,10], [10,0], [0,0]]
         ]);
+        expect(p1.identifier).toBeDefined();
         expect(p1.coordinates.length).toBe(1);
         expect(p1.coordinates[0].length).toBe(5);
     });
@@ -36,7 +37,6 @@ describe("A Polygon", function () {
             serializer = new Serializer().initWithRequire(require),
             serialized = serializer.serializeObject(p1);
         new Deserializer().init(serialized, require).deserializeObject().then(function (polygon) {
-            expect(polygon.constructor.name).toBe("Polygon");
             expect(p1.equals(polygon)).toBe(true);
             done();
         });
@@ -48,7 +48,7 @@ describe("A Polygon", function () {
         ]);
         expect(roundedBbox(p1.bounds().bbox).join(",")).toBe("0,0,10,10");
     });
-    
+
     it("can properly calculate its area", function () {
         var p1 = Polygon.withCoordinates([
             [[0,0], [0,10], [10,10], [10,0], [0,0]]
@@ -68,7 +68,7 @@ describe("A Polygon", function () {
                 area: undefined
             },
             coordinates = polygon.coordinates[0];
-    
+
         Bindings.defineBinding(controller, "area", {"<-": "polygon.area()"});
         expect(Math.round(controller.area / 1000)).toBe(1233);
         coordinates.splice.apply(coordinates, [1, 3].concat([p1, p2, p3]));
@@ -81,7 +81,7 @@ describe("A Polygon", function () {
         ]);
         expect(Math.round(p1.perimeter() / 1000)).toBe(4431);
     });
-    
+
     it("can properly observe its perimeter", function () {
         var polygon = Polygon.withCoordinates([
                 [[0,0], [0,10], [10,10], [10,0], [0,0]]
@@ -94,7 +94,7 @@ describe("A Polygon", function () {
                 perimeter: undefined
             },
             coordinates = polygon.coordinates[0];
-        
+
         Bindings.defineBinding(controller, "perimeter", {"<-": "polygon.perimeter()"});
         expect(Math.round(controller.perimeter / 1000)).toBe(4431);
         coordinates.splice.apply(coordinates, [1, 3].concat([p1, p2, p3]));

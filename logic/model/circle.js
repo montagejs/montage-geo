@@ -12,10 +12,6 @@ var Geometry = require("./geometry").Geometry,
  */
 var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */ {
 
-    constructor: {
-        value: function Circle() {}
-    },
-
     /**
      * The center of this circle.
      * @type {Position}

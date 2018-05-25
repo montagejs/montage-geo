@@ -14,10 +14,6 @@ var Geometry = require("./geometry").Geometry,
  */
 var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
 
-    constructor: {
-        value: function Polygon() {}
-    },
-
     /**
      * @type {array<array<Position>>
      */
@@ -153,7 +149,7 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
             return area;
         }
     },
-    
+
     makeAreaObserver: {
         value: function () {
             var self = this;
@@ -162,14 +158,14 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
             };
         }
     },
-    
+
     observeArea: {
         value: function (emit) {
             var callback = this.area.bind(this),
                 coordinates = this.coordinates,
                 ringsHandler, ringHandlers = [],
                 cancel;
-            
+
             function update() {
                 if (cancel) {
                     cancel();
@@ -188,7 +184,7 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
                     canceller();
                 }
             }
-            
+
             function initializeObservers() {
                 ringsHandler = coordinates.addRangeChangeListener(update);
                 coordinates.forEach(function (ring) {
@@ -261,7 +257,7 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
             return perimeter;
         }
     },
-    
+
     makePerimeterObserver: {
         value: function () {
             var self = this;
@@ -270,14 +266,14 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
             };
         }
     },
-    
+
     observePerimeter: {
         value: function (emit) {
             var callback = this.perimeter.bind(this),
                 coordinates = this.coordinates,
                 rangeChangeListener,
                 cancel;
-            
+
             function update() {
                 if (cancel) {
                     cancel();
@@ -286,19 +282,19 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
                 clearObserver();
                 initializeObserver();
             }
-            
+
             function clearObserver() {
                 if (rangeChangeListener) {
                     rangeChangeListener();
                 }
             }
-            
+
             function initializeObserver() {
                 if (coordinates && coordinates.length) {
                     rangeChangeListener = coordinates[0].addRangeChangeListener(update);
                 }
             }
-            
+
             update();
             return function cancelObserver() {
                 clearObserver();

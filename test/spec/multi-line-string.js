@@ -16,6 +16,7 @@ describe("A MultiLineString", function () {
             [[0, 0], [-10, 0]]
         ]);
         expect(multiline).toBeDefined();
+        expect(multiline.identifier).toBeDefined();
         expect(multiline.coordinates.length).toBe(4);
         expect(multiline.coordinates[0].coordinates[0].longitude).toBe(0);
         expect(multiline.coordinates[0].coordinates[0].latitude).toBe(0);
@@ -45,7 +46,6 @@ describe("A MultiLineString", function () {
             serializer = new Serializer().initWithRequire(require),
             serialized = serializer.serializeObject(l1);
         new Deserializer().init(serialized, require).deserializeObject().then(function (lineString) {
-            expect(lineString.constructor.name).toBe("MultiLineString");
             expect(l1.equals(lineString)).toBe(true);
             done();
         });

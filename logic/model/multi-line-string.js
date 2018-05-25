@@ -13,10 +13,6 @@ var Geometry = require("./geometry").Geometry,
  */
 var MultiLineString = exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototype */ {
 
-    constructor: {
-        value: function MultiLineString() {}
-    },
-
     /**
      * The coordinates member of a multi-line string is an array of line string
      * geometries.

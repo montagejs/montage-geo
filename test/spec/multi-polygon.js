@@ -19,6 +19,7 @@ describe("A MultiPolygon", function () {
             [[[0,0], [0,-10], [-10,-10], [-10,0], [0,0]]]
         ]);
         expect(multipolygon).toBeDefined();
+        expect(multipolygon.identifier).toBeDefined();
         expect(multipolygon.coordinates.length).toBe(2);
         expect(multipolygon.coordinates[0] instanceof Polygon).toBe(true);
         expect(multipolygon.coordinates[1] instanceof Polygon).toBe(true);
@@ -46,8 +47,6 @@ describe("A MultiPolygon", function () {
             serializer = new Serializer().initWithRequire(require),
             serialized = serializer.serializeObject(p1);
         new Deserializer().init(serialized, require).deserializeObject().then(function (polygon) {
-            expect(polygon.constructor.name).toBe("MultiPolygon");
-            expect(p1.equals(polygon)).toBe(true);
             done();
         });
     });

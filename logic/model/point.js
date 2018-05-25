@@ -12,10 +12,6 @@ var Geometry = require("./geometry").Geometry,
  */
 var Point = exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
 
-    constructor: {
-        value: function Point() {}
-    },
-
     /**
      * @type {Position}
      */
