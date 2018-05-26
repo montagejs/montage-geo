@@ -105,6 +105,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
 
     serializeSelf: {
         value: function (serializer) {
+            serializer.setProperty("identifier", this.identifier);
             this._setPropertyWithDefaults(serializer, "longitude", this.longitude);
             this._setPropertyWithDefaults(serializer, "latitude", this.latitude);
             this._setPropertyWithDefaults(serializer, "altitude", this.altitude);
@@ -113,6 +114,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
 
     deserializeSelf: {
         value: function (deserializer) {
+            this.identifier = deserializer.getProperty("identifier");
             this.longitude = this._getPropertyWithDefaults(deserializer, "longitude");
             this.latitude = this._getPropertyWithDefaults(deserializer, "latitude");
             this.altitude = this._getPropertyWithDefaults(deserializer, "altitude");
