@@ -35,6 +35,7 @@ var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */
 
     serializeSelf: {
         value: function (serializer) {
+            serializer.setProperty("identifier", this.identifier);
             serializer.setProperty("coordinates", this.coordinates);
             serializer.setProperty("radius", this.radius);
         }
@@ -42,6 +43,7 @@ var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */
 
     deserializeSelf: {
         value: function (deserializer) {
+            this.identifier = deserializer.getProperty("identifier");
             this.coordinates = deserializer.getProperty("coordinates");
             this.radius = deserializer.getProperty("radius");
         }
