@@ -315,7 +315,7 @@ var Point = exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
     clone: {
         value: function () {
             return exports.Point.withCoordinates([
-                this.coordinates.longitude, this.coordinates.latitude
+                this.coordinates.longitude, this.coordinates.latitude, this.coordinates.altitude
             ]);
         }
     },
