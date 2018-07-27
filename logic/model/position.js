@@ -65,6 +65,11 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
         value: 0
     },
 
+    _latitude: {
+        writable: true,
+        value: 0
+    },
+    
     /**
      * The position's latitude.
      * @type {number}
@@ -72,10 +77,19 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
     latitude: {
         configurable: true,
         enumerable: true,
+        get: function () {
+            return this._latitude;
+        },
+        set: function (value) {
+            this._latitude = this._round(value, 5);
+        }
+    },
+    
+    _longitude: {
         writable: true,
         value: 0
     },
-
+    
     /**
      * The position's longitude.
      * @type {number}
@@ -83,8 +97,12 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
     longitude: {
         configurable: true,
         enumerable: true,
-        writable: true,
-        value: 0
+        get: function () {
+            return this._longitude;
+        },
+        set: function (value) {
+            this._longitude = this._round(value, 5);
+        }
     },
 
     equals: {
@@ -94,7 +112,13 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
                     this.latitude === other.latitude;
         }
     },
-
+    
+    _round: {
+        value: function (value, decimals) {
+            return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+        }
+    },
+    
     /*****************************************************
      * Serialization
      */
