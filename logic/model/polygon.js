@@ -338,8 +338,13 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
      */
     _intersectsBoundingBox: {
         value: function (boundingBox) {
-            return this.coordinates[0].some(function (coordinate) {
-                return boundingBox.contains(coordinate);
+            var self = this;
+            return this.coordinates.some(function (ring) {
+                return ring.some(function (coordinate) {
+                    return boundingBox.contains(coordinate);
+                });
+            }) || boundingBox.coordinates[0].some(function (position) {
+                return self.contains(position);
             });
         }
     },
