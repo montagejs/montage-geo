@@ -28,6 +28,8 @@ var Defaults = {
     altitude: 0
 };
 
+var ROUND_ONE = 'e5';
+var ROUND_TWO = 'e-5';
 
 exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ {
 
@@ -115,7 +117,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
     
     _round: {
         value: function (value, decimals) {
-            return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+            return Number(Math.round(value + ROUND_ONE) + ROUND_TWO);
         }
     },
     

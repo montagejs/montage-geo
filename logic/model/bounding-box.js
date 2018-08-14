@@ -3,6 +3,9 @@ var Montage = require("montage/core/core").Montage,
     GeohashCollection = require("logic/model/geohash-collection").GeohashCollection,
     Position = require("logic/model/position").Position;
 
+var ROUND_ONE = 'e5';
+var ROUND_TWO = 'e-5';
+
 /**
  *
  * A bounding box represents an area defined by two longitudes and
@@ -26,6 +29,7 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             return this._xMax;
         },
         set: function (x) {
+            x = this._round(x);
             this._xMax = x;
             if (this._bbox) {
                 this._bbox.splice(2, 1, x);
@@ -42,6 +46,7 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             return this._xMin;
         },
         set: function (x) {
+            x = this._round(x);
             this._xMin = x;
             if (this._bbox) {
                 this._bbox.splice(0, 1, x);
@@ -58,6 +63,7 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             return this._yMax;
         },
         set: function (y) {
+            y = this._round(y);
             this._yMax = y;
             if (this._bbox) {
                 this._bbox.splice(3, 1, y);
@@ -74,10 +80,18 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             return this._yMin;
         },
         set: function (y) {
+            y = this._round(y);
             this._yMin = y;
             if (this._bbox) {
                 this._bbox.splice(1, 1, y);
             }
+        }
+    },
+
+    _round: {
+        value: function (value) {
+            var isInfinity = value === Infinity || value === -Infinity;
+            return isInfinity ? value : Number(Math.round(value + ROUND_ONE) + ROUND_TWO);
         }
     },
 
