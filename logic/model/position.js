@@ -228,6 +228,9 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
             lambdaTwo = exports.Position.toDegrees(lambdaTwo);
             thetaTwo = exports.Position.toDegrees(thetaTwo);
 
+            lambdaTwo = parseFloat(lambdaTwo.toFixed(5));
+            thetaTwo = parseFloat(thetaTwo.toFixed(5));
+
             return exports.Position.withCoordinates(lambdaTwo, thetaTwo);
         }
     },

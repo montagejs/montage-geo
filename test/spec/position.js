@@ -22,6 +22,33 @@ describe("A Position", function () {
         expect(mid.longitude).toBe(1.27461);
     });
 
+    it("can calculate destination with distance and bearing", function () {
+        var p1 = Position.withCoordinates(0, 0),
+            p2 = Position.withCoordinates(2.351, 48.857),
+            dest1 = p1.destination(25000, 225),
+            dest2 = p1.destination(40000, 270),
+            dest5 = p1.destination(804673.5, 270),
+            dest3 = p2.destination(10000, 90),
+            dest4 = p2.destination(15000, 30);
+
+        expect(dest1).toBeDefined();
+        expect(isNaN(dest1.latitude)).toBe(false);
+        expect(isNaN(dest1.longitude)).toBe(false);
+        expect(dest2).toBeDefined();
+        expect(isNaN(dest2.latitude)).toBe(false);
+        expect(isNaN(dest2.longitude)).toBe(false);
+        expect(dest3).toBeDefined();
+        expect(isNaN(dest3.latitude)).toBe(false);
+        expect(isNaN(dest3.longitude)).toBe(false);
+        expect(dest4).toBeDefined();
+        expect(isNaN(dest4.latitude)).toBe(false);
+        expect(isNaN(dest4.longitude)).toBe(false);
+        
+        expect(dest5).toBeDefined();
+        expect(isNaN(dest5.latitude)).toBe(false);
+        expect(isNaN(dest5.longitude)).toBe(false);
+    });
+
     it("can serialize", function () {
         var p1 = Position.withCoordinates([-156.6825, 20.8783]),
             serializer = new Serializer().initWithRequire(require),
