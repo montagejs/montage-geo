@@ -39,3 +39,6 @@ jspm_packages
 # Intellij Directory and other files
 .idea
 *.iml
+
+# VSCode files
+.vscode

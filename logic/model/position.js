@@ -28,9 +28,6 @@ var Defaults = {
     altitude: 0
 };
 
-var ROUND_ONE = 'e5';
-var ROUND_TWO = 'e-5';
-
 exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ {
 
     /**
@@ -120,7 +117,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
             return Number(value.toFixed(5));
         }
     },
-    
+
     /*****************************************************
      * Serialization
      */

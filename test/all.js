@@ -8,14 +8,18 @@ module.exports = require("montage-testing").run(require, [
     "spec/geohash-collection",
     "spec/geometry",
     "spec/geometry-collection",
+    "spec/icon",
     "spec/line-string",
     "spec/multi-line-string",
     "spec/multi-point",
     "spec/multi-polygon",
     "spec/point",
+    "spec/point-2d",
     "spec/polygon",
-    "spec/position"
-
+    "spec/position",
+    "spec/rect",
+    "spec/size",
+    "spec/style"
 ]).then(function () {
     console.log('montage-testing', 'End');
 }, function (err) {
