@@ -120,7 +120,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
             return Number(value.toFixed(5));
         }
     },
-    
+
     /*****************************************************
      * Serialization
      */
