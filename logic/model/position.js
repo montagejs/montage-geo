@@ -114,21 +114,10 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
                     this.latitude === other.latitude;
         }
     },
-
+    
     _round: {
-        value: function (value, decimals) {
-            return Number(Math.round(this._toString(value) + ROUND_ONE) + ROUND_TWO);
-        }
-    },
-
-    _toString: {
         value: function (value) {
-            var index;
-            value = value.toString();
-            if ((index = value.indexOf("e")) > -1) {
-                value = value.substr(0, index);
-            }
-            return value;
+            return Number(value.toFixed(5));
         }
     },
     

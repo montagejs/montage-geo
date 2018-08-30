@@ -87,25 +87,11 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             }
         }
     },
-
-
+    
     _round: {
         value: function (value) {
             var isInfinity = value === Infinity || value === -Infinity;
-            return isInfinity ? value : Number(
-                Math.round(this._toString(value) + ROUND_ONE) + ROUND_TWO
-            );
-        }
-    },
-
-    _toString: {
-        value: function (value) {
-            var index;
-            value = value.toString();
-            if ((index = value.indexOf("e")) > -1) {
-                value = value.substr(0, index);
-            }
-            return value;
+            return isInfinity ? value : Number(value.toFixed(5));
         }
     },
 
