@@ -121,6 +121,17 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
         }
     },
 
+    // _toString: {
+    //     value: function (value) {
+    //         var index;
+    //         value = value.toString();
+    //         if ((index = value.indexOf("e")) > -1) {
+    //             value = value.substr(0, index);
+    //         }
+    //         return value;
+    //     }
+    // },
+
     /*****************************************************
      * Serialization
      */

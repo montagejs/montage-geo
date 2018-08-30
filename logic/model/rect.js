@@ -45,8 +45,6 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
         configurable: true,
         writable: true,
         value: 0
-    },
-    
-    
+    }
 
 });
