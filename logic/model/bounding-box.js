@@ -63,7 +63,6 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             return this._yMax;
         },
         set: function (y) {
-            console.log("Y (", y, ")");
             y = this._round(y);
             this._yMax = y;
             if (this._bbox) {
