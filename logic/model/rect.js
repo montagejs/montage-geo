@@ -31,22 +31,23 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
         writable: true,
         value: exports.Rect
     },
-    
+
     /**
-     * The height of the rectangle.
-     * @type {number}
+     * The origin of the rectangle as measured from the top left hand corner
+     * on the two-dimensional plane.
+     * @type {Point2D}
      */
-    height: {
+    origin: {
         configurable: true,
         writable: true,
-        value: 0
+        value: null
     },
-    
+
     /**
-     * The width of the rectangle.
-     * @type {number}
+     * The size of the rectangle.
+     * @type {Size}
      */
-    width: {
+    size: {
         configurable: true,
         writable: true,
         value: 0
@@ -57,22 +58,22 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
      */
     
     serializableProperties: {
-        value: ["height", "width"]
+        value: ["origin", "size"]
     },
     
     serializeSelf: {
         value: function (serializer) {
             serializer.setProperty("identifier", this.identifier);
-            this._setPropertyWithDefaults(serializer, "height", this.height);
-            this._setPropertyWithDefaults(serializer, "width", this.width);
+            serializer.setProperty("origin", this.origin);
+            serializer.setProperty("size", this.size);
         }
     },
     
     deserializeSelf: {
         value: function (deserializer) {
             this.identifier = deserializer.getProperty("identifier");
-            this.height = this._getPropertyWithDefaults(deserializer, "height");
-            this.width = this._getPropertyWithDefaults(deserializer, "width");
+            this.origin = deserializer.getProperty("origin");
+            this.size = deserializer.getProperty("size");
         }
     },
     
@@ -80,25 +81,16 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
         value: function () {
             return this._montage_metadata;
         }
-    },
-    
-    _montage_metadata: {
-        enumerable: false,
-        writable: true,
-        value: undefined
-    },
-    
-    _setPropertyWithDefaults: {
-        value:function (serializer, propertyName, value) {
-            if (value != Defaults[propertyName]) {
-                serializer.setProperty(propertyName, value);
-            }
-        }
-    },
-    
-    _getPropertyWithDefaults: {
-        value:function (deserializer, propertyName) {
-            return deserializer.getProperty(propertyName) || Defaults[propertyName];
+    }
+
+}, {
+
+    withOriginAndSize: {
+        value: function (origin, size) {
+            var rect = new this();
+            rect.origin = origin;
+            rect.size = size;
+            return rect;
         }
     }
 

@@ -13,8 +13,10 @@ module.exports = require("montage-testing").run(require, [
     "spec/multi-point",
     "spec/multi-polygon",
     "spec/point",
+    "spec/point-2d",
     "spec/polygon",
-    "spec/position"
+    "spec/position",
+    "spec/size"
 
 ]).then(function () {
     console.log('montage-testing', 'End');

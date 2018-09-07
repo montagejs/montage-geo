@@ -41,7 +41,7 @@ exports.Icon.prototype = Object.create({}, /** @lends Icon.prototype */ {
     
     /**
      * Offset to be used when centering the icon's symbol.
-     * @type {CartesianCoordinate}
+     * @type {Point2D}
      */
     anchor: {
         enumerable: true,
