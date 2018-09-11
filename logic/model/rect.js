@@ -15,11 +15,6 @@ var Rect = exports.Rect = function Icon() {
     this.identifier += Uuid.generate().replace(DASH_REG_EX, "");
 };
 
-var Defaults = {
-    height: 0,
-    width: 0
-};
-
 exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
     
     /**
@@ -32,15 +27,31 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
         value: exports.Rect
     },
 
+    /**************************************************************************
+     * Properties
+     */
+    
+    /**
+     * The global identifier for this Rect.  Used during serialization to
+     * uniquely identify objects.
+     *
+     * @type {string}
+     */
+    identifier: {
+        enumerable: true,
+        writable: true,
+        value: undefined
+    },
+    
     /**
      * The origin of the rectangle as measured from the top left hand corner
      * on the two-dimensional plane.
      * @type {Point2D}
      */
     origin: {
-        configurable: true,
+        configurable: false,
         writable: true,
-        value: null
+        value: undefined
     },
 
     /**
@@ -48,12 +59,131 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
      * @type {Size}
      */
     size: {
-        configurable: true,
+        configurable: false,
         writable: true,
-        value: 0
+        value: undefined
     },
     
-    /*****************************************************
+    /**************************************************************************
+     * Derived Properties
+     */
+    
+    /**
+     * The height of this Rect.
+     * @type {Number}
+     */
+    height: {
+        configurable: false,
+        get: function () {
+            return this.size && this.size.height || 0;
+        }
+    },
+    
+    /**
+     * The width of this Rect.
+     * @type {Number}
+     */
+    width: {
+        configurable: false,
+        get: function () {
+            return this.size && this.size.width;
+        }
+    },
+    
+    /**
+     * Returns the smallest value for the rectangle on the x coordinate system.
+     * @type {Number}
+     */
+    xMin: {
+        configurable: false,
+        get: function () {
+            return this.origin && this.origin.x;
+        }
+    },
+    
+    /**
+     * Returns the center of the rectangle on the x coordinate system.
+     * @type {Number}
+     */
+    xMid: {
+        configurable: false,
+        get: function () {
+            return this.xMin && this.width && (this.xMin + this.width / 2);
+        }
+    },
+    
+    /**
+     * Returns the largest value for the rectangle on the x coordinate system.
+     * @type {Number}
+     */
+    xMax: {
+        configurable: false,
+        get: function () {
+            return this.xMin && this.width && (this.xMin + this.width);
+        }
+    },
+    
+    /**
+     * Returns the smallest value for the rectangle on the y coordinate system.
+     * @type {Number}
+     */
+    yMin: {
+        configurable: false,
+        get: function () {
+            return this.yMax && this.height && (this.yMax - this.height);
+        }
+    },
+    
+    /**
+     * Returns the center of the rectangle on the y coordinate system.
+     * @type {Number}
+     */
+    yMid: {
+        configurable: false,
+        get: function () {
+            return this.yMax && this.height && (this.yMax - this.height / 2);
+        }
+    },
+    
+    /**
+     * Returns the largest value for the rectangle on the y coordinate system.
+     * @type {Number}
+     */
+    yMax: {
+        configurable: false,
+        get: function () {
+            return this.origin && this.origin.y;
+        }
+    },
+    
+    /**************************************************************************
+     * API
+     */
+    
+    /**
+     * Returns a copy of this rect.
+     * @returns {Rect}
+     */
+    clone: {
+        value: function () {
+            var origin = this.origin.clone(),
+                size = this.size.clone();
+            return exports.Rect.withOriginAndSize(origin, size);
+        }
+    },
+    
+    /**
+     * Tests whether this rect's origin and size equals the provided one.
+     * @param {Rect} - the rect to test for equality.
+     * @returns {boolean}
+     */
+    equals: {
+        value: function (other) {
+            return this.origin.equals(other.origin) && this.size.equals(other.size);
+        }
+    },
+    
+    /**************************************************************************
      * Serialization
      */
     
@@ -83,8 +213,17 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
         }
     }
 
-}, {
+});
 
+
+Object.defineProperties(exports.Rect, /** @lends Rect */ {
+    
+    /**
+     * The canonical way of creating a rect.
+     * @param {Point2D} - the origin
+     * @param {Point2D} - the size
+     * @returns {Rect} - a newly created Rect.
+     */
     withOriginAndSize: {
         value: function (origin, size) {
             var rect = new this();

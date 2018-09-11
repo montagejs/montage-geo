@@ -37,6 +37,18 @@ exports.Size.prototype = Object.create({}, /** @lends Size.prototype */ {
      */
 
     /**
+     * The global identifier for this Size.  Used during serialization to
+     * uniquely identify objects.
+     *
+     * @type {string}
+     */
+    identifier: {
+        enumerable: true,
+        writable: true,
+        value: undefined
+    },
+
+    /**
      * The height of the rectangle.
      * @type {number}
      */

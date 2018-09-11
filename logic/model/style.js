@@ -170,9 +170,62 @@ var Defaults = {
 
 Object.defineProperties(exports.Style, /** @lends Style.prototype */ {
     
+    /**
+     * The canonical way of creating Style objects.
+     *
+     * To create a style for markers supply an icon as the only argument.
+     *
+     * To create a style for lines supply three arguments: strokeColor,
+     * strokeOpacity & strokeWeight.
+     *
+     * To create a style for polygons supply five arguments: fillColor,
+     * fillOpacity, strokeColor, strokeOpacity & strokeWeight
+     *
+     * @param {Icon | string} - either an icon, fillColor or strokeColor
+     * @param {number} [strokeOpacity | fillOpacity]
+     * @param {number | string} [strokeWeight | strokeColor]
+     * @param {number} [strokeOpacity]
+     * @param {number} [strokeWeight]
+     * @returns Style
+     */
     withValues: {
         value: function () {
-        
+            var count = arguments.length;
+            
+            return  count === 1 ?   exports.Style._makeMarkerStyle(arguments[0]) :
+                    count === 3 ?   exports.Style._makeLineStyle.apply(this, arguments) :
+                    count === 5 ?   exports.Style._makePolygonStyle.apply(this, arguments) :
+                                    null;
+        }
+    },
+    
+    _makeMarkerStyle: {
+        value: function (icon) {
+            var style = new this();
+            style.icon = icon;
+            return style;
+        }
+    },
+    
+    _makeLineStyle: {
+        value: function () {
+            var style = new this();
+            style.strokeColor = arguments[0];
+            style.strokeOpacity = arguments[1];
+            style.strokeWeight = arguments[2];
+            return style;
+        }
+    },
+    
+    _makePolygonStyle: {
+        value: function () {
+            var style = new this();
+            style.fillColor = arguments[0];
+            style.fillOpacity = arguments[1];
+            style.strokeColor = arguments[2];
+            style.strokeOpacity = arguments[3];
+            style.strokeWeight = arguments[4];
+            return style;
         }
     }
     

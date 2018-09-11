@@ -28,6 +28,18 @@ exports.Point2D.prototype = Object.create({}, /** @lends Point2D.prototype */ {
      */
 
     /**
+     * The global identifier for this Point2D.  Used during serialization to
+     * uniquely identify objects.
+     *
+     * @type {string}
+     */
+    identifier: {
+        enumerable: true,
+        writable: true,
+        value: undefined
+    },
+
+    /**
      * A Point2D's position on the X plane.
      * @public
      * @property
