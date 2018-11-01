@@ -1,0 +1,38 @@
+{
+    "root": {
+        "prototype": "montage/core/meta/module-object-descriptor",
+        "properties": {
+            "name": "MultiLineString",
+            "parent": {"@": "geometry"},
+            "propertyDescriptors": [
+                {"@": "identifier"},
+                {"@": "coordinates"}
+            ],
+            "exportName": "MultiLineString",
+            "module": {
+                "%": "logic/model/multi-line-string"
+            }
+        }
+    },
+
+    "geometry": {
+        "object": "logic/model/descriptors/geometry.mjson"
+    },
+
+    "identifier": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "identifier",
+            "valueType": "string"
+        }
+    },
+
+    "coordinates": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "coordinates",
+            "valueType": "object"
+        }
+    }
+
+}

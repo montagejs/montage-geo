@@ -1,0 +1,33 @@
+{
+    "root": {
+        "prototype": "montage/core/meta/module-object-descriptor",
+        "properties": {
+            "name": "Geometry",
+            "propertyDescriptors": [
+                {"@": "identifier"},
+                {"@": "coordinates"}
+            ],
+            "exportName": "Geometry",
+            "module": {
+                "%": "logic/model/geometry"
+            }
+        }
+    },
+
+    "identifier": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "identifier",
+            "valueType": "string"
+        }
+    },
+
+    "coordinates": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "coordinates",
+            "valueType": "object"
+        }
+    }
+
+}

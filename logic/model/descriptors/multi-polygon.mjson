@@ -1,0 +1,38 @@
+{
+    "root": {
+        "prototype": "montage/core/meta/module-object-descriptor",
+        "properties": {
+            "name": "MultiPolygon",
+            "parent": {"@": "geometry"},
+            "propertyDescriptors": [
+                {"@": "identifier"},
+                {"@": "coordinates"}
+            ],
+            "exportName": "MultiPolygon",
+            "module": {
+                "%": "logic/model/multi-polygon"
+            }
+        }
+    },
+
+    "geometry": {
+        "object": "logic/model/descriptors/geometry.mjson"
+    },
+
+    "identifier": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "identifier",
+            "valueType": "string"
+        }
+    },
+
+    "coordinates": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "coordinates",
+            "valueType": "object"
+        }
+    }
+
+}

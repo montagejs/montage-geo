@@ -1,0 +1,38 @@
+{
+    "root": {
+        "prototype": "montage/core/meta/module-object-descriptor",
+        "properties": {
+            "name": "MultiPoint",
+            "parent": {"@": "geometry"},
+            "propertyDescriptors": [
+                {"@": "identifier"},
+                {"@": "coordinates"}
+            ],
+            "exportName": "MultiPoint",
+            "module": {
+                "%": "logic/model/multi-point"
+            }
+        }
+    },
+
+    "geometry": {
+        "object": "logic/model/descriptors/geometry.mjson"
+    },
+
+    "identifier": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "identifier",
+            "valueType": "string"
+        }
+    },
+
+    "coordinates": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "coordinates",
+            "valueType": "object"
+        }
+    }
+
+}
