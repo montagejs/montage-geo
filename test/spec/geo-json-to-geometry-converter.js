@@ -11,6 +11,18 @@ describe("GeoJsonToGeometryConverter", function () {
         expect(point.coordinates.longitude).toBe(-156.6825);
     });
 
+    it ("can convert a GeoJson Point to Point with Projection", function () {
+        var converter = new GeoJsonToGeometryConverter(),
+            point;
+
+        converter.projection = Projection.forSrid("3857");
+        point = converter.convert(geoJsonPoint3857);
+
+        expect(point).toBeDefined();
+        expect(point.coordinates.latitude).toBe(20.8783);
+        expect(point.coordinates.longitude).toBe(-156.6825);
+    });
+
     it ("can convert a GeoJson MultiPoint to MultiPoint", function () {
         var converter = new GeoJsonToGeometryConverter(),
             point = converter.convert(geoJsonMultiPoint);
@@ -186,6 +198,19 @@ describe("GeoJsonToGeometryConverter", function () {
         
     });
     
+    it ("can revert a Projected Point to GeoJson Point", function () {
+        var converter = new GeoJsonToGeometryConverter(),
+            geometry, reverted;
+        converter.projection = Projection.forSrid("3857");
+        geometry = converter.convert(geoJsonPoint3857);
+        reverted = converter.revert(geometry);
+        reverted.coordinates[0] = Math.round(reverted.coordinates[0] * 100) / 100;
+        reverted.coordinates[1] = Math.round(reverted.coordinates[1] * 100) / 100;
+        expect(reverted).toBeDefined();
+        expect(objectEquals(reverted, geoJsonPoint3857)).toBe(true);
+
+    });
+
     it ("can revert a LineString to GeoJson LineString", function () {
         var converter = new GeoJsonToGeometryConverter(),
             geometry = converter.convert(geoJsonLineString),
@@ -281,6 +306,10 @@ describe("GeoJsonToGeometryConverter", function () {
     var geoJsonPoint = {
             type: "Point",
             coordinates: [-156.6825, 20.8783]
+        },
+        geoJsonPoint3857 = {
+            type: "Point",
+            coordinates: [-17441816.12, 2377373.07]
         },
         geoJsonMultiPoint = {
             "type": "MultiPoint",

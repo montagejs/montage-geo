@@ -12,15 +12,15 @@ var Converter = require("montage/core/converter/converter").Converter,
     Polygon = require("logic/model/polygon").Polygon;
 
 var MONTAGE_CONSTRUCTOR_TYPE_MAP = new Map();
-MONTAGE_CONSTRUCTOR_TYPE_MAP.set(Feature, "Feature");
-MONTAGE_CONSTRUCTOR_TYPE_MAP.set(FeatureCollection, "FeatureCollection");
-MONTAGE_CONSTRUCTOR_TYPE_MAP.set(GeometryCollection, "GeometryCollection");
-MONTAGE_CONSTRUCTOR_TYPE_MAP.set(LineString, "LineString");
-MONTAGE_CONSTRUCTOR_TYPE_MAP.set(MultiLineString, "MultiLineString");
-MONTAGE_CONSTRUCTOR_TYPE_MAP.set(MultiPoint, "MultiPoint");
-MONTAGE_CONSTRUCTOR_TYPE_MAP.set(MultiPolygon, "MultiPolygon");
-MONTAGE_CONSTRUCTOR_TYPE_MAP.set(Point, "Point");
-MONTAGE_CONSTRUCTOR_TYPE_MAP.set(Polygon, "Polygon");
+    MONTAGE_CONSTRUCTOR_TYPE_MAP.set(Feature, "Feature");
+    MONTAGE_CONSTRUCTOR_TYPE_MAP.set(FeatureCollection, "FeatureCollection");
+    MONTAGE_CONSTRUCTOR_TYPE_MAP.set(GeometryCollection, "GeometryCollection");
+    MONTAGE_CONSTRUCTOR_TYPE_MAP.set(LineString, "LineString");
+    MONTAGE_CONSTRUCTOR_TYPE_MAP.set(MultiLineString, "MultiLineString");
+    MONTAGE_CONSTRUCTOR_TYPE_MAP.set(MultiPoint, "MultiPoint");
+    MONTAGE_CONSTRUCTOR_TYPE_MAP.set(MultiPolygon, "MultiPolygon");
+    MONTAGE_CONSTRUCTOR_TYPE_MAP.set(Point, "Point");
+    MONTAGE_CONSTRUCTOR_TYPE_MAP.set(Polygon, "Polygon");
 
 
 /**
@@ -38,7 +38,7 @@ exports.GeoJsonToGeometryConverter = Converter.specialize( /** @lends GeoJsonToG
      */
     convert: {
         value: function (value) {
-            GeoJson.projection = this.projection;
+            GeoJson.prototype.projection = this.projection;
             return GeoJson.forId(value.type).convert(value);
         }
     },
@@ -55,7 +55,7 @@ exports.GeoJsonToGeometryConverter = Converter.specialize( /** @lends GeoJsonToG
                 result = null;
             
             if (type) {
-                GeoJson.projection = this.projection;
+                GeoJson.prototype.projection = this.projection;
                 result = GeoJson.forId(type).revert(value);
             }
             return result;

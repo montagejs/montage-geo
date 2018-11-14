@@ -404,6 +404,7 @@ Object.defineProperties(exports.Position, /** @lends Position */ {
             var length = arguments.length, args, self, projected, last;
             if (length && Array.isArray((args = arguments[0]))) {
                 if (arguments.length === 2 && arguments[1] !== undefined) {
+                    args = args.slice();
                     args.push(arguments[1]);
                 }
                 return exports.Position.withCoordinates.apply(this, args);

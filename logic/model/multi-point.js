@@ -158,10 +158,11 @@ var MultiPoint = exports.MultiPoint = Geometry.specialize(/** @lends MultiPoint.
      * @param {array<array<number>>} coordinates - The positions of this geometry.
      */
     withCoordinates: {
-        value: function (coordinates) {
+        value: function (coordinates, projection) {
             var self = new this();
             self.coordinates = coordinates.map(function (coordinate) {
-                return Position.withCoordinates(coordinate[0], coordinate[1]);
+                var altitude = coordinate.length > 2 ? coordinate[2] : 0;
+                return Position.withCoordinates(coordinate[0], coordinate[1], altitude, projection);
             });
             return self;
         }
