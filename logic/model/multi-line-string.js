@@ -234,10 +234,10 @@ var MultiLineString = exports.MultiLineString = Geometry.specialize(/** @lends M
      * MultiLineString.
      */
     withCoordinates: {
-        value: function (lineStrings) {
+        value: function (lineStrings, projection) {
             var self = new this();
             self.coordinates = lineStrings.map(function (lineString) {
-                return LineString.withCoordinates(lineString);
+                return LineString.withCoordinates(lineString, projection);
             });
             return self;
         }

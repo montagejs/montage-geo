@@ -198,10 +198,10 @@ var LineString = exports.LineString = Geometry.specialize(/** @lends LineString.
      * @param {array<array<number>>} coordinates - The position of this point.
      */
     withCoordinates: {
-        value: function (coordinates) {
+        value: function (coordinates, projection) {
             var self = new this();
             self.coordinates = coordinates.map(function (coordinate) {
-                return Position.withCoordinates(coordinate);
+                return Position.withCoordinates(coordinate, projection);
             });
             return self;
         }

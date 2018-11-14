@@ -1,5 +1,7 @@
 var HALF_PI = Math.PI / 180.0, Position,
+    Projection = require("logic/model/projection").Projection,
     Uuid = require("montage/core/uuid").Uuid,
+
     DASH_REG_EX = /-/g,
     IDENTIFIER_PREFIX = "P";
 
@@ -399,14 +401,30 @@ Object.defineProperties(exports.Position, /** @lends Position */ {
      */
     withCoordinates: {
         value: function () {
-            var length = arguments.length, self;
-            if (length && Array.isArray(arguments[0])) {
-                return exports.Position.withCoordinates.apply(this, arguments[0]);
+            var length = arguments.length, args, self, projected, last;
+            if (length && Array.isArray((args = arguments[0]))) {
+                if (arguments.length === 2 && arguments[1] !== undefined) {
+                    args = args.slice();
+                    args.push(arguments[1]);
+                }
+                return exports.Position.withCoordinates.apply(this, args);
             }
             self = new exports.Position();
-            if (length > 0) self.longitude = arguments[0];
-            if (length > 1) self.latitude = arguments[1];
-            if (length > 2) self.altitude = arguments[2];
+            last = arguments[arguments.length - 1];
+            if (last instanceof Projection) {
+                if (length > 1) {
+                    projected = last.inverseProjectPoint([arguments[0], arguments[1]]);
+                    self.longitude = projected[0];
+                    self.latitude = projected[1];
+                    if (arguments[2] !== last && arguments[2]) {
+                        self.altitude = arguments[2];
+                    }
+                }
+            } else {
+                if (length > 0) self.longitude = arguments[0];
+                if (length > 1) self.latitude = arguments[1];
+                if (length > 2) self.altitude = arguments[2];
+            }
             return self;
         }
     },

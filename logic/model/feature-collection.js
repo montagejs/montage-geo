@@ -389,8 +389,10 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
 }, {
 
     withGeoJSON: {
-        value: function (json) {
-
+        value: function (json, projection) {
+            var features = json.features.map(function (feature) {
+                                
+            });
         }
     },
 

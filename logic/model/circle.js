@@ -356,9 +356,9 @@ var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */
      * @returns {Circle}
      */
     withCoordinates: {
-        value: function (coordinates, radius) {
+        value: function (coordinates, radius, projection) {
             var self = new this();
-            self.coordinates = Position.withCoordinates(coordinates);
+            self.coordinates = Position.withCoordinates(coordinates, projection);
             self.radius = radius;
             return self;
         }

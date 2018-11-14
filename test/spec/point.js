@@ -188,124 +188,120 @@ describe("A Point", function () {
         });
     });
 
-    it ("can create a recursive binding", function () {
-
-        var Folder = Montage.specialize({
-
-            constructor: {
-                value: function Folder() {
-                    this.defineBinding("geoReferencedChildren", {"<-": "children.filter{isFile && geometry.defined()}.concat(children.filter{isFolder}.map{geoReferencedChildren}.flatten())"});
-                    this.defineBinding("ancestors", {"<-": "parents.defined() ? parents.concat(parents.map{ancestors}.flatten()) : []"});
-                }
-            },
-
-            geoReferencedChildren: {
-                value: undefined
-            },
-
-            isFolder: {
-                value: true
-            },
-
-            children: {
-                get: function () {
-                    if (!this._children) {
-                        this._children = [];
-                    }
-                    return this._children;
-                }
-            },
-
-            parents: {
-                get: function () {
-                    if (!this._parents) {
-                        this._parents = [];
-                    }
-                    return this._parents;
-                }
-            }
-
-        });
-
-        var File = Montage.specialize({
-
-            constructor: {
-                value: function File(geometry) {
-                    this.geometry = geometry;
-                    this.defineBinding("ancestors", {"<-": "parents.defined() ? parents.concat(parents.map{ancestors}.flatten()): []"});
-                }
-            },
-
-            geometry: {
-                value: undefined
-            },
-
-            isFile: {
-                value: true
-            },
-
-            parents: {
-                get: function () {
-                    if (!this._parents) {
-                        this._parents = [];
-                    }
-                    return this._parents;
-                }
-            }
-
-        });
-
-        var a = new Folder(),
-            a1 = new File(),
-            a2 = new File({});
-
-        a.children.push(a1, a2);
-        a1.parents.push(a);
-        a2.parents.push(a);
-
-        expect(a.geoReferencedChildren.indexOf(a1)).toBe(-1);
-        expect(a.geoReferencedChildren.indexOf(a2)).toBe(0);
-        expect(a.geoReferencedChildren.length).toBe(1);
-
-        var aa = new Folder(),
-            aa1 = new File(),
-            aa2 = new File({});
-
-        aa.children.push(aa1, aa2);
-        aa.parents.push(a);
-        aa1.parents.push(aa);
-        aa2.parents.push(aa);
-
-        a.children.push(aa);
-
-        expect(a.geoReferencedChildren.indexOf(aa1)).toBe(-1);
-        expect(a.geoReferencedChildren.indexOf(aa2) > -1).toBe(true);
-        expect(a.geoReferencedChildren.length).toBe(2);
-
-        var aaa = new Folder(),
-            aaa1 = new File(),
-            aaa2 = new File({});
-
-        aaa.children.push(aaa1, aaa2);
-        aaa.parents.push(aa);
-        aaa1.parents.push(aaa);
-        aaa2.parents.push(aaa);
-        aa.children.push(aaa);
-
-        expect(a.geoReferencedChildren.indexOf(aaa1)).toBe(-1);
-        expect(a.geoReferencedChildren.indexOf(aaa2) > -1).toBe(true);
-        expect(a.geoReferencedChildren.length).toBe(3);
-        expect(aaa2.ancestors.length).toBe(3);
-        expect(aaa2.ancestors[0]).toBe(aaa);
-        expect(aaa2.ancestors[1]).toBe(aa);
-        expect(aaa2.ancestors[2]).toBe(a);
-        aa.children.pop();
-        expect(a.geoReferencedChildren.length).toBe(2);
-
-    });
-
-
-
-
+    // it ("can create a recursive binding", function () {
+    //
+    //     var Folder = Montage.specialize({
+    //
+    //         constructor: {
+    //             value: function Folder() {
+    //                 this.defineBinding("geoReferencedChildren", {"<-": "children.filter{isFile && geometry.defined()}.concat(children.filter{isFolder}.map{geoReferencedChildren}.flatten())"});
+    //                 this.defineBinding("ancestors", {"<-": "parents.defined() ? parents.concat(parents.map{ancestors}.flatten()) : []"});
+    //             }
+    //         },
+    //
+    //         geoReferencedChildren: {
+    //             value: undefined
+    //         },
+    //
+    //         isFolder: {
+    //             value: true
+    //         },
+    //
+    //         children: {
+    //             get: function () {
+    //                 if (!this._children) {
+    //                     this._children = [];
+    //                 }
+    //                 return this._children;
+    //             }
+    //         },
+    //
+    //         parents: {
+    //             get: function () {
+    //                 if (!this._parents) {
+    //                     this._parents = [];
+    //                 }
+    //                 return this._parents;
+    //             }
+    //         }
+    //
+    //     });
+    //
+    //     var File = Montage.specialize({
+    //
+    //         constructor: {
+    //             value: function File(geometry) {
+    //                 this.geometry = geometry;
+    //                 this.defineBinding("ancestors", {"<-": "parents.defined() ? parents.concat(parents.map{ancestors}.flatten()): []"});
+    //             }
+    //         },
+    //
+    //         geometry: {
+    //             value: undefined
+    //         },
+    //
+    //         isFile: {
+    //             value: true
+    //         },
+    //
+    //         parents: {
+    //             get: function () {
+    //                 if (!this._parents) {
+    //                     this._parents = [];
+    //                 }
+    //                 return this._parents;
+    //             }
+    //         }
+    //
+    //     });
+    //
+    //     var a = new Folder(),
+    //         a1 = new File(),
+    //         a2 = new File({});
+    //
+    //     a.children.push(a1, a2);
+    //     a1.parents.push(a);
+    //     a2.parents.push(a);
+    //
+    //     expect(a.geoReferencedChildren.indexOf(a1)).toBe(-1);
+    //     expect(a.geoReferencedChildren.indexOf(a2)).toBe(0);
+    //     expect(a.geoReferencedChildren.length).toBe(1);
+    //
+    //     var aa = new Folder(),
+    //         aa1 = new File(),
+    //         aa2 = new File({});
+    //
+    //     aa.children.push(aa1, aa2);
+    //     aa.parents.push(a);
+    //     aa1.parents.push(aa);
+    //     aa2.parents.push(aa);
+    //
+    //     a.children.push(aa);
+    //
+    //     expect(a.geoReferencedChildren.indexOf(aa1)).toBe(-1);
+    //     expect(a.geoReferencedChildren.indexOf(aa2) > -1).toBe(true);
+    //     expect(a.geoReferencedChildren.length).toBe(2);
+    //
+    //     var aaa = new Folder(),
+    //         aaa1 = new File(),
+    //         aaa2 = new File({});
+    //
+    //     aaa.children.push(aaa1, aaa2);
+    //     aaa.parents.push(aa);
+    //     aaa1.parents.push(aaa);
+    //     aaa2.parents.push(aaa);
+    //     aa.children.push(aaa);
+    //
+    //     expect(a.geoReferencedChildren.indexOf(aaa1)).toBe(-1);
+    //     expect(a.geoReferencedChildren.indexOf(aaa2) > -1).toBe(true);
+    //     expect(a.geoReferencedChildren.length).toBe(3);
+    //     expect(aaa2.ancestors.length).toBe(3);
+    //     expect(aaa2.ancestors[0]).toBe(aaa);
+    //     expect(aaa2.ancestors[1]).toBe(aa);
+    //     expect(aaa2.ancestors[2]).toBe(a);
+    //     aa.children.pop();
+    //     expect(a.geoReferencedChildren.length).toBe(2);
+    //
+    // });
 
 });

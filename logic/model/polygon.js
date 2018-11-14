@@ -464,14 +464,17 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
      *                                       is the outline of the polygon.
      *                                       The other rings represent holes
      *                                       inside the outer polygon.
+     * @param {?Projection} projection     - If supplied projects the supplied
+     *                                       coordinates to this reference
+     *                                       system.
      * @return {Polygon} polygon
      */
     withCoordinates: {
-        value: function (rings) {
+        value: function (rings, projection) {
             var self = new this();
             self.coordinates = rings.map(function (ring) {
                 return ring.map(function (coordinates) {
-                    return Position.withCoordinates(coordinates);
+                    return Position.withCoordinates(coordinates, projection);
                 });
             });
             return self;
