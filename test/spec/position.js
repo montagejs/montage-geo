@@ -1,6 +1,7 @@
 var Position = require("montage-geo/logic/model/position").Position,
     Component = require("montage/ui/component").Component,
     Deserializer = require("montage/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
+    Projection = require("montage-geo/logic/model/projection").Projection,
     Serializer = require("montage/core/serialization/serializer/montage-serializer").MontageSerializer,
     Set = require("montage/collections/set").Set;
 
@@ -12,6 +13,13 @@ describe("A Position", function () {
         expect(p1.longitude === p2.longitude).toBe(true);
         expect(p1.latitude === p2.latitude).toBe(true);
         expect(p1.altitude === p2.altitude).toBe(true);
+    });
+
+    it ("can project a point during intialization", function () {
+        var projection = Projection.forSrid("3857"),
+            position = Position.withCoordinates(12803799.48217668, 545681.180577986, projection);
+
+        expect(position).toBeDefined();
     });
 
     it("can calculate the midpoint between a position and another", function () {

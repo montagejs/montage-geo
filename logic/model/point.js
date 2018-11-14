@@ -350,9 +350,9 @@ var Point = exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
      * @param {array<number>} coordinates - The position of this point.
      */
     withCoordinates: {
-        value: function (coordinates) {
+        value: function (coordinates, projection) {
             var self = new this();
-            self.coordinates = Position.withCoordinates(coordinates);
+            self.coordinates = Position.withCoordinates(coordinates, projection);
             return self;
         }
     }
