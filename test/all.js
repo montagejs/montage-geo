@@ -20,7 +20,8 @@ module.exports = require("montage-testing").run(require, [
     "spec/position",
     "spec/rect",
     "spec/size",
-    "spec/style"
+    "spec/style",
+    "spec/topojson-to-geometry-converter"
 ]).then(function () {
     console.log('montage-testing', 'End');
 }, function (err) {

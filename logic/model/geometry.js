@@ -55,7 +55,7 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
         value: undefined
     },
 
-    /*****************************************************
+    /**************************************************************************
      * Serialization
      */
 
