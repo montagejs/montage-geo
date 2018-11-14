@@ -4,11 +4,24 @@ var Converter = require("montage/core/converter/converter").Converter,
     FeatureCollection = require("logic/model/feature-collection").FeatureCollection,
     GeometryCollection = require("logic/model/geometry-collection").GeometryCollection,
     LineString = require("logic/model/line-string").LineString,
+    Map = require("montage/collections/map"),
     MultiLineString = require("logic/model/multi-line-string").MultiLineString,
     MultiPoint = require("logic/model/multi-point").MultiPoint,
-    MultiPolygon = require("logic/model/multi-polygon"),
+    MultiPolygon = require("logic/model/multi-polygon").MultiPolygon,
     Point = require("logic/model/point").Point,
     Polygon = require("logic/model/polygon").Polygon;
+
+var MONTAGE_CONSTRUCTOR_TYPE_MAP = new Map();
+MONTAGE_CONSTRUCTOR_TYPE_MAP.set(Feature, "Feature");
+MONTAGE_CONSTRUCTOR_TYPE_MAP.set(FeatureCollection, "FeatureCollection");
+MONTAGE_CONSTRUCTOR_TYPE_MAP.set(GeometryCollection, "GeometryCollection");
+MONTAGE_CONSTRUCTOR_TYPE_MAP.set(LineString, "LineString");
+MONTAGE_CONSTRUCTOR_TYPE_MAP.set(MultiLineString, "MultiLineString");
+MONTAGE_CONSTRUCTOR_TYPE_MAP.set(MultiPoint, "MultiPoint");
+MONTAGE_CONSTRUCTOR_TYPE_MAP.set(MultiPolygon, "MultiPolygon");
+MONTAGE_CONSTRUCTOR_TYPE_MAP.set(Point, "Point");
+MONTAGE_CONSTRUCTOR_TYPE_MAP.set(Polygon, "Polygon");
+
 
 /**
  * @class GeoJsonToGeometryConverter
@@ -38,15 +51,21 @@ exports.GeoJsonToGeometryConverter = Converter.specialize( /** @lends GeoJsonToG
      */
     revert: {
         value: function (value) {
-            GeoJson.projection = this.projection;
-            return GeoJson.forId(value.type).revert(value);
+            var type = MONTAGE_CONSTRUCTOR_TYPE_MAP.get(value.constructor),
+                result = null;
+            
+            if (type) {
+                GeoJson.projection = this.projection;
+                result = GeoJson.forId(type).revert(value);
+            }
+            return result;
         }
     },
 
     projection: {
         value: undefined
     }
-
+    
 });
 
 var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
@@ -65,11 +84,28 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
 
     revert: {
         value: function (value) {}
+    },
+    
+    _revertPosition: {
+        value: function (position) {
+            var coordinates = [position.longitude, position.latitude];
+    
+            if (this.projection) {
+                coordinates = this.projection.projectPoint(coordinates);
+            }
+    
+            if (position.altitude) {
+                coordinates.push(altitude);
+            }
+            
+            return coordinates;
+        }
     }
 
 }, {
 
     FEATURE_COLLECTION: ["FeatureCollection", {
+
         convert: {
             value: function (value) {
                 var features = value.features.map(function (feature) {
@@ -81,7 +117,12 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
 
         revert: {
             value: function (value) {
-
+                return {
+                    "type": "FeatureCollection",
+                    "features": value.features.map(function (feature) {
+                        return GeoJson.FEATURE.revert(feature);
+                    })
+                }
             }
         }
 
@@ -93,12 +134,26 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
                 var geometryType = GeoJson.forId(value.geometry.type),
                     geometry = geometryType.convert(value.geometry);
 
-                return Feature.withMembers(value.id, value.properties, geometry);
+                return Feature.withMembers(value.id, value.properties || {}, geometry);
             }
         },
 
         revert: {
-            value: function (value) {}
+            value: function (value) {
+                var reverted = {
+                        "type": "Feature"
+                    },
+                    geometry = value.geometry,
+                    type = MONTAGE_CONSTRUCTOR_TYPE_MAP.get(geometry.constructor);
+                reverted.geometry = GeoJson.forId(type).revert(geometry);
+                if (value.hasOwnProperty("id")) {
+                    reverted.id = value.id;
+                }
+                if (value.hasOwnProperty("properties")) {
+                    reverted.properties = value.properties;
+                }
+                return reverted;
+            }
         }
 
     }],
@@ -112,9 +167,19 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
                 return GeometryCollection.withGeometries(geometries);
             }
         },
-
+        
         revert: {
-            value: function (value) {}
+            value: function (value) {
+                return {
+                    "type": "GeometryCollection",
+                    "geometries": value.geometries.map(function (geometry) {
+                        var type = MONTAGE_CONSTRUCTOR_TYPE_MAP.get(geometry.constructor);
+                        return type && GeoJson.forId(type).revert(geometry) || null;
+                    }).filter(function (geometry) {
+                        return geometry;
+                    })
+                };
+            }
         }
     }],
 
@@ -124,9 +189,13 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
                 return Point.withCoordinates(value.coordinates, this.projection);
             }
         },
-
         revert: {
-            value: function (value) {}
+            value: function (value) {
+                return {
+                    "type": "Point",
+                    "coordinates": this._revertPosition(value.coordinates)
+                };
+            }
         }
     }],
 
@@ -138,7 +207,12 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
         },
 
         revert: {
-            value: function (value) {}
+            value: function (value) {
+                return {
+                    "type": "MultiPoint",
+                    "coordinates": value.coordinates.map(this._revertPosition.bind(this))
+                };
+            }
         }
     }],
 
@@ -150,7 +224,12 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
         },
 
         revert: {
-            value: function (value) {}
+            value: function (value) {
+                return {
+                    "type": "LineString",
+                    "coordinates": value.coordinates.map(this._revertPosition.bind(this))
+                }
+            }
         }
     }],
 
@@ -160,9 +239,15 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
                 return MultiLineString.withCoordinates(value.coordinates, this.projection);
             }
         },
-
         revert: {
-            value: function (value) {}
+            value: function (value) {
+                return {
+                    "type": "MultiLineString",
+                    "coordinates": value.coordinates.map(function (lineString) {
+                        return lineString.coordinates.map(this._revertPosition.bind(this));
+                    }, this)
+                }
+            }
         }
     }],
 
@@ -174,7 +259,14 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
         },
 
         revert: {
-            value: function (value) {}
+            value: function (value) {
+                return {
+                    "type": "Polygon",
+                    "coordinates": value.coordinates.map(function (ring) {
+                        return ring.map(this._revertPosition.bind(this))
+                    }, this)
+                };
+            }
         }
     }],
 
@@ -186,7 +278,16 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
         },
 
         revert: {
-            value: function (value) {}
+            value: function (value) {
+                return {
+                    "type": "MultiPolygon",
+                    "coordinates": value.coordinates.map(function (polygon) {
+                        return polygon.coordinates.map(function (ring) {
+                            return ring.map(this._revertPosition.bind(this));
+                        }, this);
+                    }, this)
+                };
+            }
         }
     }]
 

@@ -6,6 +6,7 @@ module.exports = require("montage-testing").run(require, [
     "spec/feature-collection",
     "spec/geohash",
     "spec/geohash-collection",
+    "spec/geo-json-to-geometry-converter",
     "spec/geometry",
     "spec/geometry-collection",
     "spec/icon",

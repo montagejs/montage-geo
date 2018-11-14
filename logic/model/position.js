@@ -403,7 +403,7 @@ Object.defineProperties(exports.Position, /** @lends Position */ {
         value: function () {
             var length = arguments.length, args, self, projected, last;
             if (length && Array.isArray((args = arguments[0]))) {
-                if (args.length === 2 && args[1] !== undefined) {
+                if (arguments.length === 2 && arguments[1] !== undefined) {
                     args.push(arguments[1]);
                 }
                 return exports.Position.withCoordinates.apply(this, args);
@@ -415,7 +415,7 @@ Object.defineProperties(exports.Position, /** @lends Position */ {
                     projected = last.inverseProjectPoint([arguments[0], arguments[1]]);
                     self.longitude = projected[0];
                     self.latitude = projected[1];
-                    if (arguments[2] !== last) {
+                    if (arguments[2] !== last && arguments[2]) {
                         self.altitude = arguments[2];
                     }
                 }
