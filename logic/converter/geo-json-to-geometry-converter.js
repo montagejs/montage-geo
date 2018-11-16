@@ -9,7 +9,8 @@ var Converter = require("montage/core/converter/converter").Converter,
     MultiPoint = require("logic/model/multi-point").MultiPoint,
     MultiPolygon = require("logic/model/multi-polygon").MultiPolygon,
     Point = require("logic/model/point").Point,
-    Polygon = require("logic/model/polygon").Polygon;
+    Polygon = require("logic/model/polygon").Polygon,
+    Projection = require("logic/model/projection").Projection;
 
 var MONTAGE_CONSTRUCTOR_TYPE_MAP = new Map();
     MONTAGE_CONSTRUCTOR_TYPE_MAP.set(Feature, "Feature");
@@ -33,8 +34,8 @@ exports.GeoJsonToGeometryConverter = Converter.specialize( /** @lends GeoJsonToG
     /**
      * Converts the specified value to a Montage-Geo Object.
      * @function
-     * @param {Property} v The value to format.
-     * @returns {moment} The value converted to a set.
+     * @param {object} v The value to format.
+     * @returns {MontageGeo} The value converted to a set.
      */
     convert: {
         value: function (value) {
@@ -44,10 +45,10 @@ exports.GeoJsonToGeometryConverter = Converter.specialize( /** @lends GeoJsonToG
     },
 
     /**
-     * Reverts a set to an array
+     * Reverts a Montage-Geo object to GeoJson notation.
      * @function
-     * @param {moment} v The value to revert.
-     * @returns {array} v
+     * @param {MontageGeo} v The value to revert.
+     * @returns {object} v
      */
     revert: {
         value: function (value) {
@@ -61,9 +62,35 @@ exports.GeoJsonToGeometryConverter = Converter.specialize( /** @lends GeoJsonToG
             return result;
         }
     },
-
+    
+    /**
+     * @type {Projection} - a projection to use during the conversion process
+     *                      to transform the coordinates to the specified
+     *                      coordinate space.
+     */
     projection: {
         value: undefined
+    },
+    
+    /**************************************************************************
+     * Serialization
+     */
+    
+    serializeSelf: {
+        value: function (serializer) {
+            if (this.projection) {
+                serializer.setProperty("projection", this.projection.srid);
+            }
+        }
+    },
+    
+    deserializeSelf: {
+        value: function (deserializer) {
+            var srid = deserializer.getProperty("projection");
+            if (srid) {
+                this.projection = Projection.forSrid(srid);
+            }
+        }
     }
     
 });
