@@ -1,6 +1,7 @@
 var Converter = require("montage/core/converter/converter").Converter,
+    GeoJsonToGeometryConverter = require("logic/converter/geo-json-to-geometry-converter").GeoJsonToGeometryConverter,z
     Projection = require("logic/model/projection").Projection,
-    topojsonClient = require("contour-framework/topojson-client");
+    topojsonClient = require("topojson-client");
 
 /**
  * @class TopojsonToGeometryConverter
@@ -39,7 +40,7 @@ exports.TopojsonToGeometryConverter = Converter.specialize( /** @lends TopojsonT
         }
     },
     
-    path: {
+    keyPath: {
         value: undefined
     },
     
@@ -49,8 +50,8 @@ exports.TopojsonToGeometryConverter = Converter.specialize( /** @lends TopojsonT
     
     _objectsInTopology: {
         value: function (value) {
-            var pathComponents = this.path.split(".");
-            return pathComponents.reduce(function (accumulator, currentValue) {
+            var keyPathComponents = this.keyPath.split(".");
+            return keyPathComponents.reduce(function (accumulator, currentValue) {
                 return accumulator[currentValue];
             }, value);
         }
@@ -65,7 +66,7 @@ exports.TopojsonToGeometryConverter = Converter.specialize( /** @lends TopojsonT
             if (this.projection) {
                 serializer.setProperty("projection", this.projection.srid);
             }
-            serializer.setProperty("path", this.path);
+            serializer.setProperty("keyPath", this.keyPath);
         }
     },
     
@@ -75,7 +76,7 @@ exports.TopojsonToGeometryConverter = Converter.specialize( /** @lends TopojsonT
             if (srid) {
                 this.projection = Projection.forSrid(srid);
             }
-            this.path = deserializer.getProperty("path");
+            this.keyPath = deserializer.getProperty("keyPath");
         }
     }
     
