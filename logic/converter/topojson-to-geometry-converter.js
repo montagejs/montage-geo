@@ -11,10 +11,12 @@ var Converter = require("montage/core/converter/converter").Converter,
 exports.TopojsonToGeometryConverter = Converter.specialize( /** @lends TopojsonToGeometryConverter# */ {
     
     /**
-     * Converts the specified value to a Montage-Geo Object.
+     * Converts the specified value to either a Montage-Geo FeatureCollection
+     * or GeometryCollection.
      * @function
      * @param {object} v The value to format.
-     * @returns {MontageGeo} The value converted to a set.
+     * @returns {FeatureCollection|GeometryCollection} The value converted to
+     * the corresponding Montage-Geo object.
      */
     convert: {
         value: function (value) {
@@ -29,14 +31,14 @@ exports.TopojsonToGeometryConverter = Converter.specialize( /** @lends TopojsonT
     },
     
     /**
-     * Reverts a set to an array
+     * Reverts a Montage-Geo object to topojson.
      * @function
-     * @param {moment} v The value to revert.
-     * @returns {array} v
+     * @param {Montage-Geo} value - The value to revert.
+     * @returns {object} response - The value converted to GeoJson.
      */
     revert: {
         value: function (value) {
-            // TODO
+            // TODO -- There is not a simple analog in the topojson client API.
         }
     },
     
