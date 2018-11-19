@@ -41,15 +41,29 @@ exports.TopojsonToGeometryConverter = Converter.specialize( /** @lends TopojsonT
             // TODO -- There is not a simple analog in the topojson client API.
         }
     },
-    
+
+    /**
+     * The path to use to access the geometry in the topology object.  Should
+     * be delimited by '.'.
+     * @type {string}
+     */
     keyPath: {
         value: undefined
     },
-    
+
+    /**
+     * The projection to use when converting the topology into Montage Geo.
+     * The output will be in the coordinate system defined by the projection.
+     * @type {string}
+     */
     projection: {
         value: undefined
     },
-    
+
+    /**
+     * @private
+     * @param {object} - The topology to extract the objects from.
+     */
     _objectsInTopology: {
         value: function (value) {
             var keyPathComponents = this.keyPath.split(".");
