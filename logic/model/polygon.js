@@ -1,5 +1,6 @@
 var Geometry = require("./geometry").Geometry,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
+    d3Geo = require("d3-geo"),
     Position = require("./position").Position;
 
 /**
@@ -23,13 +24,8 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
 
     bounds: {
         value: function () {
-            var bounds = BoundingBox.withCoordinates(Infinity, Infinity, -Infinity, -Infinity),
-                coordinates = this.coordinates && this.coordinates[0],
-                length = coordinates && coordinates.length || 0, i;
-            for (i = 0; i < length; i += 1) {
-                bounds.extend(coordinates[i]);
-            }
-            return bounds;
+            var bounds = d3Geo.geoBounds(Polygon.GeoJsonConverter.revert(this));
+            return BoundingBox.withCoordinates(bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]);
         }
     },
 
@@ -318,15 +314,7 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
      */
     toGeoJSON: {
         value: function () {
-            var coordinates = this.coordinates && this.coordinates.map(function (rings) {
-                    return rings.map(function (position) {
-                        return [position.longitude, position.latitude];
-                    });
-                }) || [[]];
-            return {
-                type: "Polygon",
-                coordinates: coordinates
-            }
+            return new Polygon.GeoJsonConverter.revert(this);
         }
     },
 
@@ -455,7 +443,13 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
     }
 
 }, {
-
+    
+    GeoJsonConverter: {
+        get: function () {
+            return require("logic/converter/geo-json-to-geometry-converter").GeoJsonToGeometryConverter.getInstance();
+        }
+    },
+    
     /**
      * Returns a newly initialized point with the specified coordinates.
      *

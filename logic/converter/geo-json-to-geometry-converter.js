@@ -92,6 +92,23 @@ exports.GeoJsonToGeometryConverter = Converter.specialize( /** @lends GeoJsonToG
             }
         }
     }
+}, {
+
+    getInstance: {
+        value: function () {
+            return exports.GeoJsonToGeometryConverter._instance;
+        }
+    },
+    
+    _instance: {
+        get: function () {
+            if (!exports.GeoJsonToGeometryConverter.__instance) {
+                exports.GeoJsonToGeometryConverter.__instance = new exports.GeoJsonToGeometryConverter();
+            }
+            return exports.GeoJsonToGeometryConverter.__instance;
+        }
+    }
+
 });
 
 var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {

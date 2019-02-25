@@ -136,11 +136,17 @@ describe("A Polygon", function () {
             };
 
         Bindings.defineBinding(controller, "bounds", {"<-": "geometry.bounds()"});
-        expect(controller.bounds.bbox.join(",")).toBe("0,0,10,10");
-        geometry.coordinates[0].push(Position.withCoordinates(20, 20));
-        expect(controller.bounds.bbox.join(",")).toBe("0,0,20,20");
-        geometry.coordinates[0].pop();
-        expect(controller.bounds.bbox.join(",")).toBe("0,0,10,10");
+        expect(controller.bounds.bbox.map(function (coordinate) {
+            return Math.round(coordinate);
+        }).join(",")).toBe("0,0,10,10");
+        geometry.coordinates[0].splice(2, 0, Position.withCoordinates(20, 20));
+        expect(controller.bounds.bbox.map(function (coordinate) {
+            return Math.round(coordinate);
+        }).join(",")).toBe("0,0,20,20");
+        geometry.coordinates[0].splice(2, 1);
+        expect(controller.bounds.bbox.map(function (coordinate) {
+            return Math.round(coordinate);
+        }).join(",")).toBe("0,0,10,10");
     });
 
     it("can test another polygon for intersection", function () {

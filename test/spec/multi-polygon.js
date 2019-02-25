@@ -47,6 +47,7 @@ describe("A MultiPolygon", function () {
             serializer = new Serializer().initWithRequire(require),
             serialized = serializer.serializeObject(p1);
         new Deserializer().init(serialized, require).deserializeObject().then(function (polygon) {
+            expect(p1.equals(polygon)).toBe(true);
             done();
         });
     });
@@ -80,11 +81,17 @@ describe("A MultiPolygon", function () {
             };
 
         Bindings.defineBinding(controller, "bounds", {"<-": "geometry.bounds()"});
-        expect(controller.bounds.bbox.join(",")).toBe("-10,-10,10,10");
+        expect(controller.bounds.bbox.map(function (coordinate) {
+            return Math.round(coordinate);
+        }).join(",")).toBe("-10,-10,10,10");
         geometry.coordinates.push(Polygon.withCoordinates([[[10,10], [10,20], [20,20], [20,0], [10,10]]]));
-        expect(controller.bounds.bbox.join(",")).toBe("-10,-10,20,20");
+        expect(controller.bounds.bbox.map(function (coordinate) {
+            return Math.round(coordinate);
+        }).join(",")).toBe("-10,-10,20,20");
         geometry.coordinates.pop();
-        expect(controller.bounds.bbox.join(",")).toBe("-10,-10,10,10");
+        expect(controller.bounds.bbox.map(function (coordinate) {
+            return Math.round(coordinate);
+        }).join(",")).toBe("-10,-10,10,10");
     });
 
     it ("can test for equality", function () {
