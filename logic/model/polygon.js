@@ -314,7 +314,7 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
      */
     toGeoJSON: {
         value: function () {
-            return new Polygon.GeoJsonConverter.revert(this);
+            return Polygon.GeoJsonConverter.revert(this);
         }
     },
 
