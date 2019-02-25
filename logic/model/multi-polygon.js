@@ -101,6 +101,21 @@ var MultiPolygon = exports.MultiPolygon = Geometry.specialize(/** @lends MultiPo
     },
 
     /**
+     * Returns true if the provided position in contained with any of this
+     * geometry's polygons.
+     * @method
+     * @param {Position} position
+     * @return boolean
+     */
+    contains: {
+        value: function (position) {
+            return this.coordinates.some(function (polygon) {
+                return polygon.contains(position);
+            });
+        }
+    },
+
+    /**
      * Tests whether this Multi-Polygon's coordinates member equals the
      * provided one.  The two geometries are considered equal if they have the
      * same number of child polygons and each child is considered equal

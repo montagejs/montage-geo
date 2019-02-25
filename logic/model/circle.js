@@ -28,7 +28,6 @@ var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */
         value: undefined
     },
 
-
     /*****************************************************
      * Serialization
      */
