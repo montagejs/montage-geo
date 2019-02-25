@@ -23,7 +23,7 @@
         "montage-geo": "../"
     },
     "dependencies": {
-        "montage": "github:montagejs/montage#master"
+        "montage": "17.2.1"
     },
     "private": true
 }
