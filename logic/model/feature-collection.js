@@ -31,7 +31,7 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
      */
     features: {
         enumerable: true,
-        writeable: false,
+        writable: false,
         get: function () {
             return this._features;
         }
@@ -50,7 +50,7 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
     deserializeSelf: {
         value: function (deserializer) {
             var features = this.features;
-            features.splice.apply(features, [0, Infinity].concat(deserializer.getProperty("features")));
+            features.splice.apply(features, [0, Infinity].concat(deserializer.getProperty("features") || []));
         }
     },
 
