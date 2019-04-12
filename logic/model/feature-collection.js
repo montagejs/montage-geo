@@ -31,7 +31,6 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
      */
     features: {
         enumerable: true,
-        writable: false,
         get: function () {
             return this._features;
         }
