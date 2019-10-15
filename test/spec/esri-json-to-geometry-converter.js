@@ -1,4 +1,6 @@
 var EsriJsonToGeometryConverter = require("montage-geo/logic/converter/esri-json-to-geometry-converter").EsriJsonToGeometryConverter,
+    LineString = require("montage-geo/logic/model/line-string").LineString,
+    Polygon = require("montage-geo/logic/model/polygon").Polygon,
     Projection = require("montage-geo/logic/model/projection").Projection;
 
 describe("EsriJsonToGeometryConverter", function () {
@@ -71,7 +73,15 @@ describe("EsriJsonToGeometryConverter", function () {
         expect(multiLineString.coordinates[1].coordinates[1].latitude).toBe(32.755);
     });
 
-    it ("can revert a MultiLineString to EsriJson Polyline", function () {
+    it ("can revert a LineString to Esri Polyline", function () {
+        var converter = new EsriJsonToGeometryConverter(),
+            geometry = LineString.withCoordinates([[0, 0], [0, 10]]),
+            reverted = converter.revert(geometry);
+        expect(reverted).toBeDefined();
+        expect(objectEquals(reverted, esriJsonSimplePolyline)).toBe(true);
+    });
+
+    it ("can revert a MultiLineString to Esri Polyline", function () {
         var converter = new EsriJsonToGeometryConverter(),
             geometry = converter.convert(esriJsonPolyline),
             reverted = converter.revert(geometry);
@@ -104,7 +114,17 @@ describe("EsriJsonToGeometryConverter", function () {
         expect(multiPolygon.coordinates[0].coordinates[1][3].latitude).toBe(34.01559);
     });
 
-    it ("can revert a MultiPolygon to EsriJson Polygon", function () {
+    it ("can revert a Polygon to Esri Polygon", function () {
+        var converter = new EsriJsonToGeometryConverter(),
+            geometry = p1 = Polygon.withCoordinates([
+                [[0,0], [0,10], [10,10], [10,0], [0,0]]
+            ]),
+            reverted = converter.revert(geometry);
+        expect(reverted).toBeDefined();
+        expect(objectEquals(reverted, esriSimplePolygon)).toBe(true);
+    });
+
+    it ("can revert a MultiPolygon to Esri Polygon", function () {
         var converter = new EsriJsonToGeometryConverter(),
             geometry = converter.convert(esriPolygon),
             reverted = converter.revert(geometry);
@@ -166,6 +186,25 @@ var esriJsonPoint = {
             [
                 [-97.06326, 32.759],
                 [-97.06298, 32.755]
+            ]
+        ]
+    },
+    esriJsonSimplePolyline = {
+        "paths": [
+            [
+                [0, 0],
+                [0, 10]
+            ]
+        ]
+    },
+    esriSimplePolygon = {
+        "rings": [
+            [
+                [0,0],
+                [0,10],
+                [10,10],
+                [10,0],
+                [0,0]
             ]
         ]
     },

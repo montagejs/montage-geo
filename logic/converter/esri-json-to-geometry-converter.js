@@ -1,10 +1,8 @@
 var Converter = require("montage/core/converter/converter").Converter,
     Enumeration = require("montage/data/model/enumeration").Enumeration,
-    Feature = require("logic/model/feature").Feature,
-    FeatureCollection = require("logic/model/feature-collection").FeatureCollection,
-    GeometryCollection = require("logic/model/geometry-collection").GeometryCollection,
     LineString = require("logic/model/line-string").LineString,
     Map = require("montage/collections/map"),
+    MultiLineString = require("logic/model/multi-line-string").MultiLineString,
     MultiLineString = require("logic/model/multi-line-string").MultiLineString,
     MultiPoint = require("logic/model/multi-point").MultiPoint,
     MultiPolygon = require("logic/model/multi-polygon").MultiPolygon,
@@ -13,15 +11,22 @@ var Converter = require("montage/core/converter/converter").Converter,
     Projection = require("logic/model/projection").Projection;
 
 var MONTAGE_CONSTRUCTOR_TYPE_MAP = new Map();
+MONTAGE_CONSTRUCTOR_TYPE_MAP.set(LineString, "Polyline");
 MONTAGE_CONSTRUCTOR_TYPE_MAP.set(MultiLineString, "Polyline");
 MONTAGE_CONSTRUCTOR_TYPE_MAP.set(MultiPoint, "MultiPoint");
 MONTAGE_CONSTRUCTOR_TYPE_MAP.set(Point, "Point");
 MONTAGE_CONSTRUCTOR_TYPE_MAP.set(MultiPolygon, "Polygon");
+MONTAGE_CONSTRUCTOR_TYPE_MAP.set(Polygon, "Polygon");
 
 
 /**
  * @class EsriJsonToGeometryConverter
- * @classdesc Converts an EsriJSON object to a Montage Geo object and vice-versa.
+ * @classdesc Converts an Esri Geometry object to a Montage Geo object and
+ * vice-versa.  Esri defines four types of geometry: Point, MultiPoint, Poly-
+ * line and Polygon.  When converting these types map to Point, MultiPoint,
+ * MultiLine-String and MultiPolygon respectively.  When reverting from
+ * MontageGeo the reverse is also true with the addition of LineString mapping
+ * to Polyline and Polygon mapping to Polygon.
  * @extends Converter
  */
 exports.EsriJsonToGeometryConverter = Converter.specialize( /** @lends EsriJsonToGeometryConverter# */ {
@@ -155,38 +160,6 @@ var EsriJson = Enumeration.specialize(/** @lends EsriJson */ "id", {
         value: function (value) {}
     },
 
-    _revertRings: {
-        value: function (rings) {
-            return rings.map(function (ring) {
-                return this._revertRing(ring);
-            }, this);
-        }
-    },
-
-    _revertRing: {
-        value: function (ring) {
-            return ring.map(function (position) {
-                return this._revertPosition(position);
-            }, this);
-        }
-    },
-
-    _revertPaths: {
-        value: function (paths) {
-            return paths.map(function (path) {
-                return this._revertPath(path);
-            }, this);
-        }
-    },
-
-    _revertPath: {
-        value: function (path) {
-            return path.coordinates.map(function (position) {
-                return this._revertPosition(position);
-            }, this);
-        }
-    },
-
     _revertPosition: {
         value: function (position) {
             var coordinates = [position.longitude, position.latitude];
@@ -247,9 +220,36 @@ var EsriJson = Enumeration.specialize(/** @lends EsriJson */ "id", {
         },
         revert: {
             value: function (value) {
+                return value instanceof MultiLineString ?   this._revertMultiLineString(value) :
+                                                            this._revertLineString(value);
+            }
+        },
+        _revertMultiLineString: {
+            value: function (value) {
                 return {
-                    "paths": this._revertPaths(value.coordinates)
+                    "paths": this._polylinePathsForLineStrings(value.coordinates)
                 };
+            }
+        },
+        _revertLineString: {
+            value: function (value) {
+                return {
+                    "paths": [this._polylinePathForLineString(value)]
+                };
+            }
+        },
+        _polylinePathsForLineStrings: {
+            value: function (lineStrings) {
+                return lineStrings.map(function (lineString) {
+                    return this._polylinePathForLineString(lineString);
+                }, this);
+            }
+        },
+        _polylinePathForLineString: {
+            value: function (path) {
+                return path.coordinates.map(function (position) {
+                    return this._revertPosition(position);
+                }, this);
             }
         }
     }],
@@ -287,16 +287,45 @@ var EsriJson = Enumeration.specialize(/** @lends EsriJson */ "id", {
         },
         revert: {
             value: function (value) {
-                var rings = value.coordinates.reduce(function (accumulator, polygon) {
+                return value instanceof MultiPolygon ?  this._revertMultiPolygon(value) :
+                                                        this._revertPolygon(value);
+            }
+        },
+        _revertMultiPolygon: {
+            value: function (value) {
+                var polygons = value.coordinates.reduce(function (accumulator, polygon) {
                     polygon.coordinates.forEach(function (ring) {
                         accumulator.push(ring);
                     });
                     return accumulator;
                 }, []);
-
                 return {
-                    "rings": this._revertRings(rings)
+                    "rings": this._polygonRingsForPolygons(polygons)
                 };
+            }
+        },
+        _revertPolygon: {
+            value: function (value) {
+                var rings = value.coordinates.map(function (ring) {
+                    return ring;
+                });
+                return {
+                    "rings": this._polygonRingsForPolygons(rings)
+                };
+            }
+        },
+        _polygonRingsForPolygons: {
+            value: function (polygons) {
+                return polygons.map(function (polygon) {
+                    return this._polygonRingForPolygon(polygon);
+                }, this);
+            }
+        },
+        _polygonRingForPolygon: {
+            value: function (polygon) {
+                return polygon.map(function (position) {
+                    return this._revertPosition(position);
+                }, this);
             }
         },
         _isWoundClockwise: {
@@ -310,8 +339,7 @@ var EsriJson = Enumeration.specialize(/** @lends EsriJson */ "id", {
                     }
                     p1 = ring[i];
                     p2 = ring[j];
-                    //  (x2 − x1)(y2 + y1)
-                    sum += (p2[0] - p1[0])*(p2[1] + p1[1]);
+                    sum += (p2[0] - p1[0]) * (p2[1] + p1[1]);
                 }
                 return sum >= 0;
             }
