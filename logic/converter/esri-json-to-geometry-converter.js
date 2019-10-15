@@ -233,8 +233,7 @@ var EsriJson = Enumeration.specialize(/** @lends EsriJson */ "id", {
         revert: {
             value: function (value) {
                 return {
-                    "type": "MultiPoint",
-                    "coordinates": value.coordinates.map(this._revertPosition.bind(this))
+                    "points": value.coordinates.map(this._revertPosition.bind(this))
                 };
             }
         }

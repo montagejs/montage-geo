@@ -20,6 +20,25 @@ describe("EsriJsonToGeometryConverter", function () {
         expect(objectEquals(reverted, esriJsonPoint)).toBe(true);
     });
 
+    it ("can convert a Esri MultiPoint to MultiPoint", function () {
+        var converter = new EsriJsonToGeometryConverter(),
+            point = converter.convert(esriJsonMultiPoint);
+        expect(point).toBeDefined();
+        expect(point.coordinates.length).toBe(2);
+        expect(point.coordinates[0].longitude).toBe(100.0);
+        expect(point.coordinates[0].latitude).toBe(0.0);
+        expect(point.coordinates[1].longitude).toBe(101.0);
+        expect(point.coordinates[1].latitude).toBe(1.0);
+    });
+
+    it ("can revert a MultiPoint to Esri MultiPoint", function () {
+        var converter = new EsriJsonToGeometryConverter(),
+            geometry = converter.convert(esriJsonMultiPoint),
+            reverted = converter.revert(geometry);
+        expect(reverted).toBeDefined();
+        expect(objectEquals(reverted, esriJsonMultiPoint)).toBe(true);
+    });
+
     it ("can convert a Esri Point to Point with Projection", function () {
         var converter = new EsriJsonToGeometryConverter(),
             point;
