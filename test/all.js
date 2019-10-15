@@ -1,7 +1,7 @@
-console.log('montage-testing', 'Start');
 module.exports = require("montage-testing").run(require, [
     "spec/bounding-box",
     "spec/circle",
+    "spec/esri-json-to-geometry-converter",
     "spec/feature",
     "spec/feature-collection",
     "spec/geohash",

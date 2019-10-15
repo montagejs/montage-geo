@@ -1,4 +1,5 @@
-var HALF_PI = Math.PI / 180.0, Position,
+var HALF_PI = Math.PI / 180.0,
+    Position,
     Projection = require("logic/model/projection").Projection,
     Uuid = require("montage/core/uuid").Uuid,
 
@@ -70,7 +71,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
         writable: true,
         value: 0
     },
-    
+
     /**
      * The position's latitude.
      * @type {number}
@@ -85,12 +86,12 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
             this._latitude = this._round(value, 5);
         }
     },
-    
+
     _longitude: {
         writable: true,
         value: 0
     },
-    
+
     /**
      * The position's longitude.
      * @type {number}
@@ -113,7 +114,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
                     this.latitude === other.latitude;
         }
     },
-    
+
     _round: {
         value: function (value) {
             return Number(value.toFixed(5));

@@ -443,15 +443,15 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
     }
 
 }, {
-    
+
     GeoJsonConverter: {
         get: function () {
             return require("logic/converter/geo-json-to-geometry-converter").GeoJsonToGeometryConverter.getInstance();
         }
     },
-    
+
     /**
-     * Returns a newly initialized point with the specified coordinates.
+     * Returns a newly initialized polygon with the specified coordinates.
      *
      * @param {array<array<number>>} rings - The LinearRings that compose
      *                                       this polygon.  The first ring
