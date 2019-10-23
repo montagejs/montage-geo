@@ -62,6 +62,12 @@ describe("Point 2D", function () {
         expect(multiplied.y).toBe(200);
     });
 
+    it("can create a point that is divided by the provided value", function () {
+        var multiplied = point2D.multiply(10),
+            divided = multiplied.divide(10);
+        expect(divided.equals(point2D)).toBe(true);
+    });
+
     it("can clone a point", function () {
         var cloned = point2D.clone();
         expect(cloned.x).toBe(10);
@@ -73,6 +79,21 @@ describe("Point 2D", function () {
         expect(point2D.equals(other)).toBe(true);
         other.x = 42;
         expect(point2D.equals(other)).toBe(false);
+    });
+
+    it("can be converted to a point", function () {
+        var center = Point2D.withCoordinates(128, 128).toPoint(),
+            min = Point2D.withCoordinates(0, 0).toPoint(),
+            max = Point2D.withCoordinates(256, 256).toPoint();
+        expect(center.coordinates).toBeDefined();
+        expect(center.coordinates.latitude).toBeDefined();
+        expect(center.coordinates.longitude).toBeDefined();
+        expect(center.coordinates.latitude).toBe(0);
+        expect(center.coordinates.longitude).toBe(0);
+        expect(center.coordinates.latitude).toBe(0);
+        expect(min.coordinates.longitude).toBe(-180);
+        expect(max.coordinates.longitude).toBe(180);
+        expect(Math.abs(max.coordinates.latitude)).toBe(min.coordinates.latitude);
     });
 
 });

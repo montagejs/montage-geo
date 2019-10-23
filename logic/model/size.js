@@ -73,6 +73,40 @@ exports.Size.prototype = Object.create({}, /** @lends Size.prototype */ {
      */
 
     /**
+     * Returns a new suze that multiplies the provided factor with height and
+     * width of this size.
+     * @public
+     * @method
+     * @param {number} factor
+     * @type {Size} size
+     */
+    multiply: {
+        value: function (number) {
+            var size = this.clone();
+            size.width *= number;
+            size.height *= number;
+            return size;
+        }
+    },
+
+    /**
+     * Returns a new Size that divides the provided factor into height and
+     * width of this Size.
+     * @public
+     * @method
+     * @param {number} factor
+     * @type {Size} size
+     */
+    divide: {
+        value: function (number) {
+            var size = this.clone();
+            size.width /= number;
+            size.height /= number;
+            return size;
+        }
+    },
+
+    /**
      * Returns a copy of this size.
      * @returns {Size} - the cloned size.
      */
@@ -92,15 +126,15 @@ exports.Size.prototype = Object.create({}, /** @lends Size.prototype */ {
             return other.height === this.height &&  other.width === this.width;
         }
     },
-    
+
     /*****************************************************
      * Serialization
      */
-    
+
     serializableProperties: {
         value: ["height", "width"]
     },
-    
+
     serializeSelf: {
         value: function (serializer) {
             serializer.setProperty("identifier", this.identifier);
@@ -108,7 +142,7 @@ exports.Size.prototype = Object.create({}, /** @lends Size.prototype */ {
             this._setPropertyWithDefaults(serializer, "width", this.width);
         }
     },
-    
+
     deserializeSelf: {
         value: function (deserializer) {
             this.identifier = deserializer.getProperty("identifier");
@@ -116,19 +150,19 @@ exports.Size.prototype = Object.create({}, /** @lends Size.prototype */ {
             this.width = this._getPropertyWithDefaults(deserializer, "width");
         }
     },
-    
+
     getInfoForObject: {
         value: function () {
             return this._montage_metadata;
         }
     },
-    
+
     _montage_metadata: {
         enumerable: false,
         writable: true,
         value: undefined
     },
-    
+
     _setPropertyWithDefaults: {
         value:function (serializer, propertyName, value) {
             if (value != Defaults[propertyName]) {
@@ -136,7 +170,7 @@ exports.Size.prototype = Object.create({}, /** @lends Size.prototype */ {
             }
         }
     },
-    
+
     _getPropertyWithDefaults: {
         value:function (deserializer, propertyName) {
             return deserializer.getProperty(propertyName) || Defaults[propertyName];

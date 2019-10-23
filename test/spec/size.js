@@ -29,6 +29,18 @@ describe("Size", function () {
         expect(clone.width).toBe(size.width);
     });
 
+    it("can be multiplied", function () {
+        var tenX = size.multiply(10);
+        expect(tenX.height).toBe(1000);
+        expect(tenX.width).toBe(3000);
+    });
+
+    it("can be divided", function () {
+        var tenX = size.multiply(10),
+            original = tenX.divide(10);
+        expect(original.equals(size)).toBe(true);
+    });
+
     it("can be serialized", function () {
         var serializer = new Serializer().initWithRequire(require),
             serializedPoint = serializer.serializeObject(size);

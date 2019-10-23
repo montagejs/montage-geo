@@ -1,7 +1,6 @@
 var Montage = require("montage/core/core").Montage,
     GeometryCollection = require("logic/model/geometry-collection").GeometryCollection,
-    GeohashCollection = require("logic/model/geohash-collection").GeohashCollection,
-    Position = require("logic/model/position").Position;
+    GeohashCollection = require("logic/model/geohash-collection").GeohashCollection;
 
 var ROUND_ONE = 'e5';
 var ROUND_TWO = 'e-5';
@@ -87,7 +86,7 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             }
         }
     },
-    
+
     _round: {
         value: function (value) {
             var isInfinity = value === Infinity || value === -Infinity;
@@ -349,7 +348,7 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             }
         }
     },
-    
+
     _extendWithBoundingBox: {
         value: function (box) {
             var coordinates = box.coordinates[0].slice(0, 4),
@@ -359,7 +358,7 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             }
         }
     },
-    
+
     _extendWithPosition: {
         value: function (position) {
             var lng = position.longitude,
@@ -452,6 +451,34 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             }
             return this._split;
         }
+    },
+
+    /**
+     * Convert this bounding box to a rect in web mercator coordinates.  If the
+     * bounding box spans the anti-meridian, the maximum longitude will be
+     * greater than the map size.
+     * @returns {Rect}
+     */
+    toRect: {
+        value: function (zoom) {
+            var BoundingBox = exports.BoundingBox,
+                Position = BoundingBox.Position,
+                Point2D = BoundingBox.Point2D,
+                Size = BoundingBox.Size,
+                Rect = BoundingBox.Rect,
+                split = this.splitAlongAntimeridian(),
+                rects = split.map(function (bbox) {
+                    var min = Point2D.withPosition(Position.withCoordinates([bbox.xMin, bbox.yMin]), zoom || 0),
+                        max = Point2D.withPosition(Position.withCoordinates([bbox.xMax, bbox.yMax]), zoom || 0),
+                        origin = Point2D.withCoordinates(min.x, max.y),
+                        size = Size.withHeightAndWidth(min.y - max.y, max.x - min.x);
+                    return Rect.withOriginAndSize(origin, size);
+                }, this);
+            if (rects.length === 2) {
+                rects[0].size.width = rects[0].width + rects[1].width;
+            }
+            return rects[0];
+        }
     }
 
 }, {
@@ -460,6 +487,24 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
     Position: {
         get: function () {
             return require("logic/model/position").Position;
+        }
+    },
+
+    Point2D: {
+        get: function () {
+            return require("logic/model/point-2d").Point2D;
+        }
+    },
+
+    Rect: {
+        get: function () {
+            return require("logic/model/rect").Rect;
+        }
+    },
+
+    Size: {
+        get: function () {
+            return require("logic/model/size").Size;
         }
     },
 
@@ -509,6 +554,27 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
                 southWestCoordinate.latitude,
                 northEastCoordinate.longitude,
                 northEastCoordinate.latitude
+            );
+        }
+    },
+
+    withRectAtZoomLevel: {
+        value: function (rect, zoomLevel) {
+            var Point2D = exports.BoundingBox.Point2D,
+                zoomCoefficient =  Math.pow(2, zoomLevel || 0),
+                origin = rect.origin.divide(zoomCoefficient),
+                size = rect.size.divide(zoomCoefficient),
+                minY = origin.y + size.height,
+                maxX, min, max;
+
+            origin.x = origin.x % 256;
+            maxX = (origin.x + size.width) % 256;
+
+            min = Point2D.withCoordinates(origin.x, minY).toPoint().coordinates;
+            max = Point2D.withCoordinates(maxX, origin.y).toPoint().coordinates;
+
+            return exports.BoundingBox.withCoordinates(
+                min.longitude, min.latitude, max.longitude, max.latitude
             );
         }
     }
