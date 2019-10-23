@@ -211,5 +211,13 @@ describe("A Polygon", function () {
         expect(a.equals(b)).toBe(true);
     });
 
+    xit("can split along the anti-meridian", function () {
+        // var polygon = Polygon.withCoordinates([
+        //         [[-170,0], [-170,40], [170,40], [170,0], [-170,0]]
+        //     ]),
+        //     split = polygon.splitAlongAntiMeridian();
+        // expect(split).toBeDefined();
+        // expect(split.length).toBe(2);
+    });
 
 });

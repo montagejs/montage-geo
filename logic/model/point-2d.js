@@ -172,13 +172,30 @@ exports.Point2D.prototype = Object.create({}, /** @lends Point2D.prototype */ {
      * @public
      * @method
      * @param {number} factor
-     * @type {CartesianCoordinate} coordinate
+     * @type {Point2D} coordinate
      */
     multiply: {
         value: function (number){
             var point = this.clone();
             point.x *= number;
             point.y *= number;
+            return point;
+        }
+    },
+
+    /**
+     * Returns a new point that divides the provided factor with each
+     * of this point's X and Y values.
+     * @public
+     * @method
+     * @param {number} factor
+     * @type {Point2D} coordinate
+     */
+    divide: {
+        value: function (number){
+            var point = this.clone();
+            point.x /= number;
+            point.y /= number;
             return point;
         }
     },
@@ -218,9 +235,9 @@ exports.Point2D.prototype = Object.create({}, /** @lends Point2D.prototype */ {
     toPoint: {
         value: function (zoom) {
             var clip = exports.Point2D.clip,
-                mapSize = 256 << zoom,
-                x = (clip(this.x, 0, mapSize - 1) / mapSize) - 0.5,
-                y = 0.5 - (clip(this.y, 0, mapSize - 1) / mapSize),
+                mapSize = 256 << (zoom || 0),
+                x = (clip(this.x, 0, mapSize) / mapSize) - 0.5,
+                y = 0.5 - (clip(this.y, 0, mapSize) / mapSize),
                 latitude = 90 - 360 * Math.atan(Math.exp(-y * 2 * Math.PI)) / Math.PI,
                 longitude = 360 * x;
 
@@ -271,7 +288,7 @@ Object.defineProperties(exports.Point2D, /** @lends Point2D */ {
                 y = 0.5 - Math.log((1 + sinLatitude) / (1 - sinLatitude)) / (4 * Math.PI),
                 pixelX = clip(x, 0, mapSize),
                 pixelY = clip(y, 0, mapSize),
-                point = exports.CartesianCoordinate.withCoordinates(pixelX, pixelY);
+                point = exports.Point2D.withCoordinates(pixelX, pixelY);
 
             return arguments.length === 1 ? point : point.multiply(mapSize << zoom);
         }

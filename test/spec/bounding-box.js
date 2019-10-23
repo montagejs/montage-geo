@@ -161,7 +161,60 @@ describe("A BoundingBox", function () {
         expect(Math.round(bounds.yMin * 10) / 10).toBe(-0.9);
         expect(Math.round(bounds.xMax * 10) / 10).toBe(10.9);
         expect(Math.round(bounds.yMax * 10) / 10).toBe(10.9);
-    })
+    });
+
+    it ("can be converted to a rect", function () {
+        var bounds = BoundingBox.withCoordinates(0, 0, 180, 85.05112877980659),
+            rect = bounds.toRect();
+
+        expect(rect.origin).toBeDefined();
+        expect(Math.round(rect.origin.x)).toBe(128);
+        expect(Math.round(rect.origin.y)).toBe(0);
+        expect(rect.size).toBeDefined();
+        expect(Math.round(rect.size.width)).toBe(128);
+        expect(Math.round(rect.size.height)).toBe(128);
+
+    });
+
+    it ("can be converted to a rect at provided zoom level", function () {
+        var bounds = BoundingBox.withCoordinates(0, 0, 180, 85.05112877980659),
+            rect = bounds.toRect(4),
+            multiplied = 128 * Math.pow(2, 4);
+
+        expect(rect.origin).toBeDefined();
+        expect(Math.round(rect.origin.x)).toBe(multiplied);
+        expect(Math.round(rect.origin.y)).toBe(0);
+        expect(rect.size).toBeDefined();
+        expect(Math.round(rect.size.width)).toBe(multiplied);
+        expect(Math.round(rect.size.height)).toBe(multiplied);
+
+    });
+
+    it ("can be created with a rect", function () {
+        var bounds = BoundingBox.withCoordinates(0, 0, 180, 85.05112877980659),
+            rect = bounds.toRect(),
+            reverted = BoundingBox.withRectAtZoomLevel(rect);
+
+        expect(reverted.xMin).toBe(0);
+        // TODO: Resolve but practically it is the same thing as 180.
+        expect(reverted.xMax).toBe(-180);
+        expect(reverted.yMin).toBe(0);
+        expect(reverted.yMax).toBe(85.05113);
+
+    });
+
+    it ("can be created with a rect that crosses anti-meridian", function () {
+        var bounds = BoundingBox.withCoordinates(90, 0, -90, 85.05112877980659),
+            rect = bounds.toRect(),
+            reverted = BoundingBox.withRectAtZoomLevel(rect);
+
+        expect(reverted.xMin).toBe(90);
+        expect(Math.round(reverted.xMax)).toBe(-90);
+        expect(reverted.yMin).toBe(0);
+        // Coordinates are trimmed at 5 decimal places
+        expect(reverted.yMax).toBe(85.05113);
+
+    });
 
 
 });
