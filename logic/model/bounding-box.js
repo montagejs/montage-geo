@@ -457,6 +457,7 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
      * Convert this bounding box to a rect in web mercator coordinates.  If the
      * bounding box spans the anti-meridian, the maximum longitude will be
      * greater than the map size.
+     * @param {number} [zoom=0] - the zoom level to use when sizing the rect.
      * @returns {Rect}
      */
     toRect: {
@@ -558,6 +559,15 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         }
     },
 
+    /**
+     * Returns a new bounding box using the supplied rect (which is assumed to
+     * be in web mercator projection).  If a zoom level is supplied it will be
+     * used in the conversion.  Otherwise, it is assumed that the rect was
+     * created at zoom level 0.
+     * @param {rect} - the rect to convert
+     * @param {number} [zoom=0] - the zoom level to use during conversion.
+     * @returns {BoundingBox}
+     */
     withRectAtZoomLevel: {
         value: function (rect, zoomLevel) {
             var Point2D = exports.BoundingBox.Point2D,

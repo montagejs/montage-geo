@@ -203,13 +203,12 @@ describe("A BoundingBox", function () {
 
     });
 
-    it ("can be created with a rect that crosses anti-meridican", function () {
+    it ("can be created with a rect that crosses anti-meridian", function () {
         var bounds = BoundingBox.withCoordinates(90, 0, -90, 85.05112877980659),
             rect = bounds.toRect(),
             reverted = BoundingBox.withRectAtZoomLevel(rect);
 
         expect(reverted.xMin).toBe(90);
-        // TODO: Resolve but practically it is the same thing as 180.
         expect(Math.round(reverted.xMax)).toBe(-90);
         expect(reverted.yMin).toBe(0);
         // Coordinates are trimmed at 5 decimal places
