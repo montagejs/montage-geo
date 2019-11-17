@@ -15,13 +15,6 @@ var Montage = require("montage/core/core").Montage,
  */
 exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
 
-    constructor: {
-        value: function Geometry() {
-            this.identifier = IDENTIFIER_PREFIX;
-            this.identifier += Uuid.generate().replace(DASH_REG_EX, "");
-        }
-    },
-
     /*****************************************************
      * Properties
      */
@@ -33,7 +26,13 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
      * @type {string}
      */
     identifier: {
-        value: undefined
+        get: function () {
+            if (!this._identifier) {
+                this._identifier = IDENTIFIER_PREFIX;
+                this._identifier += Uuid.generate().replace(DASH_REG_EX, "");
+            }
+            return this._identifier;
+        }
     },
 
     /**

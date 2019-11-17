@@ -11,7 +11,6 @@ describe("A MultiPoint", function () {
             [0, 0], [10, 0], [10, 10], [0, 10]
         ]);
         expect(geometry).toBeDefined();
-        expect(geometry.identifier).toBeDefined();
         expect(geometry.coordinates.length).toBe(4);
         expect(geometry.bounds().bbox.join(",")).toBe("0,0,10,10");
     });

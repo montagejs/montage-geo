@@ -12,12 +12,10 @@ var IDENTIFIER_PREFIX = "I",
  */
 
 var Icon = exports.Icon = function Icon() {
-    this.identifier = IDENTIFIER_PREFIX;
-    this.identifier += Uuid.generate().replace(DASH_REG_EX, "");
 };
 
 exports.Icon.prototype = Object.create({}, /** @lends Icon.prototype */ {
-    
+
     /**
      * The constructor function for all Icon instances.
      * @type {function}
@@ -27,11 +25,11 @@ exports.Icon.prototype = Object.create({}, /** @lends Icon.prototype */ {
         writable: true,
         value: exports.Icon
     },
-    
+
     /**************************************************************************
      * Properties
      */
-    
+
     /**
      * The global identifier for this Icon.  Used during serialization to
      * uniquely identify icons.
@@ -39,10 +37,15 @@ exports.Icon.prototype = Object.create({}, /** @lends Icon.prototype */ {
      */
     identifier: {
         enumerable: true,
-        writable: true,
-        value: undefined
+        get: function () {
+            if (!this._identifier) {
+                this._identifier = IDENTIFIER_PREFIX;
+                this._identifier += Uuid.generate().replace(DASH_REG_EX, "");
+            }
+            return this._identifier;
+        }
     },
-    
+
     /**
      * Offset to be used when centering the icon's symbol.
      * @type {Point2D}
@@ -52,7 +55,7 @@ exports.Icon.prototype = Object.create({}, /** @lends Icon.prototype */ {
         writable: true,
         value: undefined
     },
-    
+
     /**
      * The dimensions used to display this icon.
      * @type {Size}
@@ -62,7 +65,7 @@ exports.Icon.prototype = Object.create({}, /** @lends Icon.prototype */ {
         writable: true,
         value: undefined
     },
-    
+
     /**
      * The url for this icon.  The url can be a path to an image on the network
      * or a base64 encoded string.
@@ -77,7 +80,7 @@ exports.Icon.prototype = Object.create({}, /** @lends Icon.prototype */ {
     /**************************************************************************
      * Derived Properties
      */
-    
+
     /**
      * The height of this Icon.
      * @type {Number}
@@ -88,7 +91,7 @@ exports.Icon.prototype = Object.create({}, /** @lends Icon.prototype */ {
             return this.size && this.size.height;
         }
     },
-    
+
     /**
      * The width of this Icon.
      * @type {Number}
@@ -99,15 +102,15 @@ exports.Icon.prototype = Object.create({}, /** @lends Icon.prototype */ {
             return this.size && this.size.width;
         }
     },
-    
+
     /**************************************************************************
      * Serialization
      */
-    
+
     serializableProperties: {
         value: ["anchor", "size", "symbol"]
     },
-    
+
     serializeSelf: {
         value: function (serializer) {
             serializer.setProperty("identifier", this.anchor);
@@ -116,7 +119,7 @@ exports.Icon.prototype = Object.create({}, /** @lends Icon.prototype */ {
             serializer.setProperty("symbol", this.symbol);
         }
     },
-    
+
     deserializeSelf: {
         value: function (deserializer) {
             this.identifier = deserializer.getProperty("identifier");
@@ -125,17 +128,17 @@ exports.Icon.prototype = Object.create({}, /** @lends Icon.prototype */ {
             this.symbol = deserializer.getProperty("symbol");
         }
     },
-    
+
     getInfoForObject: {
         value: function () {
             return this._montage_metadata;
         }
     }
-    
+
 });
 
 Object.defineProperties(exports.Icon, /** @lends Icon **/ {
-    
+
     /**
      * The canonical way of creating an Icon.
      * @param {string} - the dataUrl that symbolizes the Icon.

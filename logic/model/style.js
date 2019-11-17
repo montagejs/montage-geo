@@ -11,12 +11,10 @@ var IDENTIFIER_PREFIX = "S",
  */
 
 var Style = exports.Style = function Style() {
-    this.identifier = IDENTIFIER_PREFIX;
-    this.identifier += Uuid.generate().replace(DASH_REG_EX, "");
 };
 
 exports.Style.prototype = Object.create({}, /** @lends Style.prototype */ {
-    
+
     /**
      * The constructor function for all Style instances.
      * @type {function}
@@ -26,7 +24,7 @@ exports.Style.prototype = Object.create({}, /** @lends Style.prototype */ {
         writable: true,
         value: exports.Style
     },
-    
+
     /**
      * The global identifier for this Style.  Used during serialization to
      * uniquely identify objects.
@@ -34,10 +32,15 @@ exports.Style.prototype = Object.create({}, /** @lends Style.prototype */ {
      */
     identifier: {
         enumerable: true,
-        writable: true,
-        value: undefined
+        get: function () {
+            if (!this._identifier) {
+                this._identifier = IDENTIFIER_PREFIX;
+                this._identifier += Uuid.generate().replace(DASH_REG_EX, "");
+            }
+            return this._identifier;
+        }
     },
-    
+
     /**
      * The color to use to fill in polygons.  The value must conform to the
      * RGBA specification.
@@ -48,7 +51,7 @@ exports.Style.prototype = Object.create({}, /** @lends Style.prototype */ {
         writable: true,
         value: "rgba(0, 0, 0, 0)"
     },
-    
+
     /**
      * The opacity of a polygon's fill.
      * @type {number}
@@ -58,7 +61,7 @@ exports.Style.prototype = Object.create({}, /** @lends Style.prototype */ {
         writable: true,
         value: 1
     },
-    
+
     /**
      * An object that defines the drawing instructions a place mark.
      * @type {Icon}
@@ -79,7 +82,7 @@ exports.Style.prototype = Object.create({}, /** @lends Style.prototype */ {
         writable: true,
         value: "rgba(0, 0, 0, 0)"
     },
-    
+
     /**
      * The opacity of the stroke of a polygon or line.
      * @type {number}
@@ -99,15 +102,15 @@ exports.Style.prototype = Object.create({}, /** @lends Style.prototype */ {
         writable: true,
         value: 1
     },
-    
+
     /*****************************************************
      * Serialization
      */
-    
+
     serializableProperties: {
         value: ["fillColor", "fillOpacity", "strokeColor", "strokeOpacity", "strokeWeight"]
     },
-    
+
     serializeSelf: {
         value: function (serializer) {
             serializer.setProperty("identifier", this.identifier);
@@ -119,7 +122,7 @@ exports.Style.prototype = Object.create({}, /** @lends Style.prototype */ {
             this._setPropertyWithDefaults(serializer, "strokeWeight", this.strokeWeight);
         }
     },
-    
+
     deserializeSelf: {
         value: function (deserializer) {
             this.identifier = deserializer.getProperty("identifier");
@@ -131,19 +134,19 @@ exports.Style.prototype = Object.create({}, /** @lends Style.prototype */ {
             this.strokeWeight = this._getPropertyWithDefaults(deserializer, "strokeWeight");
         }
     },
-    
+
     getInfoForObject: {
         value: function () {
             return this._montage_metadata;
         }
     },
-    
+
     _montage_metadata: {
         enumerable: false,
         writable: true,
         value: undefined
     },
-    
+
     _setPropertyWithDefaults: {
         value:function (serializer, propertyName, value) {
             if (value != Defaults[propertyName]) {
@@ -151,13 +154,13 @@ exports.Style.prototype = Object.create({}, /** @lends Style.prototype */ {
             }
         }
     },
-    
+
     _getPropertyWithDefaults: {
         value:function (deserializer, propertyName) {
             return deserializer.getProperty(propertyName) || Defaults[propertyName];
         }
     }
-    
+
 });
 
 var Defaults = {
@@ -169,7 +172,7 @@ var Defaults = {
 };
 
 Object.defineProperties(exports.Style, /** @lends Style.prototype */ {
-    
+
     /**
      * The canonical way of creating Style objects.
      *
@@ -191,14 +194,14 @@ Object.defineProperties(exports.Style, /** @lends Style.prototype */ {
     withValues: {
         value: function () {
             var count = arguments.length;
-            
+
             return  count === 1 ?   exports.Style._makeMarkerStyle(arguments[0]) :
                     count === 3 ?   exports.Style._makeLineStyle.apply(this, arguments) :
                     count === 5 ?   exports.Style._makePolygonStyle.apply(this, arguments) :
                                     null;
         }
     },
-    
+
     _makeMarkerStyle: {
         value: function (icon) {
             var style = new this();
@@ -206,7 +209,7 @@ Object.defineProperties(exports.Style, /** @lends Style.prototype */ {
             return style;
         }
     },
-    
+
     _makeLineStyle: {
         value: function () {
             var style = new this();
@@ -216,7 +219,7 @@ Object.defineProperties(exports.Style, /** @lends Style.prototype */ {
             return style;
         }
     },
-    
+
     _makePolygonStyle: {
         value: function () {
             var style = new this();
@@ -228,5 +231,5 @@ Object.defineProperties(exports.Style, /** @lends Style.prototype */ {
             return style;
         }
     }
-    
+
 });

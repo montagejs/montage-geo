@@ -11,8 +11,6 @@ var IDENTIFIER_PREFIX = "S",
  */
 
 var Size = exports.Size = function Size() {
-    this.identifier = IDENTIFIER_PREFIX;
-    this.identifier += Uuid.generate().replace(DASH_REG_EX, "");
 };
 
 var Defaults = {
@@ -44,8 +42,13 @@ exports.Size.prototype = Object.create({}, /** @lends Size.prototype */ {
      */
     identifier: {
         enumerable: true,
-        writable: true,
-        value: undefined
+        get: function () {
+            if (!this._identifier) {
+                this._identifier = IDENTIFIER_PREFIX;
+                this._identifier += Uuid.generate().replace(DASH_REG_EX, "");
+            }
+            return this._identifier;
+        }
     },
 
     /**

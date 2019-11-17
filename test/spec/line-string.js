@@ -15,7 +15,6 @@ describe("A LineString", function () {
 
     it("can be created", function () {
         var line = LineString.withCoordinates([[0, 0], [0, 10]]);
-        expect(line.identifier).toBeDefined();
         expect(line).toBeDefined();
         expect(line.bounds().bbox.join(",")).toBe("0,0,0,10");
     });

@@ -12,7 +12,6 @@ describe("A Circle", function () {
             radius = 10000,
             circle = Circle.withCoordinates(coordinates, radius);
         expect(circle instanceof Circle).toBe(true);
-        expect(circle.identifier).toBeDefined();
         expect(circle.coordinates instanceof Position).toBe(true);
         expect(circle.coordinates.equals(Position.withCoordinates(coordinates))).toBe(true);
         expect(circle.radius === 10000).toBe(true);

@@ -10,13 +10,11 @@ var IDENTIFIER_PREFIX = "R",
  * @extends Object
  */
 
-var Rect = exports.Rect = function Icon() {
-    this.identifier = IDENTIFIER_PREFIX;
-    this.identifier += Uuid.generate().replace(DASH_REG_EX, "");
+var Rect = exports.Rect = function Rect() {
 };
 
 exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
-    
+
     /**
      * The constructor function for all Rect instances.
      * @type {function}
@@ -30,7 +28,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
     /**************************************************************************
      * Properties
      */
-    
+
     /**
      * The global identifier for this Rect.  Used during serialization to
      * uniquely identify objects.
@@ -39,10 +37,15 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
      */
     identifier: {
         enumerable: true,
-        writable: true,
-        value: undefined
+        get: function () {
+            if (!this._identifier) {
+                this._identifier = IDENTIFIER_PREFIX;
+                this._identifier += Uuid.generate().replace(DASH_REG_EX, "");
+            }
+            return this._identifier;
+        }
     },
-    
+
     /**
      * The origin of the rectangle as measured from the top left hand corner
      * on the two-dimensional plane.
@@ -63,11 +66,11 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
         writable: true,
         value: undefined
     },
-    
+
     /**************************************************************************
      * Derived Properties
      */
-    
+
     /**
      * The height of this Rect.
      * @type {Number}
@@ -78,7 +81,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
             return this.size && this.size.height || 0;
         }
     },
-    
+
     /**
      * The width of this Rect.
      * @type {Number}
@@ -89,7 +92,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
             return this.size && this.size.width;
         }
     },
-    
+
     /**
      * Returns the smallest value for the rectangle on the x coordinate system.
      * @type {Number}
@@ -100,7 +103,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
             return this.origin && this.origin.x;
         }
     },
-    
+
     /**
      * Returns the center of the rectangle on the x coordinate system.
      * @type {Number}
@@ -111,7 +114,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
             return this.xMin && this.width && (this.xMin + this.width / 2);
         }
     },
-    
+
     /**
      * Returns the largest value for the rectangle on the x coordinate system.
      * @type {Number}
@@ -122,7 +125,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
             return this.xMin && this.width && (this.xMin + this.width);
         }
     },
-    
+
     /**
      * Returns the smallest value for the rectangle on the y coordinate system.
      * @type {Number}
@@ -133,7 +136,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
             return this.yMax && this.height && (this.yMax - this.height);
         }
     },
-    
+
     /**
      * Returns the center of the rectangle on the y coordinate system.
      * @type {Number}
@@ -144,7 +147,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
             return this.yMax && this.height && (this.yMax - this.height / 2);
         }
     },
-    
+
     /**
      * Returns the largest value for the rectangle on the y coordinate system.
      * @type {Number}
@@ -155,11 +158,11 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
             return this.origin && this.origin.y;
         }
     },
-    
+
     /**************************************************************************
      * API
      */
-    
+
     /**
      * Returns a copy of this rect.
      * @returns {Rect}
@@ -171,7 +174,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
             return exports.Rect.withOriginAndSize(origin, size);
         }
     },
-    
+
     /**
      * Tests whether this rect's origin and size equals the provided one.
      * @param {Rect} - the rect to test for equality.
@@ -182,15 +185,15 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
             return this.origin.equals(other.origin) && this.size.equals(other.size);
         }
     },
-    
+
     /**************************************************************************
      * Serialization
      */
-    
+
     serializableProperties: {
         value: ["origin", "size"]
     },
-    
+
     serializeSelf: {
         value: function (serializer) {
             serializer.setProperty("identifier", this.identifier);
@@ -198,7 +201,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
             serializer.setProperty("size", this.size);
         }
     },
-    
+
     deserializeSelf: {
         value: function (deserializer) {
             this.identifier = deserializer.getProperty("identifier");
@@ -206,7 +209,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
             this.size = deserializer.getProperty("size");
         }
     },
-    
+
     getInfoForObject: {
         value: function () {
             return this._montage_metadata;
@@ -217,7 +220,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
 
 
 Object.defineProperties(exports.Rect, /** @lends Rect */ {
-    
+
     /**
      * The canonical way of creating a rect.
      * @param {Point2D} - the origin

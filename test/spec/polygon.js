@@ -16,7 +16,6 @@ describe("A Polygon", function () {
         var p1 = Polygon.withCoordinates([
             [[0,0], [0,10], [10,10], [10,0], [0,0]]
         ]);
-        expect(p1.identifier).toBeDefined();
         expect(p1.coordinates.length).toBe(1);
         expect(p1.coordinates[0].length).toBe(5);
     });

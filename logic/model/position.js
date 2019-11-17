@@ -2,7 +2,6 @@ var HALF_PI = Math.PI / 180.0,
     Position,
     Projection = require("logic/model/projection").Projection,
     Uuid = require("montage/core/uuid").Uuid,
-
     DASH_REG_EX = /-/g,
     IDENTIFIER_PREFIX = "P";
 
@@ -21,8 +20,6 @@ var HALF_PI = Math.PI / 180.0,
  * @extends Object
  */
 Position = exports.Position = function Position() {
-    this.identifier = IDENTIFIER_PREFIX;
-    this.identifier += Uuid.generate().replace(DASH_REG_EX, "");
 };
 
 var Defaults = {
@@ -52,8 +49,13 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
      */
     identifier: {
         enumerable: true,
-        writable: true,
-        value: undefined
+        get: function () {
+            if (!this._identifier) {
+                this._identifier = IDENTIFIER_PREFIX;
+                this._identifier += Uuid.generate().replace(DASH_REG_EX, "");
+            }
+            return this._identifier;
+        }
     },
 
     /**

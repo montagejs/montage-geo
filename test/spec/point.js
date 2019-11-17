@@ -10,7 +10,6 @@ describe("A Point", function () {
     it("can be created", function () {
         var coordinates = [-156.6825, 20.8783],
             point = Point.withCoordinates(coordinates);
-        expect(point.identifier).toBeDefined();
         expect(point instanceof Point).toBe(true);
         expect(point.coordinates instanceof Position).toBe(true);
     });
