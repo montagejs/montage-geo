@@ -17,7 +17,7 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
     constructor: {
         value: function FeatureCollection() {
             this._features = [];
-            this._features.addRangeChangeListener(this);
+            this._rangeChangeCanceler = this._features.addRangeChangeListener(this);
         }
     },
 
@@ -34,6 +34,10 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
         get: function () {
             return this._features;
         }
+    },
+
+    _rangeChangeCanceler: {
+        value: undefined
     },
 
     /*****************************************************
@@ -117,11 +121,16 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
      */
     remove: {
         value: function () {
-            var i, length, index;
-            for (i = 0, length = arguments.length; i < length; i += 1) {
-                index = this.features.indexOf(arguments[i]);
-                if (index >= 0) this.features.splice(index, 1);
+            var objectsToRemove = Array.prototype.slice.call(arguments),
+                featureSet = new Set(this.features),
+                i, length, index;
+            this._rangeChangeCanceler();
+            for (i = 0, length = objectsToRemove.length; i < length; i += 1) {
+                featureSet.delete(objectsToRemove[i]);
             }
+            this.features.splice.apply(this.features, [0, Infinity].concat(Array.from(featureSet)));
+            this._deregisterFeatures.apply(this, objectsToRemove);
+            this._rangeChangeCanceler = this._features.addRangeChangeListener(this);
         }
     },
 
@@ -390,7 +399,7 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
     withGeoJSON: {
         value: function (json, projection) {
             var features = json.features.map(function (feature) {
-                                
+
             });
         }
     },
