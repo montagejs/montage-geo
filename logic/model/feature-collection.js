@@ -110,7 +110,11 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
      */
     add: {
         value: function () {
-            this.features.splice.apply(this.features, [this.features.length, 0].concat(Array.prototype.slice.call(arguments)));
+            var objectsToAdd = Array.prototype.slice.call(arguments);
+            this._rangeChangeCanceler();
+            this.features.splice.apply(this.features, [this.features.length, 0].concat(objectsToAdd));
+            this._registerFeatures.apply(this, objectsToAdd);
+            this._rangeChangeCanceler = this._features.addRangeChangeListener(this);
         }
     },
 
