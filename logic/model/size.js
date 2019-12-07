@@ -130,6 +130,12 @@ exports.Size.prototype = Object.create({}, /** @lends Size.prototype */ {
         }
     },
 
+    toArray: {
+        value: function () {
+            return [this.width, this.height];
+        }
+    },
+
     /*****************************************************
      * Serialization
      */
