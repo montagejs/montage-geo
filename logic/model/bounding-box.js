@@ -1,6 +1,9 @@
 var Montage = require("montage/core/core").Montage,
     GeometryCollection = require("logic/model/geometry-collection").GeometryCollection,
-    GeohashCollection = require("logic/model/geohash-collection").GeohashCollection;
+    GeohashCollection = require("logic/model/geohash-collection").GeohashCollection,
+    Uuid = require("montage/core/uuid").Uuid,
+    DASH_REG_EX = /-/g,
+    IDENTIFIER_PREFIX = "B";
 
 var ROUND_ONE = 'e5';
 var ROUND_TWO = 'e-5';
@@ -14,6 +17,16 @@ var ROUND_TWO = 'e-5';
  * @extends external:Montage
  */
 exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
+
+    identifier: {
+        get: function () {
+            if (!this._identifier) {
+                this._identifier = IDENTIFIER_PREFIX;
+                this._identifier += Uuid.generate().replace(DASH_REG_EX, "");
+            }
+            return this._identifier;
+        }
+    },
 
     /********************************************
      * Properties
@@ -479,6 +492,30 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
                 rects[0].size.width = rects[0].width + rects[1].width;
             }
             return rects[0];
+        }
+    },
+
+    /**************************************************************************
+     *  Serialization
+     */
+
+    serializeSelf: {
+        value: function (serializer) {
+            serializer.setProperty("identifier", this.identifier);
+            serializer.setProperty("xMin", this.xMin);
+            serializer.setProperty("yMin", this.yMin);
+            serializer.setProperty("xMax", this.xMax);
+            serializer.setProperty("yMax", this.yMax);
+        }
+    },
+
+    deserializeSelf: {
+        value: function (deserializer) {
+            this.identifier = deserializer.getProperty("identifier");
+            this.xMin = deserializer.getProperty("xMin");
+            this.yMin = deserializer.getProperty("yMin");
+            this.xMax = deserializer.getProperty("xMax");
+            this.yMax = deserializer.getProperty("yMax");
         }
     }
 
