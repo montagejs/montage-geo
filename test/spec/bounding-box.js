@@ -1,8 +1,10 @@
 var BoundingBox = require("montage-geo/logic/model/bounding-box").BoundingBox,
+    Deserializer = require("montage/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
     Point = require("montage-geo/logic/model/point").Point,
     LineString = require("montage-geo/logic/model/line-string").LineString,
     MultiLineString = require("montage-geo/logic/model/multi-line-string").MultiLineString,
     MultiPoint = require("montage-geo/logic/model/multi-point").MultiPoint,
+    Serializer = require("montage/core/serialization/serializer/montage-serializer").MontageSerializer,
     Position = require("montage-geo/logic/model/position").Position;
 
 describe("A BoundingBox", function () {
@@ -216,5 +218,24 @@ describe("A BoundingBox", function () {
 
     });
 
+    it("can serialize", function () {
+        var bounds = BoundingBox.withCoordinates(90, 0, -90, 85.05112877980659),
+            serializer = new Serializer().initWithRequire(require),
+            serializedPosition = serializer.serializeObject(bounds);
+        expect(serializedPosition).not.toBeNull();
+    });
+
+    it("can deserialize", function (done) {
+        var bounds = BoundingBox.withCoordinates(90, 0, -90, 85.05113),
+            serializedBounds = new Serializer().initWithRequire(require).serializeObject(bounds);
+        new Deserializer().init(serializedBounds, require).deserializeObject().then(function (deserializedBounds) {
+            expect(deserializedBounds.xMin).toBe(90);
+            expect(deserializedBounds.yMin).toBe(0);
+            expect(deserializedBounds.xMax).toBe(-90);
+            expect(deserializedBounds.yMax).toBe(85.05113);
+            expect(deserializedBounds.equals(bounds)).toBe(true);
+            done();
+        });
+    });
 
 });
