@@ -16,6 +16,14 @@ var GeometryCollection = exports.GeometryCollection = Montage.specialize(/** @le
         }
     },
 
+    intersects: {
+        value: function (bounds) {
+            return this.geometries.some(function (childGeometry) {
+                return childGeometry.intersects(bounds);
+            });
+        }
+    },
+
     /**
      * Tests whether this geometry collection's geometries are equal to the
      * provided one.  The collection's are considered equal if the two coll-
