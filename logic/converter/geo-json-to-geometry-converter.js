@@ -54,7 +54,7 @@ exports.GeoJsonToGeometryConverter = Converter.specialize( /** @lends GeoJsonToG
         value: function (value) {
             var type = MONTAGE_CONSTRUCTOR_TYPE_MAP.get(value.constructor),
                 result = null;
-            
+
             if (type) {
                 GeoJson.prototype.projection = this.projection;
                 result = GeoJson.forId(type).revert(value);
@@ -62,7 +62,7 @@ exports.GeoJsonToGeometryConverter = Converter.specialize( /** @lends GeoJsonToG
             return result;
         }
     },
-    
+
     /**
      * @type {Projection} - a projection to use during the conversion process
      *                      to transform the coordinates to the specified
@@ -71,11 +71,11 @@ exports.GeoJsonToGeometryConverter = Converter.specialize( /** @lends GeoJsonToG
     projection: {
         value: undefined
     },
-    
+
     /**************************************************************************
      * Serialization
      */
-    
+
     serializeSelf: {
         value: function (serializer) {
             if (this.projection) {
@@ -83,7 +83,7 @@ exports.GeoJsonToGeometryConverter = Converter.specialize( /** @lends GeoJsonToG
             }
         }
     },
-    
+
     deserializeSelf: {
         value: function (deserializer) {
             var srid = deserializer.getProperty("projection");
@@ -99,7 +99,7 @@ exports.GeoJsonToGeometryConverter = Converter.specialize( /** @lends GeoJsonToG
             return exports.GeoJsonToGeometryConverter._instance;
         }
     },
-    
+
     _instance: {
         get: function () {
             if (!exports.GeoJsonToGeometryConverter.__instance) {
@@ -128,20 +128,60 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
     revert: {
         value: function (value) {}
     },
-    
+
+    _convertRing: {
+        value: function (ring, isExterior) {
+            var isWoundClockwise = this._isWoundClockwise(ring);
+            if (!isWoundClockwise && isExterior || isWoundClockwise && !isExterior) {
+                ring = ring.slice().reverse();
+            }
+            return ring;
+        }
+    },
+
+    _revertRing: {
+        value: function (ring, isExterior) {
+            var revertPositionFn = this._revertPosition.bind(this),
+                rawRing = ring.map(revertPositionFn),
+                isWoundClockwise = this._isWoundClockwise(rawRing);
+            if (isWoundClockwise && isExterior || !isWoundClockwise && !isExterior) {
+                rawRing = rawRing.reverse();
+            }
+            return rawRing;
+        }
+    },
+
     _revertPosition: {
         value: function (position) {
-            var coordinates = [position.longitude, position.latitude];
-    
+            var coordinates = [position.longitude, position.latitude],
+                altitude = position.altitude;
+
             if (this.projection) {
                 coordinates = this.projection.projectPoint(coordinates);
             }
-    
-            if (position.altitude) {
+
+            if (altitude) {
                 coordinates.push(altitude);
             }
-            
+
             return coordinates;
+        }
+    },
+
+    _isWoundClockwise: {
+        value: function (ring) {
+            var sum = 0,
+                i, j, n, p1, p2;
+            for (i = 0, n = ring.length; i < n; i += 1) {
+                j = i + 1;
+                if (j === n) {
+                    j = 0;
+                }
+                p1 = ring[i];
+                p2 = ring[j];
+                sum += (p2[0] - p1[0]) * (p2[1] + p1[1]);
+            }
+            return sum >= 0;
         }
     }
 
@@ -210,7 +250,7 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
                 return GeometryCollection.withGeometries(geometries);
             }
         },
-        
+
         revert: {
             value: function (value) {
                 return {
@@ -297,7 +337,9 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
     POLYGON: ["Polygon", {
         convert: {
             value: function (value) {
-                return Polygon.withCoordinates(value.coordinates, this.projection);
+                return Polygon.withCoordinates(value.coordinates.map(function (ring, index) {
+                    return this._convertRing(ring, index === 0);
+                }, this), this.projection);
             }
         },
 
@@ -305,8 +347,8 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
             value: function (value) {
                 return {
                     "type": "Polygon",
-                    "coordinates": value.coordinates.map(function (ring) {
-                        return ring.map(this._revertPosition.bind(this))
+                    "coordinates": value.coordinates.map(function (ring, index) {
+                        return this._revertRing(ring, index === 0);
                     }, this)
                 };
             }
@@ -316,7 +358,12 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
     MULTI_POLYGON: ["MultiPolygon", {
         convert: {
             value: function (value) {
-                return MultiPolygon.withCoordinates(value.coordinates, this.projection);
+                var polygons = value.coordinates.map(function (polygon) {
+                    return polygon.map(function (ring, index) {
+                        return this._convertRing(ring, index === 0);
+                    }, this);
+                }, this);
+                return MultiPolygon.withCoordinates(polygons, this.projection);
             }
         },
 
@@ -325,8 +372,8 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
                 return {
                     "type": "MultiPolygon",
                     "coordinates": value.coordinates.map(function (polygon) {
-                        return polygon.coordinates.map(function (ring) {
-                            return ring.map(this._revertPosition.bind(this));
+                        return polygon.coordinates.map(function (ring, index) {
+                            return this._revertRing(ring, index === 0);
                         }, this);
                     }, this)
                 };

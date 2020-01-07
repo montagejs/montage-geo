@@ -24,8 +24,19 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
 
     bounds: {
         value: function () {
-            var bounds = d3Geo.geoBounds(Polygon.GeoJsonConverter.revert(this));
+            var geojson = Polygon.GeoJsonConverter.revert(this),
+                inverted = this._invertRings(geojson),
+                bounds = d3Geo.geoBounds(inverted);
             return BoundingBox.withCoordinates(bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]);
+        }
+    },
+
+    _invertRings: {
+        value: function (geojson) {
+            geojson.coordinates = geojson.coordinates.map(function (ring) {
+                return ring.reverse();
+            });
+            return geojson;
         }
     },
 

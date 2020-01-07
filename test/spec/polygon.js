@@ -100,6 +100,51 @@ describe("A Polygon", function () {
         expect(Math.round(controller.perimeter / 1000)).toBe(6604);
     });
 
+    it("can calculate the bounds of a small polygon", function () {
+        // {minX: -121.9464, minY: 37.3368, maxX: -121.8989, maxY: 37.3792}
+        var polygon = Polygon.withCoordinates([
+                [[-121.9464,37.3368], [-121.9464,37.3792], [-121.8989,37.3792], [-121.8989,37.3368], [-121.9464,37.3368]]
+            ]),
+            bounds = polygon.bounds();
+        expect(bounds.xMin).toBe(-121.9464);
+        expect(bounds.yMin).toBe(37.3368);
+        expect(bounds.xMax).toBe(-121.8989);
+        expect(bounds.yMax).toBe(37.3792);
+
+    });
+    it("can calculate the bounds of a small office", function () {
+        var ring = [
+                [-121.9435,37.3775], [-121.9464,37.3626], [-121.9369,37.353], [-121.9281,37.3393], [-121.9066,37.3368],
+                [-121.8989,37.3416], [-121.9016,37.3521], [-121.9043,37.3623], [-121.909,37.3736], [-121.9174,37.3786],
+                [-121.9315,37.3792], [-121.9435,37.3775]
+            ].reverse(),
+            polygon = Polygon.withCoordinates([ring]),
+            bounds = polygon.bounds(),
+            woFn = function (ring) {
+                var sum = 0,
+                    i, j, n, p1, p2;
+                for (i = 0, n = ring.length; i < n; i += 1) {
+                    j = i + 1;
+                    if (j === n) {
+                        j = 0;
+                    }
+                    p1 = ring[i];
+                    p2 = ring[j];
+                    sum += (p2[0] - p1[0]) * (p2[1] + p1[1]);
+                }
+                return sum >= 0;
+            };
+
+        expect(woFn(ring)).toBe(true);
+
+        expect(bounds.xMin).toBe(-121.9464);
+        expect(bounds.yMin).toBe(37.3368);
+        expect(bounds.xMax).toBe(-121.8989);
+        expect(bounds.yMax).toBe(37.3792);
+
+    });
+
+
     it("can properly update its bounds.", function () {
         var p1 = Polygon.withCoordinates([
                 [[0,0], [0,10], [10,10], [10,0], [0,0]]

@@ -1,6 +1,5 @@
 var HALF_PI = Math.PI / 180.0,
     Position,
-    Projection = require("logic/model/projection").Projection,
     Uuid = require("montage/core/uuid").Uuid,
     DASH_REG_EX = /-/g,
     IDENTIFIER_PREFIX = "P";
@@ -375,6 +374,12 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
 
 Object.defineProperties(exports.Position, /** @lends Position */ {
 
+    Projection: {
+        get: function () {
+            return require("logic/model/projection").Projection;
+        }
+    },
+
     EARTH_RADIUS: {
         value: 6371e3
     },
@@ -404,7 +409,8 @@ Object.defineProperties(exports.Position, /** @lends Position */ {
      */
     withCoordinates: {
         value: function () {
-            var length = arguments.length, args, self, projected, last;
+            var Projection = exports.Position.Projection,
+                length = arguments.length, args, self, projected, last;
             if (length && Array.isArray((args = arguments[0]))) {
                 if (arguments.length === 2 && arguments[1] !== undefined) {
                     args = args.slice();
