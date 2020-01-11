@@ -191,13 +191,13 @@ describe("A FeatureCollection", function () {
 
         Object.defineProperty(collection, "handleRangeChange", {
             value: function () {
-                spy.apply(window, ["handleRangeChange"].concat(Array.from(arguments)));
+                spy.apply(global, ["handleRangeChange"].concat(Array.from(arguments)));
                 return originalHandleRangeChange.apply(collection, arguments);
             },
         });
         Object.defineProperty(collection, "remove", {
             value: function () {
-                spy.apply(window, ["remove"].concat(Array.from(arguments)));
+                spy.apply(global, ["remove"].concat(Array.from(arguments)));
                 return originalRemove.apply(collection, arguments);
             }
         });
