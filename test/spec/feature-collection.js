@@ -118,6 +118,38 @@ describe("A FeatureCollection", function () {
         expect(collection.get(43)).toBe(undefined);
     });
 
+    it("can manage internal range change listener", function () {
+        var collection = FeatureCollection.withFeatures(),
+            lahainaCopy = Feature.withGeoJSON({
+                id: 42,
+                properties: {
+                    name: "Lahaina Copy"
+                },
+                geometry: {
+                    type: "Point",
+                    coordinates: [-156.6825, 20.8783]
+                }
+            }),
+            spy = jasmine.createSpy(),
+            originalHandleRangeChange = collection.handleRangeChange.bind(collection);
+
+        Object.defineProperty(collection, "handleRangeChange", {
+            value: function () {
+                spy.apply(window, arguments);
+                return originalHandleRangeChange.apply(collection, arguments);
+            },
+        });
+        collection.add(lahaina); //add new feature
+        expect(collection.size).toBe(1);
+        expect(collection.has(lahaina)).toBe(true);
+        collection.add(lahaina); //add equivalent feature
+        collection.add(lahainaCopy); //add duplicate feature
+        collection.add(kahului); //add new feature
+        collection.remove(lahaina) //remove feature not in the collection
+        collection.remove(lahainaCopy, kahului); //remove remaining features
+        expect(spy.calls.all().length).toBe(0);
+    });
+
     it("can register features with range changes", function () {
         var collection = FeatureCollection.withFeatures();
         collection.features.splice(0, Infinity, lahaina, kahului);
@@ -151,13 +183,37 @@ describe("A FeatureCollection", function () {
                     type: "Point",
                     coordinates: [-156.6825, 20.8783]
                 }
-            });
+            }),
+            originalHandleRangeChange = collection.handleRangeChange.bind(collection),
+            originalRemove = collection.remove.bind(collection),
+            spy = jasmine.createSpy(),
+            spiedCalls;
+
+        Object.defineProperty(collection, "handleRangeChange", {
+            value: function () {
+                spy.apply(window, ["handleRangeChange"].concat(Array.from(arguments)));
+                return originalHandleRangeChange.apply(collection, arguments);
+            },
+        });
+        Object.defineProperty(collection, "remove", {
+            value: function () {
+                spy.apply(window, ["remove"].concat(Array.from(arguments)));
+                return originalRemove.apply(collection, arguments);
+            }
+        });
         collection.add(lahaina, lahainaCopy);
         expect(collection.size).toBe(1);
         expect(collection.has(lahainaCopy)).toBe(true);
         expect(collection.has(lahaina)).toBe(false);
         expect(collection.get(42)).toBe(lahainaCopy);
+        collection.add(lahainaCopy);
+        spiedCalls = spy.calls.all().map(function (call) { return call.args });
+        expect(spiedCalls.length).toBe(1); // call remove() once for initial 'collection.add(lahaina, lahainaCopy)'
+        expect(spiedCalls[0][0]).toBe("remove");
+        expect(spiedCalls[0][1]).toBe(lahaina);
     });
+
+
 
     it("can clear the collection", function () {
         var collection = FeatureCollection.withFeatures();

@@ -17,7 +17,7 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
     constructor: {
         value: function FeatureCollection() {
             this._features = [];
-            this._rangeChangeCanceler = this._features.addRangeChangeListener(this);
+            this._listenForRangeChanges();
         }
     },
 
@@ -38,6 +38,23 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
 
     _rangeChangeCanceler: {
         value: undefined
+    },
+
+    _listenForRangeChanges: {
+        value: function () {
+            if (!this._rangeChangeCanceler) {
+                this._rangeChangeCanceler = this._features.addRangeChangeListener(this);
+            }
+        }
+    },
+
+    _cancelRangeChangeListener: {
+        value: function () {
+            if (this._rangeChangeCanceler) {
+                this._rangeChangeCanceler();
+            }
+            this._rangeChangeCanceler = null;
+        }
     },
 
     /*****************************************************
@@ -111,10 +128,10 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
     add: {
         value: function () {
             var objectsToAdd = Array.prototype.slice.call(arguments);
-            this._rangeChangeCanceler();
+            this._cancelRangeChangeListener();
             this.features.splice.apply(this.features, [this.features.length, 0].concat(objectsToAdd));
             this._registerFeatures.apply(this, objectsToAdd);
-            this._rangeChangeCanceler = this._features.addRangeChangeListener(this);
+            this._listenForRangeChanges();
         }
     },
 
@@ -128,13 +145,14 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
             var objectsToRemove = Array.prototype.slice.call(arguments),
                 featureSet = new Set(this.features),
                 i, length, index;
-            this._rangeChangeCanceler();
+
+            this._cancelRangeChangeListener();
             for (i = 0, length = objectsToRemove.length; i < length; i += 1) {
                 featureSet.delete(objectsToRemove[i]);
             }
             this.features.splice.apply(this.features, [0, Infinity].concat(Array.from(featureSet)));
             this._deregisterFeatures.apply(this, objectsToRemove);
-            this._rangeChangeCanceler = this._features.addRangeChangeListener(this);
+            this._listenForRangeChanges();
         }
     },
 
@@ -339,9 +357,10 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
     },
 
     _deregisterDuplicate: {
-        value: function (id) {
-            var duplicate = this._featuresMap.get(id);
-            if (duplicate) {
+        value: function (feature) {
+            var id = feature.id,
+                duplicate = this._featuresMap.get(id);
+            if (duplicate && duplicate !== feature) {
                 this.remove(duplicate);
                 // for some reason remove will not trigger the range change listener
                 // in this case?
@@ -365,7 +384,7 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
         value: function (feature) {
             if (!this._featuresSet.has(feature)) this._featuresSet.add(feature);
             if (feature.id) {
-                this._deregisterDuplicate(feature.id);
+                this._deregisterDuplicate(feature);
                 this._featuresMap.set(feature.id, feature);
                 this._addPropertyChangeObservers(feature);
             }
