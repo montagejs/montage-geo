@@ -24,6 +24,19 @@ var GeometryCollection = exports.GeometryCollection = Montage.specialize(/** @le
         }
     },
 
+    bounds: {
+        value: function () {
+            return this.geometries.reduce(function (aggregator, geometry) {
+                if (aggregator) {
+                    aggregator.extend(geometry.bounds());
+                } else {
+                    aggregator = geometry.bounds();
+                }
+                return aggregator;
+            }, null);
+        }
+    },
+
     /**
      * Tests whether this geometry collection's geometries are equal to the
      * provided one.  The collection's are considered equal if the two coll-
