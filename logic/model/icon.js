@@ -60,6 +60,16 @@ exports.Icon.prototype = Object.create({}, /** @lends Icon.prototype */ {
      * The dimensions used to display this icon.
      * @type {Size}
      */
+    scaledSize: {
+        enumerable: true,
+        writable: true,
+        value: undefined
+    },
+
+    /**
+     * The physical dimensions of this icon.
+     * @type {Size}
+     */
     size: {
         enumerable: true,
         writable: true,
@@ -115,6 +125,7 @@ exports.Icon.prototype = Object.create({}, /** @lends Icon.prototype */ {
         value: function (serializer) {
             serializer.setProperty("identifier", this.anchor);
             serializer.setProperty("anchor", this.anchor);
+            serializer.setProperty("scaledSize", this.scaledSize);
             serializer.setProperty("size", this.size);
             serializer.setProperty("symbol", this.symbol);
         }
@@ -124,6 +135,7 @@ exports.Icon.prototype = Object.create({}, /** @lends Icon.prototype */ {
         value: function (deserializer) {
             this.identifier = deserializer.getProperty("identifier");
             this.anchor = deserializer.getProperty("anchor");
+            this.scaledSize = deserializer.getProperty("scaledSize");
             this.size = deserializer.getProperty("size");
             this.symbol = deserializer.getProperty("symbol");
         }
@@ -143,15 +155,17 @@ Object.defineProperties(exports.Icon, /** @lends Icon **/ {
      * The canonical way of creating an Icon.
      * @param {string} - the dataUrl that symbolizes the Icon.
      * @param {Point2D} - the offset to be used when centering the icon's symbol.
-     * @param {Size} - The dimensions used to display this icon.
+     * @param {Size} - The pixel dimensions of this icon.
+     * @param {Size?} - The dimensions used to display this icon.
      * @returns {Icon} - the newly created icon.
      */
     withSymbolAnchorAndSize: {
-        value: function (symbol, anchor, size) {
+        value: function (symbol, anchor, size, scaledSize) {
             var icon = new this();
             icon.symbol = symbol;
             icon.anchor = anchor;
             icon.size = size;
+            icon.scaledSize = scaledSize;
             return icon;
         }
     }

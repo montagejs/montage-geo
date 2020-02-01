@@ -2,6 +2,7 @@ module.exports = require("montage-testing").run(require, [
     "spec/bounding-box",
     "spec/circle",
     "spec/esri-json-to-geometry-converter",
+    "spec/esri-symbol-to-style-converter",
     "spec/feature",
     "spec/feature-collection",
     "spec/geohash",
@@ -19,6 +20,7 @@ module.exports = require("montage-testing").run(require, [
     "spec/polygon",
     "spec/position",
     "spec/rect",
+    "spec/renderer",
     "spec/size",
     "spec/style",
     "spec/topojson-to-geometry-converter"
