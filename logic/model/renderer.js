@@ -1,5 +1,5 @@
-var Montage = require("montage").Montage,
-    Scope = require("frb/scope");
+var Converter = require("montage/core/converter/converter").Converter,
+    deprecate = require("montage/core/deprecate");
 
 /**
  * This super class contains logic and methods that are common to all renderers.
@@ -7,7 +7,7 @@ var Montage = require("montage").Montage,
  * @class Renderer
  * @extends Montage
  */
-var Renderer = exports.Renderer = Montage.specialize( /** @lends Renderer.prototype */ {
+var Renderer = exports.Renderer = Converter.specialize( /** @lends Renderer.prototype */ {
 
     /***************************************************************************
      * Properties
@@ -30,7 +30,7 @@ var Renderer = exports.Renderer = Montage.specialize( /** @lends Renderer.protot
      * @param {Feature} - feature
      * @returns {Style}
      */
-    render: {
+    convert: {
         value: function (feature) {
             var entries = this.entries,
                 properties = feature.properties,
@@ -44,6 +44,18 @@ var Renderer = exports.Renderer = Montage.specialize( /** @lends Renderer.protot
             }
             return entry && entry.style;
         }
+    },
+
+    /**
+     * Returns the style for the provided feature.
+     * @param {Feature} - feature
+     * @deprecated
+     * @returns {Style}
+     */
+    render: {
+        value: deprecate.deprecateMethod(void 0, function (feature) {
+            return this.convert(feature);
+        }, "render", "convert")
     }
 
 }, {

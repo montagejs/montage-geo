@@ -20,6 +20,19 @@ var StyleEntry = exports.StyleEntry = Montage.specialize(/** @lends DefaultRende
     },
 
     /**
+     * The key to use for localization purposes.
+     * @type {string}
+     */
+    localizationKey: {
+        get: function () {
+            if (!this._localizationKey) {
+                this._localizationKey = "montage-geo.logic.model.style-entry." + this.label;
+            }
+            return this._localizationKey;
+        }
+    },
+
+    /**
      * The optional criteria to use when determining when
      * selecting an entry for a given feature.
      * @type {object}

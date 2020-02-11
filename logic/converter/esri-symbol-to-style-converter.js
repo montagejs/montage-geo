@@ -1,4 +1,5 @@
 var Converter = require("montage/core/converter/converter").Converter,
+    Color = require("logic/model/color").Color,
     Enumeration = require("montage/data/model/enumeration").Enumeration,
     Icon = require("logic/model/icon").Icon,
     Point2D = require("logic/model/point-2d").Point2D,
@@ -34,55 +35,6 @@ exports.EsriSymbolToStyleConverter = Converter.specialize( /** @lends EsriSymbol
     revert: {
         value: function (value) {
             return void 0;
-        }
-    }
-
-});
-
-var Color = new function Color() {};
-Object.defineProperties(Color, /** @lends Color */ {
-
-    colorToRgba: {
-        value: function (color) {
-            var opacity,
-                copy = Array.isArray(color) ? color.slice() : [0, 0, 0, 0];
-            opacity = copy[3] / 255;
-            copy.splice(3, 1, opacity);
-            return "rgba(" + copy.join(",") + ")";
-        }
-    },
-
-    hexToRGB: {
-        value: function (hex) {
-            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result ? {
-                r: parseInt(result[1], 16),
-                g: parseInt(result[2], 16),
-                b: parseInt(result[3], 16)
-            } : null;
-        }
-    },
-
-    rgbToHex: {
-        value: function (rgb) {
-            var hex = ["#"],
-                i, n;
-            for (i = 0, n = rgb ? 3 : 0; i < n; i++) {
-                var component = rgb[i].toString(16);
-                component = component.length == 1 ? "0" + component : component;
-                hex[i + 1] = component;
-            }
-            return hex.join("");
-        }
-    },
-
-    rgbaToHex: {
-        value: function (rgb) {
-            rgb = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
-            return (rgb && rgb.length === 4) ? "#" +
-                ("0" + parseInt(rgb[1], 10).toString(16)).slice(-2) +
-                ("0" + parseInt(rgb[2], 10).toString(16)).slice(-2) +
-                ("0" + parseInt(rgb[3], 10).toString(16)).slice(-2) : '';
         }
     }
 
@@ -339,9 +291,9 @@ var MarkerIcon = Enumeration.specialize(/** @lends MarkerIcon */ "id", {
                     url, size, anchor;
 
                 context.clearRect(0, 0, canvas.width, canvas.height);
-                canvas.width = diameter;
-                canvas.height = diameter;
-                context.arc(radius, radius, radius, 0, 2 * Math.PI, false);
+                canvas.width = diameter + 5;
+                canvas.height = diameter + 5;
+                context.arc(radius + 2.5, radius + 2.5, radius, 0, 2 * Math.PI, false);
                 context.closePath();
                 context.lineWidth = outlineWidth;
                 context.fillStyle = Color.rgbToHex(symbol.color);
