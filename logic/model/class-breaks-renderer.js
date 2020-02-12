@@ -34,9 +34,9 @@ exports.ClassBreaksRenderer = Renderer.specialize(/** @lends ClassBreaksRenderer
 }, {
 
     withArguments: {
-        value: function (field, minValue, entries, transparency) {
+        value: function (field, minValue, classBreaks, transparency) {
             var renderer = new this(),
-                entries = entries || [],
+                entries = classBreaks || [],
                 converter = this._styleConverter,
                 stylePromises = entries.map(function (entry) {
                     return converter.convert(entry["symbol"]);

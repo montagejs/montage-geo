@@ -1,16 +1,21 @@
 var IDENTIFIER_PREFIX = "S",
     DASH_REG_EX = /-/g,
+    Enum = require("montage/core/enum").Enum,
     Uuid = require("montage/core/uuid").Uuid;
+
+var StyleType = exports.StyleType = new Enum().initWithMembers("POINT", "LINE_STRING", "POLYGON");
 
 /**
  *
- * A Style object represents a set of drawing instructions for displaying geometry on a map.
+ * A Style object represents a set of drawing instructions for displaying geometry on a
+ * map.
  *
  * @class
  * @extends Object
  */
 
-var Style = exports.Style = function Style() {
+var Style = exports.Style = function Style(type) {
+    this._type = type;
 };
 
 exports.Style.prototype = Object.create({}, /** @lends Style.prototype */ {
@@ -101,6 +106,16 @@ exports.Style.prototype = Object.create({}, /** @lends Style.prototype */ {
         enumerable: true,
         writable: true,
         value: 1
+    },
+
+    /**
+     * The type of geometries that can be symbolized with this style.
+     * @type {StyleType}
+     */
+    type: {
+        get: function () {
+            return this._type;
+        }
     },
 
     /*****************************************************
@@ -195,24 +210,24 @@ Object.defineProperties(exports.Style, /** @lends Style.prototype */ {
         value: function () {
             var count = arguments.length;
 
-            return  count === 1 ?   exports.Style._makeMarkerStyle(arguments[0]) :
-                    count === 3 ?   exports.Style._makeLineStyle.apply(this, arguments) :
+            return  count === 1 ?   exports.Style._makePointStyle(arguments[0]) :
+                    count === 3 ?   exports.Style._makeLineStringStyle.apply(this, arguments) :
                     count === 5 ?   exports.Style._makePolygonStyle.apply(this, arguments) :
                                     null;
         }
     },
 
-    _makeMarkerStyle: {
+    _makePointStyle: {
         value: function (icon) {
-            var style = new this();
+            var style = new this(StyleType.POINT);
             style.icon = icon;
             return style;
         }
     },
 
-    _makeLineStyle: {
+    _makeLineStringStyle: {
         value: function () {
-            var style = new this();
+            var style = new this(StyleType.LINE_STRING);
             style.strokeColor = arguments[0];
             style.strokeOpacity = arguments[1];
             style.strokeWeight = arguments[2];
@@ -222,7 +237,7 @@ Object.defineProperties(exports.Style, /** @lends Style.prototype */ {
 
     _makePolygonStyle: {
         value: function () {
-            var style = new this();
+            var style = new this(StyleType.POLYGON);
             style.fillColor = arguments[0];
             style.fillOpacity = arguments[1];
             style.strokeColor = arguments[2];

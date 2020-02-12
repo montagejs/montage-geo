@@ -271,8 +271,12 @@ var MarkerIcon = Enumeration.specialize(/** @lends MarkerIcon */ "id", {
                     .then(function (newUrl) {
                         var anchor = Point2D.withCoordinates(width / 2, height / 2),
                             scaledSize = Size.withHeightAndWidth(height, width),
-                            size = Size.withHeightAndWidth(height * 2, width * 2);
-                        return Icon.withSymbolAnchorAndSize(newUrl, anchor, size, scaledSize);
+                            size = Size.withHeightAndWidth(height * 2, width * 2),
+                            icon = Icon.withSymbolAnchorAndSize(newUrl, anchor, size, scaledSize);
+                        icon.properties = {
+                            src: symbol.url
+                        };
+                        return icon;
                     });
             }
         }

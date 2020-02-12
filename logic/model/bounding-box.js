@@ -1,5 +1,4 @@
 var Montage = require("montage/core/core").Montage,
-    GeometryCollection = require("logic/model/geometry-collection").GeometryCollection,
     GeohashCollection = require("logic/model/geohash-collection").GeohashCollection,
     Uuid = require("montage/core/uuid").Uuid,
     DASH_REG_EX = /-/g,

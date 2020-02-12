@@ -11,6 +11,7 @@ module.exports = require("montage-testing").run(require, [
     "spec/geometry",
     "spec/geometry-collection",
     "spec/icon",
+    "spec/kml-style-to-style-converter",
     "spec/line-string",
     "spec/multi-line-string",
     "spec/multi-point",

@@ -57,6 +57,16 @@ exports.Icon.prototype = Object.create({}, /** @lends Icon.prototype */ {
     },
 
     /**
+     * A bucket that can be used to hold additional properties of the icon.
+     * @type {Point2D}
+     */
+    properties: {
+        enumerable: true,
+        writable: true,
+        value: undefined
+    },
+
+    /**
      * The dimensions used to display this icon.
      * @type {Size}
      */
@@ -125,6 +135,7 @@ exports.Icon.prototype = Object.create({}, /** @lends Icon.prototype */ {
         value: function (serializer) {
             serializer.setProperty("identifier", this.anchor);
             serializer.setProperty("anchor", this.anchor);
+            serializer.setProperty("properties", this.properties);
             serializer.setProperty("scaledSize", this.scaledSize);
             serializer.setProperty("size", this.size);
             serializer.setProperty("symbol", this.symbol);
@@ -135,6 +146,7 @@ exports.Icon.prototype = Object.create({}, /** @lends Icon.prototype */ {
         value: function (deserializer) {
             this.identifier = deserializer.getProperty("identifier");
             this.anchor = deserializer.getProperty("anchor");
+            this.properties = deserializer.getProperty("properties");
             this.scaledSize = deserializer.getProperty("scaledSize");
             this.size = deserializer.getProperty("size");
             this.symbol = deserializer.getProperty("symbol");
