@@ -297,6 +297,7 @@ var MarkerIcon = Enumeration.specialize(/** @lends MarkerIcon */ "id", {
                 context.clearRect(0, 0, canvas.width, canvas.height);
                 canvas.width = diameter + 5;
                 canvas.height = diameter + 5;
+                context.beginPath();
                 context.arc(radius + 2.5, radius + 2.5, radius, 0, 2 * Math.PI, false);
                 context.closePath();
                 context.lineWidth = outlineWidth;
