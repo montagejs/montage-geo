@@ -62,6 +62,14 @@ exports.Feature = Montage.specialize(/** @lends Feature.prototype */ {
     },
 
     /**
+     * The style to use when symbolizing this feature onto a map.
+     * @type {Style}
+     */
+    style: {
+        value: undefined
+    },
+
+    /**
      * Tests to see if this feature's geometry intersects the provided bounds.
      * @method
      * @param {BoundingBox} bounds - The bounds to test for intersection
