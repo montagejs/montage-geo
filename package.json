@@ -34,7 +34,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/montagestudio/montage-geo.git"
+    "url": "git+https://github.com/montagejs/montage-geo.git"
   },
   "keywords": [
     "MontageJS",
@@ -47,7 +47,7 @@
   ],
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/montagestudio/montage-geo/issues"
+    "url": "https://github.com/montagejs/montage-geo/issues"
   },
-  "homepage": "https://github.com/montagestudio/montage-geo#readme"
+  "homepage": "https://github.com/montagejs/montage-geo#readme"
 }
