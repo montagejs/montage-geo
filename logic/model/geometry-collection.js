@@ -54,6 +54,16 @@ var GeometryCollection = exports.GeometryCollection = Montage.specialize(/** @le
         }
     },
 
+    clone: {
+        value: function () {
+            return GeometryCollection.withGeometries(
+                this.geometries.map(function (geometry) {
+                    return geometry.clone();
+                })
+            );
+        }
+    },
+
     _compare: {
         value: function (a, b) {
             var isEqual = true, i, n;

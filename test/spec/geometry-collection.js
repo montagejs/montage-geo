@@ -44,4 +44,16 @@ describe("A GeometryCollection", function () {
         expect(bounds.yMax).toBe(10);
     });
 
+    it("can be cloned", function () {
+        var point1 = Point.withCoordinates([0, 0]),
+            point2 = Point.withCoordinates([10, 10]),
+            geometries = [point1, point2],
+            collection = GeometryCollection.withGeometries(geometries),
+            clone = collection.clone();
+
+        expect(clone.geometries.length).toBe(2);
+        expect(collection.equals(clone)).toBe(true);
+
+    });
+
 });
