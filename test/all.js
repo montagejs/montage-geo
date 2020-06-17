@@ -1,4 +1,5 @@
 module.exports = require("montage-testing").run(require, [
+    "spec/wkt-to-geometry-converter",
     "spec/bounding-box",
     "spec/circle",
     "spec/esri-json-to-geometry-converter",
