@@ -161,8 +161,10 @@ var MultiPoint = exports.MultiPoint = Geometry.specialize(/** @lends MultiPoint.
         value: function (coordinates, projection) {
             var self = new this();
             self.coordinates = coordinates.map(function (coordinate) {
-                var altitude = coordinate.length > 2 ? coordinate[2] : 0;
-                return Position.withCoordinates(coordinate[0], coordinate[1], altitude, projection);
+                //Benoit: don't initialize altitude if we don't have a valid number
+                var altitude = coordinate.length > 2 && !isNaN(Number(coordinate[2])) ? coordinate[2] : undefined,
+                    measure = coordinate.length > 3 && !isNaN(Number(coordinate[3])) ? coordinate[3] : undefined;
+                return Position.withCoordinates(coordinate[0], coordinate[1], altitude, measure, projection);
             });
             return self;
         }

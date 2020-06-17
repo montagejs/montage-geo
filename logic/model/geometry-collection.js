@@ -72,7 +72,19 @@ var GeometryCollection = exports.GeometryCollection = Montage.specialize(/** @le
             }
             return isEqual;
         }
+    },
+    forEach: {
+        value: function (callback /*, thisp*/) {
+
+            var thisp = arguments[1]
+            geometries = this.geometries;
+
+            for(var i=0, countI = geometries.length;(i < countI); i++) {
+                geometries[i].forEach(callback,thisp);
+            }
+        }
     }
+
 
 }, {/** @lends GeometryCollection.prototype */
 

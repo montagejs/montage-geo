@@ -21,10 +21,14 @@ var HALF_PI = Math.PI / 180.0,
 Position = exports.Position = function Position() {
 };
 
+
+Position.precision = 5;
+
 var Defaults = {
     longitude: 0,
     latitude: 0,
-    altitude: 0
+    altitude: 0,
+    measure: undefined
 };
 
 exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ {
@@ -84,7 +88,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
             return this._latitude;
         },
         set: function (value) {
-            this._latitude = this._round(value, 5);
+            this._latitude = this._round(value, Position.precision);
         }
     },
 
@@ -104,21 +108,50 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
             return this._longitude;
         },
         set: function (value) {
-            this._longitude = this._round(value, 5);
+            this._longitude = this._round(value, Position.precision);
         }
     },
+
+    /**
+     * A measure at position's longitude, latitude, altitude.
+     * Added to support WKT capabilities
+     * @type {number}
+     */
+    measure: {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: undefined
+    },
+
+    /**
+     * A more general naming for measure.
+     * Added to support WKT capabilities
+     * @type {number}
+     */
+
+    value: {
+        configurable: true,
+        enumerable: true,
+        get: function () {
+            return this.measure;
+        }
+    },
+
+
 
     equals: {
         value: function (other) {
             return  this.altitude === other.altitude &&
                     this.longitude === other.longitude &&
-                    this.latitude === other.latitude;
+                    this.latitude === other.latitude &&
+                    this.measure === other.measure;
         }
     },
 
     _round: {
         value: function (value) {
-            return Number(value.toFixed(5));
+            return Number(value.toFixed(Position.precision));
         }
     },
 
@@ -127,7 +160,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
      */
 
     serializableProperties: {
-        value: ["altitude", "latitude", "longitude"]
+        value: ["altitude", "latitude", "longitude", "measure"]
     },
 
     serializeSelf: {
@@ -136,6 +169,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
             this._setPropertyWithDefaults(serializer, "longitude", this.longitude);
             this._setPropertyWithDefaults(serializer, "latitude", this.latitude);
             this._setPropertyWithDefaults(serializer, "altitude", this.altitude);
+            this._setPropertyWithDefaults(serializer, "measure", this.measure);
         }
     },
 
@@ -145,6 +179,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
             this.longitude = this._getPropertyWithDefaults(deserializer, "longitude");
             this.latitude = this._getPropertyWithDefaults(deserializer, "latitude");
             this.altitude = this._getPropertyWithDefaults(deserializer, "altitude");
+            this.measure = this._getPropertyWithDefaults(deserializer, "measure");
         }
     },
 
@@ -229,8 +264,8 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
             lambdaTwo = exports.Position.toDegrees(lambdaTwo);
             thetaTwo = exports.Position.toDegrees(thetaTwo);
 
-            lambdaTwo = parseFloat(lambdaTwo.toFixed(5));
-            thetaTwo = parseFloat(thetaTwo.toFixed(5));
+            lambdaTwo = parseFloat(lambdaTwo.toFixed(Position.precision));
+            thetaTwo = parseFloat(thetaTwo.toFixed(Position.precision));
 
             return exports.Position.withCoordinates(lambdaTwo, thetaTwo);
         }
@@ -368,6 +403,24 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
         value: function () {
             return exports.Position.withCoordinates(this.longitude, this.latitude, this.altitude);
         }
+    },
+
+    forEach: {
+        value: function (callback /*, thisp*/) {
+            var thisp = arguments[1];
+            callback.call(thisp, this.longitude);
+            callback.call(thisp, this.latitude);
+
+            //We don't include values that't aren't defined.
+            //So the a resultinf array wouldn't have a "hole" with an undefined value
+            //in a XYM layout for example.
+            if(this.hasOwnProperty("altitude")) {
+                callback.call(thisp, this.altitude);
+            }
+            if(this.measure) {
+                callback.call(thisp, this.measure);
+            }
+        }
     }
 
 });
@@ -428,6 +481,10 @@ Object.defineProperties(exports.Position, /** @lends Position */ {
                     if (arguments[2] !== last && arguments[2]) {
                         self.altitude = arguments[2];
                     }
+                    if (arguments[3] !== last && arguments[3]) {
+                        self.measure = arguments[3];
+                    }
+
                 }
             } else {
                 if (length > 0) self.longitude = arguments[0];
