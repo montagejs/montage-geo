@@ -699,17 +699,17 @@ WKTParserProto._parseGeometry = function() {
 exports.WktToGeometryConverter = Converter.specialize( /** @lends WktToGeometryConverter# */ {
     serializeSelf: {
         value: function (serializer) {
-            this._setPropertyWithDefaults(serializer, "inputSRID", this.inputSRID);
-            this._setPropertyWithDefaults(serializer, "outputSRID", this.outputSRID);
-            this._setPropertyWithDefaults(serializer, "convertGeometryLayout", this.convertGeometryLayout);
+            this._setPropertyWithDefaults(serializer, "convertingSRID", this.convertingSRID);
+            this._setPropertyWithDefaults(serializer, "revertingSRID", this.revertingSRID);
+            this._setPropertyWithDefaults(serializer, "convertingGeometryLayout", this.convertingGeometryLayout);
         }
     },
 
     deserializeSelf: {
         value: function (deserializer) {
-            this.inputSRID = this._getPropertyWithDefaults(deserializer, "inputSRID");
-            this.outputSRID = this._getPropertyWithDefaults(deserializer, "outputSRID");
-            this.convertGeometryLayout = this._getPropertyWithDefaults(deserializer, "convertGeometryLayout");
+            this.convertingSRID = this._getPropertyWithDefaults(deserializer, "convertingSRID");
+            this.revertingSRID = this._getPropertyWithDefaults(deserializer, "revertingSRID");
+            this.convertingGeometryLayout = this._getPropertyWithDefaults(deserializer, "convertingGeometryLayout");
         }
     },
 
@@ -727,35 +727,71 @@ exports.WktToGeometryConverter = Converter.specialize( /** @lends WktToGeometryC
         }
     },
 
-    inputSRID: {
+    /**
+     * The SRID of WKT String being converted to a geometry.
+     * As of now, montage-geo is coded to only handle SRID 4326,
+     *
+     * and therefore assumes data is coming in that SRID as well.
+     *
+     * This is why both convertingSRID and revertingSRID are set to 4326
+     *
+     * If that changes in the future, the converter will need to evolve
+     * to handle the conversion between convertingSRID and revertingSRID,
+     * and vice-versa.
+     *
+     * @property { String } - revertingGeometryLayout
+     *
+     * defaults to GeometryLayout.XYZM;
+     */
+    convertingSRID: {
         value: "4326"
     },
-    outputSRID: {
+    revertingSRID: {
         value: "4326"
     },
 
-    convertGeometryLayout: {
+    /**
+     * The Geometry Layout of WKT String being converted to a geometry.
+     * The converter also dynamically introspect what is actually there and
+     * does some checking to avoid situations where data's Geometry Layout
+     * wouldn't match the value of this property if set. If left undefined,
+     * no check is made.
+     *
+     * @property { String } - revertingGeometryLayout
+     *
+     * defaults to GeometryLayout.XYZM;
+     */
+    convertingGeometryLayout: {
         value: undefined
     },
 
-    revertGeometryLayout: {
+     /**
+     * The Geometry Layout of a Geometry reverted to a WKT String
+     * Montage geo Geometries know how to deal with XYZM, so not expecting to be changed
+     *
+     * @property { String } - revertingGeometryLayout
+     *
+     * defaults to GeometryLayout.XYZM;
+     */
+
+    revertingGeometryLayout: {
         value: GeometryLayout.XYZM
     },
 
-    __convertProjection: {
+    __convertingProjection: {
         value: undefined
     },
 
 
-    _convertProjection: {
+    _convertingProjection: {
         get: function () {
-            return this.__convertProjection || (this.__convertProjection = (this.inputSRID ? Projection.forSrid(this.inputSRID) : null));
+            return this.__convertingProjection || (this.__convertingProjection = (this.convertingSRID ? Projection.forSrid(this.convertingSRID) : null));
         }
     },
 
-    _revertProjection: {
+    _revertingProjection: {
         get: function () {
-            return this.outputSRID ? Projection.forSrid(this.outputSRID) : null;
+            return this.revertingSRID ? Projection.forSrid(this.revertingSRID) : null;
         }
     },
 
@@ -782,26 +818,26 @@ exports.WktToGeometryConverter = Converter.specialize( /** @lends WktToGeometryC
     convert: {
         value: function (wktString) {
             var srid,
-                myInputSRID = this.inputSRID,
+                myConvertingSRID = this.convertingSRID,
                 wkt,
                 match = wktString.match(this._SRID_Regex),
                 startIndex,
                 geometry;
             if (match) {
-                //this.inputSRID = srid = parseInt(match[1], 10);
+                //this.convertingSRID = srid = parseInt(match[1], 10);
                 srid = match[1];
                 startIndex = match[0].length - 1;
                 //wkt = wktString.substring(match[0].length);
                 wkt = wktString;
 
                 //If they don't match, shall we convert? Raise?
-                if(myInputSRID) {
-                    if(srid && myInputSRID !== srid) {
-                        console.warn("SRID embedded in WKT string ["+srid+"] doesn't match this.inputSRID ["+ myInputSRID +"]");
+                if(myConvertingSRID) {
+                    if(srid && myConvertingSRID !== srid) {
+                        console.warn("SRID embedded in WKT string ["+srid+"] doesn't match this.convertingSRID ["+ myConvertingSRID +"]");
                     }
                 } else if(srid) {
-                    //We got no constraint on our inputSRID, we adopt the ones from data.
-                    this.inputSRID = srid;
+                    //We got no constraint on our convertingSRID, we adopt the ones from data.
+                    this.convertingSRID = srid;
                 }
 
             } else {
@@ -810,13 +846,13 @@ exports.WktToGeometryConverter = Converter.specialize( /** @lends WktToGeometryC
 
             // var lexer = new WktLexer(wktString),
             //     parser = new WktParser(lexer);
-            geometry = this.wktParser.parse(wkt,this._convertProjection, startIndex);
+            geometry = this.wktParser.parse(wkt,this._convertingProjection, startIndex);
 
             //Now that we're done, we check that if we didn't have one SRID set, we get back to it.
-            if(!myInputSRID) {
-                this.inputSRID = myInputSRID;
+            if(!myConvertingSRID) {
+                this.convertingSRID = myConvertingSRID;
             }
-            this.__convertProjection = null;
+            this.__convertingProjection = null;
 
             return geometry;
 
@@ -838,7 +874,7 @@ exports.WktToGeometryConverter = Converter.specialize( /** @lends WktToGeometryC
 
             if(this.revertsSRID && _revertsSRID !== false) {
                 wktSring += 'SRID=';
-                wktSring += this.inputSRID;
+                wktSring += this.convertingSRID;
                 wktSring += ";";
             }
 
@@ -847,31 +883,31 @@ exports.WktToGeometryConverter = Converter.specialize( /** @lends WktToGeometryC
             var dimInfo = this.wktGeometryLayout(geometry);
 
             /*
-                If we've been set a specific convertGeometryLayout, there are some expectations
+                If we've been set a specific convertingGeometryLayout, there are some expectations
                 what what format is should be used. For example in a database or API context,
                 if the backend expects 2D geometry but the reverted Geometry is 3D, we need to catch that.
-                There can only be a pbm if this.convertGeometryLayout is less than 4 dimensions
+                There can only be a pbm if this.convertingGeometryLayout is less than 4 dimensions
             */
 
-            if(this.convertGeometryLayout && this.convertGeometryLayout.length < 4) {
-                //geometry being reverted has more dimension than convertGeometryLayout
-                if((dimInfo.length+2/*adding XY*/ ) > this.convertGeometryLayout.length) {
-                    throw new Error("Geometry being reverted has more dimensions [XY"+dimInfo+"] than converter's convertGeometryLayout ["+this.convertGeometryLayout+"]");
+            if(this.convertingGeometryLayout && this.convertingGeometryLayout.length < 4) {
+                //geometry being reverted has more dimension than convertingGeometryLayout
+                if((dimInfo.length+2/*adding XY*/ ) > this.convertingGeometryLayout.length) {
+                    throw new Error("Geometry being reverted has more dimensions [XY"+dimInfo+"] than converter's convertingGeometryLayout ["+this.convertingGeometryLayout+"]");
                 } else {
                     /*
                         both sides are the same length, but could be XYM vs XYZ
                     */
                     if(
-                        (this.convertGeometryLayout.indexOf("M") !== -1 && dimInfo.indexOf("M") === -1) ||
-                        (this.convertGeometryLayout.indexOf("Z") !== -1 && dimInfo.indexOf("Z") === -1)
+                        (this.convertingGeometryLayout.indexOf("M") !== -1 && dimInfo.indexOf("M") === -1) ||
+                        (this.convertingGeometryLayout.indexOf("Z") !== -1 && dimInfo.indexOf("Z") === -1)
                      ) {
-                        throw new Error("The dimensions of Geometry being reverted [XY"+dimInfo+"] don't match converter's convertGeometryLayout dimensions ["+this.convertGeometryLayout+"]");
+                        throw new Error("The dimensions of Geometry being reverted [XY"+dimInfo+"] don't match converter's convertingGeometryLayout dimensions ["+this.convertingGeometryLayout+"]");
                     }
 
                 }
             }
 
-            enc = this[geometryReverterMethod](geometry,this.convertGeometryLayout);
+            enc = this[geometryReverterMethod](geometry,this.convertingGeometryLayout);
 
             if (dimInfo.length > 0) {
                 type += ' ' + dimInfo;
@@ -952,7 +988,7 @@ exports.WktToGeometryConverter = Converter.specialize( /** @lends WktToGeometryC
      * @return {string} Coordinates part of Point as WKT.
      */
     revertPositionGeometry: {
-        value: function revertPositionGeometry(position, convertGeometryLayout) {
+        value: function revertPositionGeometry(position, convertingGeometryLayout) {
             var wktPointValue = "";
 
             if(position.longitude && position.latitude) {
@@ -961,12 +997,12 @@ exports.WktToGeometryConverter = Converter.specialize( /** @lends WktToGeometryC
                 wktPointValue += position.latitude;
             }
 
-            if((position.hasOwnProperty("altitude") && !convertGeometryLayout) || (convertGeometryLayout && convertGeometryLayout.indexOf("Z") !== -1)) {
+            if((position.hasOwnProperty("altitude") && !convertingGeometryLayout) || (convertingGeometryLayout && convertingGeometryLayout.indexOf("Z") !== -1)) {
                 wktPointValue += " ";
                 wktPointValue += position.altitude;
             }
 
-            if(position.measure && (!convertGeometryLayout || (convertGeometryLayout && convertGeometryLayout.indexOf("M") !== -1))) {
+            if(position.measure && (!convertingGeometryLayout || (convertingGeometryLayout && convertingGeometryLayout.indexOf("M") !== -1))) {
                 wktPointValue += " ";
                 wktPointValue += position.measure;
             }
@@ -979,8 +1015,8 @@ exports.WktToGeometryConverter = Converter.specialize( /** @lends WktToGeometryC
      * @return {string} Coordinates part of Point as WKT.
      */
     revertPointGeometry: {
-        value: function revertPointGeometry(geom, convertGeometryLayout) {
-            return this.revertPositionGeometry(/*position*/geom.coordinates, convertGeometryLayout);
+        value: function revertPointGeometry(geom, convertingGeometryLayout) {
+            return this.revertPositionGeometry(/*position*/geom.coordinates, convertingGeometryLayout);
         }
     },
     /**
@@ -988,7 +1024,7 @@ exports.WktToGeometryConverter = Converter.specialize( /** @lends WktToGeometryC
      * @return {string} Coordinates part of LineString as WKT.
      */
     revertLineStringGeometry: {
-        value: function revertLineStringGeometry(geom, convertGeometryLayout) {
+        value: function revertLineStringGeometry(geom, convertingGeometryLayout) {
             var coordinates = geom.coordinates;
             var array = [];
             for (var i = 0, ii = coordinates.length; i < ii; ++i) {
@@ -1000,7 +1036,7 @@ exports.WktToGeometryConverter = Converter.specialize( /** @lends WktToGeometryC
 
 
     _revertPosisitionArray: {
-        value: function revertLineStringGeometry(coordinates, convertGeometryLayout) {
+        value: function revertLineStringGeometry(coordinates, convertingGeometryLayout) {
             var array = [];
             for (var i = 0, ii = coordinates.length; i < ii; ++i) {
               array.push(this.revertPositionGeometry(coordinates[i]));
@@ -1014,7 +1050,7 @@ exports.WktToGeometryConverter = Converter.specialize( /** @lends WktToGeometryC
      * @return {string} Coordinates part of Polygon as WKT.
      */
     revertPolygonGeometry: {
-        value: function revertPolygonGeometry(geom, convertGeometryLayout) {
+        value: function revertPolygonGeometry(geom, convertingGeometryLayout) {
             var array = [];
             var rings = geom.coordinates;
             for (var i = 0, ii = rings.length; i < ii; ++i) {
@@ -1029,7 +1065,7 @@ exports.WktToGeometryConverter = Converter.specialize( /** @lends WktToGeometryC
      * @return {string} Coordinates part of MultiPoint as WKT.
      */
     revertMultiPointGeometry: {
-        value: function revertMultiPointGeometry(geom, convertGeometryLayout) {
+        value: function revertMultiPointGeometry(geom, convertingGeometryLayout) {
             var array = [];
             var components = geom.coordinates;
             for (var i = 0, ii = components.length; i < ii; ++i) {
@@ -1044,7 +1080,7 @@ exports.WktToGeometryConverter = Converter.specialize( /** @lends WktToGeometryC
      * @return {string} Coordinates part of MultiLineString as WKT.
      */
     revertMultiLineStringGeometry: {
-        value: function revertMultiLineStringGeometry(geom, convertGeometryLayout) {
+        value: function revertMultiLineStringGeometry(geom, convertingGeometryLayout) {
             var array = [];
             var components = geom.coordinates;
             for (var i = 0, ii = components.length; i < ii; ++i) {
@@ -1059,7 +1095,7 @@ exports.WktToGeometryConverter = Converter.specialize( /** @lends WktToGeometryC
      * @return {string} Coordinates part of MultiPolygon as WKT.
      */
     revertMultiPolygonGeometry: {
-        value: function revertMultiPolygonGeometry(geom, convertGeometryLayout) {
+        value: function revertMultiPolygonGeometry(geom, convertingGeometryLayout) {
             var array = [];
             var components = geom.coordinates;
             for (var i = 0, ii = components.length; i < ii; ++i) {
@@ -1074,7 +1110,7 @@ exports.WktToGeometryConverter = Converter.specialize( /** @lends WktToGeometryC
      * @return {string} Coordinates part of GeometryCollection as WKT.
      */
     revertGeometryCollectionGeometry: {
-        value: function revertGeometryCollectionGeometry(geom, convertGeometryLayout) {
+        value: function revertGeometryCollectionGeometry(geom, convertingGeometryLayout) {
             var array = [],
                 geoms = geom.geometries;
 
