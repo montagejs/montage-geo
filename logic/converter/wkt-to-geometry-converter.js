@@ -13,6 +13,15 @@ var Position = require("../model/position").Position,
     GeometryLayout;
 
 
+    /*
+        Copyright 2005-present, OpenLayers Contributors All rights reserved.
+
+        Parser an Lexer adataped from OpenLayers project
+
+        Both MontageGeo and OpenLayers have a BSD 3 license.
+    */
+
+
 /**
  * The coordinate layout for geometries, indicating whether a 3rd or 4th z ('Z')
  * or measure ('M') coordinate is available. Supported values are `'XY'`,
