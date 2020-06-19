@@ -724,7 +724,7 @@ exports.WktToGeometryConverter = Converter.specialize( /** @lends WktToGeometryC
 
     _setPropertyWithDefaults: {
         value:function (serializer, propertyName, value) {
-            if (value != this.consructor.prototype[propertyName]) {
+            if (value != this.constructor.prototype[propertyName]) {
                 serializer.setProperty(propertyName, value);
             }
         }
@@ -732,7 +732,7 @@ exports.WktToGeometryConverter = Converter.specialize( /** @lends WktToGeometryC
 
     _getPropertyWithDefaults: {
         value:function (deserializer, propertyName) {
-            return deserializer.getProperty(propertyName) || this.consructor.prototype[propertyName];
+            return deserializer.getProperty(propertyName) || this.constructor.prototype[propertyName];
         }
     },
 
