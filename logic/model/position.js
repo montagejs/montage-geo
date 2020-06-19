@@ -124,22 +124,6 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
         value: undefined
     },
 
-    /**
-     * A more general naming for measure.
-     * Added to support WKT capabilities
-     * @type {number}
-     */
-
-    value: {
-        configurable: true,
-        enumerable: true,
-        get: function () {
-            return this.measure;
-        }
-    },
-
-
-
     equals: {
         value: function (other) {
             return  this.altitude === other.altitude &&
