@@ -826,6 +826,10 @@ exports.WktToGeometryConverter = Converter.specialize( /** @lends WktToGeometryC
      */
     convert: {
         value: function (wktString) {
+
+            if(typeof wktString !== "string") {
+                return null;
+            }
             var srid,
                 myConvertingSRID = this.convertingSRID,
                 wkt,
