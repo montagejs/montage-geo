@@ -27,7 +27,7 @@ Position.precision = 5;
 var Defaults = {
     longitude: 0,
     latitude: 0,
-    altitude: 0,
+    altitude: undefined,
     measure: undefined
 };
 
@@ -69,7 +69,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
         configurable: true,
         enumerable: true,
         writable: true,
-        value: 0
+        value: undefined
     },
 
     _latitude: {
@@ -197,7 +197,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
 
     _setPropertyWithDefaults: {
         value:function (serializer, propertyName, value) {
-            if (value != Defaults[propertyName]) {
+            if (value !== Defaults[propertyName]) {
                 serializer.setProperty(propertyName, value);
             }
         }
@@ -205,7 +205,8 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
 
     _getPropertyWithDefaults: {
         value:function (deserializer, propertyName) {
-            return deserializer.getProperty(propertyName) || Defaults[propertyName];
+            var value = deserializer.getProperty(propertyName);
+            return value === 0 || value ? value : Defaults[propertyName];
         }
     },
 

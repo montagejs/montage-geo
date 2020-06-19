@@ -51,7 +51,7 @@ describe("A Position", function () {
         expect(dest4).toBeDefined();
         expect(isNaN(dest4.latitude)).toBe(false);
         expect(isNaN(dest4.longitude)).toBe(false);
-        
+
         expect(dest5).toBeDefined();
         expect(isNaN(dest5.latitude)).toBe(false);
         expect(isNaN(dest5.longitude)).toBe(false);
@@ -71,7 +71,7 @@ describe("A Position", function () {
             expect(position.constructor.name).toBe("Position");
             expect(position.longitude).toBe(-156.6825);
             expect(position.latitude).toBe(20.8783);
-            expect(position.altitude).toBe(0);
+            expect(position.altitude).toBe(undefined);
             done();
         });
     });
