@@ -32,7 +32,7 @@ describe("A Circle", function () {
             var coordinates = circle.coordinates;
             expect(coordinates.longitude).toBe(-156.6825);
             expect(coordinates.latitude).toBe(20.8783);
-            expect(coordinates.altitude).toBe(0);
+            expect(coordinates.altitude).toBe(undefined);
             expect(circle.radius).toBe(10042);
             done();
         });

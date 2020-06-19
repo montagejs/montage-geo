@@ -176,7 +176,7 @@ describe("A Point", function () {
     });
 
     it("can deserialize", function (done) {
-        var p1 = Point.withCoordinates([-156.6825, 20.8783]),
+        var p1 = Point.withCoordinates([-156.6825, 20.8783, 0]),
             serializedPoint = new Serializer().initWithRequire(require).serializeObject(p1);
         new Deserializer().init(serializedPoint, require).deserializeObject().then(function (point) {
             var coordinates = point.coordinates;
