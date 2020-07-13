@@ -1,0 +1,35 @@
+{
+    "root": {
+        "prototype": "montage/data/service/expression-data-mapping",
+        "properties": {
+            "objectDescriptor": {"@": "StoryDescriptor"},
+            "rawDataPrimaryKeys": ["id"],
+            "objectMapping": {
+                "rules": {
+                    "id": {"<-": "id"},
+                    "body": {"<-": "body"},
+                    "geometry": {
+                        "<-": "geometry",
+                        "converter": {"@": "geoJsonToGeometryConverter"}
+                    },
+                    "title": {"<-": "title"},
+                    "url": {"<-": "url"}
+
+                }
+            },
+            "requisitePropertyNames": [
+                "body", "id", "geometry", "title", "url"
+            ]
+        }
+    },
+
+    "StoryDescriptor": {
+        "object": "data/model/story.mjson"
+    },
+
+    "geoJsonToGeometryConverter": {
+        "prototype": "montage-geo/logic/converter/geo-json-to-geometry-converter"
+    }
+
+}
+

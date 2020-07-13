@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>
+        Contour Action Menu Sample
+    </title>
+    <link rel="stylesheet" href="main.css">
+    <script type="text/montage-serialization">
+    {
+        "owner": {
+            "properties": {
+                "element": {"#": "main"},
+                "_map": {"@": "map"},
+                "_featureCollection": {"@": "featureCollection"}
+            }
+        },
+        "map": {
+            "prototype": "montage-geo/ui/map.reel",
+            "properties": {
+                "element": {"#": "map"},
+                "center": [-156.6825, 20.8783],
+                "overlays": [{"@": "featureCollectionOverlay"}],
+                "zoom": 5
+            }
+        },
+        "featureCollection": {
+            "prototype": "montage-geo/logic/model/feature-collection"
+        },
+        "featureCollectionOverlay": {
+            "prototype": "montage-geo/ui/feature-collection-overlay.reel",
+            "values": {
+                "collection": {"@": "featureCollection"},
+                "map": {"@": "map"}
+            }
+        }
+    }
+    </script>
+</head>
+<body>
+    <div data-montage-id="main" class="Main">
+        <div data-montage-id="map"></div>
+        <div data-montage-id="featureCollectionOverlay"></div>
+    </div>
+</body>
+</html>

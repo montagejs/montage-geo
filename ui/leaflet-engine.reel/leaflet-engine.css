@@ -1,0 +1,10 @@
+.montageGeo-LeafletEngine {
+    background-color: white;
+    -webkit-align-content: stretch;
+    -webkit-flex-direction: row;
+    display: -webkit-flex;
+    align-content: stretch;
+    display:flex;
+    flex-direction: row;
+    height: 100%;
+}

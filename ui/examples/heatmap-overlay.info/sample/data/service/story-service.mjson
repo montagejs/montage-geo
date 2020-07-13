@@ -1,0 +1,21 @@
+{
+    "root": {
+        "prototype": "logic/service/story-service",
+        "values": {
+            "name": "StoryService",
+            "exportName": "StoryService",
+            "types": [
+                {"@": "story"}
+            ],
+            "mappings": [
+                {"@": "storyMapping"}
+            ]
+        }
+    },
+    "story": {
+        "object": "data/model/story.mjson"
+    },
+    "storyMapping": {
+        "object": "data/mapping/story-mapping.mjson"
+    }
+}

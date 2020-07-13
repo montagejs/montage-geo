@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="map.css">
+    <script type="text/montage-serialization">
+    {
+        "owner": {
+            "properties": {
+                "element": {"#": "owner"}
+            }
+        },
+        "engine": {
+            "prototype": "montage/ui/slot.reel",
+            "properties": {
+                "element": {"#": "engine"}
+            },
+            "bindings": {
+                "content": {"<-": "@owner._engine"}
+            }
+        }
+    }
+    </script>
+</head>
+<body>
+    <div data-montage-id="owner" class="montageGeo-Map">
+        <div data-montage-id="engine" class="montageGeo-Map-engine"></div>
+    </div>
+</body>
+</html>

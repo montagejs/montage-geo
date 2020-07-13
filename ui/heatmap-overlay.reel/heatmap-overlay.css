@@ -1,0 +1,13 @@
+.montageMaps-HeatmapOverlay {
+    background: rgba(255, 0, 0, 0.25);
+}
+
+.montageMaps-HeatmapOverlayLevel {
+    left: 0;
+    position: absolute;
+    pointer-events: none;
+    transform-origin: 0 0;
+    transition: transform 0.25s cubic-bezier(0,0,0.25,1);
+    top: 0;
+    will-change: transform;
+}
