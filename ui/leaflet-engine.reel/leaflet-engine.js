@@ -198,6 +198,24 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
     },
 
     /**
+     * Returns the geographic coordinate associated with this pixel location.
+     * If a position is passed as the second argument it will be used instead
+     * of creating a new position.
+     * @param {Point2D}
+     * @returns {Position}
+     */
+    pointToPosition: {
+        value: function (point, position) {
+            var coordinate = this._map.layerPointToLatLng([point.x, point.y]);
+            coordinate.lng = this._normalizedLongitude(coordinate.lng);
+            position = position || new Position();
+            position.longitude = coordinate.lng;
+            position.latitude = coordinate.lat;
+            return position;
+        }
+    },
+
+    /**
      * Return's the pixel location of the provided position relative to the
      * map's origin pixel.
      *
@@ -1017,53 +1035,8 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
 
     _handleMapMove: {
         value: function () {
-            // var center = this._map.getCenter(),
-            //     newPosition = Position.withCoordinates([center.lng, center.lat]);
             this._updateWorlds();
-            // this._overlays.forEach(function (overlay) {
-            //     overlay.move(newPosition);
-            // });
-            // this.dispatchEventNamed("didMove", true, false, {center: this._map.getCenter()});
         }
-    },
-
-    // _positionOverlays: {
-    //     value: function () {
-    //         var overlays = this._overlays,
-    //             self = this;
-    //         this._positionableOverlays.forEach(function (overlayId) {
-    //             overlays[overlayId].forEach(function (component) {
-    //                 self._positionOverlay(component);
-    //             });
-    //         });
-    //     }
-    // },
-
-    _positionOverlay: {
-        value: function (component) {
-            var map = this._map,
-                size = map.getSize(),
-                width = size.x,
-                height = size.y,
-                pixelCenter = map.latLngToLayerPoint(map.getCenter()),
-                offset = {
-                    left: pixelCenter.x - width / 2,
-                    top: pixelCenter.y - height / 2
-                },
-                element = component.element;
-
-            element.style.transform = "translate3d(" + offset.left + "px, " + offset.top + "px, 0)";
-        }
-    },
-
-    _positionableOverlays: {
-        writable: false,
-        value: ["raster", "drawing", "overlay"]
-    },
-
-    _resizableOverlays: {
-        writable: false,
-        value: ["raster", "overlay"]
     },
 
     _updateWorlds: {
@@ -1123,37 +1096,6 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
         }
     },
 
-    // _resizeOverlays: {
-    //     value: function () {
-    //         var self = this,
-    //             overlays = this._overlays;
-    //         this._resizableOverlays.forEach(function (overlayId) {
-    //             overlays[overlayId].forEach(function (component) {
-    //                 // TODO Make this a delegate method on the overlay component
-    //                 //  itself e.g. resize
-    //                 self._resizeOverlay(component);
-    //             });
-    //         })
-    //     }
-    // },
-
-    // _resizeOverlay: {
-    //     value: function (component) {
-    //         var size = this._map.getSize(),
-    //             width = size.x,
-    //             height = size.y,
-    //             element = component.element,
-    //             isSVG = element.tagName.toUpperCase() === "SVG";
-    //         if (isSVG) {
-    //             element.setAttributeNS(null, "width", width);
-    //             element.setAttributeNS(null, "height", height);
-    //         } else {
-    //             element.setAttribute("width", width + "px");
-    //             element.setAttribute("height", height + "px");
-    //         }
-    //     }
-    // },
-
     _updateMinZoomLevelIfNecessary: {
         value: function () {
             var map = this._map,
@@ -1170,29 +1112,19 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
 
     _handleViewReset: {
         value: function () {
-            // var map = this._map,
-            //     center = map.getCenter(),
-            //     newPosition = Position.withCoordinates([center.lng, center.lat]),
-            //     // pixelOrigin = map.getPixelOrigin(),
-            //     zoom = map.getZoom();
-            //     // point = map.unproject(pixelOrigin),
-            //     // origin = map.project(point, zoom).round();
-            //
-            // this._overlays.forEach(function (overlay) {
-            //     overlay.reset(newPosition, zoom);
-            // });
-            // this.pixelOrigin = Point2D.withCoordinates(origin.x, origin.y);
-            // Not clear why this is needed.
-            // this.needsDraw = true;
+            var map = this._map,
+                center = map.getCenter(),
+                newPosition = Position.withCoordinates([center.lng, center.lat]),
+                zoom = map.getZoom();
+            this.center = newPosition;
+            this.zoom = zoom;
             this._resetOverlays();
+            console.log("View did reset");
         }
     },
 
     _handleZoom: {
         value: function (event) {
-            // this.dispatchEventNamed("zoom", true, false, {zoom: this._map.getZoom()});
-            // TODO: Implement some delegate method on each of the overlays e.g.
-            // TODO (cont'd): viewReset
             this._resetOverlays();
         }
     },
@@ -1220,7 +1152,7 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
             // this.dispatchOwnPropertyChange("center", this.center);
             // TODO: Implement some delegate method on each of the overlays e.g.
             // TODO (cont'd): viewReset
-            this._resetOverlays();
+            // this._resetOverlays();
         }
     },
 
@@ -1231,9 +1163,8 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
             this.dispatchOwnPropertyChange("zoom", this.zoom);
             this._overlays.forEach(function (overlay) {
                 overlay.didReset();
-            });
+            }, this);
 
-            // this.dispatchEventNamed("didZoom", true, false, {zoom: this._map.getZoom()});
             // TODO: Implement some delegate method on each of the overlays e.g.
             // TODO (cont'd): viewDidChange
         }
@@ -1241,11 +1172,12 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
 
     _handleZoomStart: {
         value: function (event) {
+            // console.log("Handle zoom start (", event, ") current zoom (", this._map.getZoom(), ")");
+            this.zoom = this._map.getZoom();
             this._overlays.forEach(function (overlay) {
                 overlay.willReset();
-            });
+            }, this);
 
-            // console.log("Handle zoom start (", event, ") current zoom (", this._map.getZoom(), ")");
             // TODO: Implement some delegate method on each of the overlays e.g.
             // TODO (cont'd): viewWillReset
         }

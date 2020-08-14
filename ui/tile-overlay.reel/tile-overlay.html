@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" href="tile-overlay.css">
+    <script type="text/montage-serialization">
+    {
+        "owner": {
+            "values": {
+                "element": {"#": "owner"},
+                "_zoomLevels": {"@": "zoomLevels"}
+            }
+        },
+        "tileLevel": {
+            "prototype": "ui/tile-level.reel",
+            "values": {
+                "element": {"#": "tileLevel"},
+                "bounds": {"<-": "@owner.bounds"},
+                "center": {"<-": "@owner.center"},
+                "isZooming": {"<-": "@owner._isZooming"},
+                "map": {"<-": "@owner.map"},
+                "tileBounds": {"<-": "@zoomLevels:iteration.object.tileBounds"},
+                "zoom": {"<-": "@owner.zoom"},
+                "zoomLevel": {"<-": "@zoomLevels:iteration.object.zoom"}
+            }
+        },
+        "tile": {
+            "prototype": "ui/tile.reel",
+            "values": {
+                "element": {"#": "tile"},
+                "delegate": {"@": "owner"},
+                "tile": {"<-": "@tileLevel:iteration.object"}
+            }
+        },
+        "zoomLevels": {
+            "prototype": "montage/ui/repetition.reel",
+            "values": {
+                "element": {"#": "zoomLevels"},
+                "content": {"<-": "@owner._levels ?? []"}
+            }
+        }
+    }
+    </script>
+</head>
+<body>
+    <div data-montage-id="owner" class="montageGeo-TileOverlay">
+        <div data-montage-id="zoomLevels">
+            <div data-montage-id="tileLevel">
+                <div data-montage-id="tile" class="montageGeo-TileOverlay-tile"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

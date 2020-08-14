@@ -1,0 +1,22 @@
+.montageGeo-TileLevel {
+    display: flex;
+    height: 100%;
+    opacity: 0.5;
+    position: absolute;
+    transform-origin: top left;
+    transition: none;
+    width: 100%;
+    will-change: transform;
+}
+
+.montageGeo-TileLevel--isAnimatedTransitionEnabled {
+    /*transition: transform 0.25s cubic-bezier(0,0,0.25,1);*/
+}
+
+.montageGeo-TileLevel-tiles {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    height: 100%;
+    width: 100%;
+}
