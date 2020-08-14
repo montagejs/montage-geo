@@ -1,0 +1,17 @@
+.montageGeo-TileOverlay {
+    pointer-events: none;
+}
+
+.montageGeo-TileOverlay-tiles {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    height: 100%;
+    width: 100%;
+}
+
+.montageGeo-TileOverlay-tile {
+    height: 256px;
+    width: 256px;
+}
+

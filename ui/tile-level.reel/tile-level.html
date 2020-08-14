@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" href="tile-level.css">
+    <script type="text/montage-serialization">
+    {
+        "owner": {
+            "properties": {
+                "element": {"#": "owner"}
+            }
+        },
+        ":iteration": {
+            "alias": "@tiles:iteration"
+        },
+        "tiles": {
+            "prototype": "montage/ui/repetition.reel",
+            "values": {
+                "element": {"#": "tiles"},
+                "content": {"<-": "@owner.tileBounds.tiles ?? []"}
+            }
+        }
+    }
+    </script>
+</head>
+<body>
+    <div data-montage-id="owner" class="montageGeo-TileLevel">
+        <div data-montage-id="tiles" class="montageGeo-TileLevel-tiles">
+            <div data-param="*"></div>
+        </div>
+    </div>
+</body>
+</html>

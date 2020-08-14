@@ -1,4 +1,4 @@
-var Montage = require("montage/core/core").Montage;
+ var Montage = require("montage/core/core").Montage;
 
 /**
  *
