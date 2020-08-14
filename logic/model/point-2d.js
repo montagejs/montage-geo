@@ -175,7 +175,7 @@ exports.Point2D.prototype = Object.create({}, /** @lends Point2D.prototype */ {
      * @type {Point2D} coordinate
      */
     multiply: {
-        value: function (number){
+        value: function (number) {
             var point = this.clone();
             point.x *= number;
             point.y *= number;

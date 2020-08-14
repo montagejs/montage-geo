@@ -30,9 +30,9 @@ describe("Rect", function () {
         expect(rect.xMin).toBe(X);
         expect(rect.xMid).toBe(110);
         expect(rect.xMax).toBe(210);
-        expect(rect.yMax).toBe(Y);
-        expect(rect.yMid).toBe(-30);
-        expect(rect.yMin).toBe(-80);
+        expect(rect.yMin).toBe(Y);
+        expect(rect.yMid).toBe(70);
+        expect(rect.yMax).toBe(120);
     });
 
     it("calcuates bounds with a zero size", function () {
@@ -53,7 +53,7 @@ describe("Rect", function () {
         expect(clone.origin).not.toBe(origin);
         expect(clone.size).not.toBe(size);
         expect(clone.xMin).toBe(X);
-        expect(clone.yMax).toBe(Y);
+        expect(clone.yMin).toBe(Y);
         expect(clone.height).toBe(HEIGHT);
         expect(clone.width).toBe(WIDTH);
     });
@@ -73,7 +73,7 @@ describe("Rect", function () {
                     expect(deserialized.height).toBe(HEIGHT);
                     expect(deserialized.width).toBe(WIDTH);
                     expect(deserialized.xMin).toBe(X);
-                    expect(deserialized.yMax).toBe(Y);
+                    expect(deserialized.yMin).toBe(Y);
                     done();
                 }
             );

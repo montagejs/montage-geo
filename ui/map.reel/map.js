@@ -27,7 +27,6 @@ exports.Map = Component.specialize(/** @lends Map# */ {
 
     /**
      * The current bounds of the map.
-     *
      * @type {BoundingBox}
      */
     bounds: {
@@ -37,7 +36,6 @@ exports.Map = Component.specialize(/** @lends Map# */ {
     /**
      * The current center of the map.  Setting this value will update the map's
      * position.
-     *
      * @type {Position}
      */
     center: {
@@ -55,6 +53,8 @@ exports.Map = Component.specialize(/** @lends Map# */ {
     },
 
     /**
+     * The are of the map the user is constrained to.  If not defined the user
+     * may navigate to the whole world.
      * @type {BoundingBox}
      */
     maxBounds: {
@@ -71,6 +71,10 @@ exports.Map = Component.specialize(/** @lends Map# */ {
         }
     },
 
+    /**
+     * The overlays to display on top of the map.
+     * @type {Overlay[]}
+     */
     overlays: {
         get: function () {
             if (!this._overlays) {
@@ -90,6 +94,10 @@ exports.Map = Component.specialize(/** @lends Map# */ {
         value: undefined
     },
 
+    /**
+     * The current zoom level of the map.
+     * @type {number}
+     */
     zoom: {
         get: function () {
             return this._zoom;
@@ -333,6 +341,17 @@ exports.Map = Component.specialize(/** @lends Map# */ {
     },
 
     /**
+     * Return's the geographic coordinate associated with this pixel location.
+     * @param {Point2D}
+     * @returns {Position}
+     */
+    pointToPosition: {
+        value: function (point) {
+            return this._engine && this._engine.pointToPosition(point);
+        }
+    },
+
+    /**
      * Return's the pixel location of the provided position relative to the
      * map's origin pixel.
      *
@@ -424,7 +443,7 @@ exports.Map = Component.specialize(/** @lends Map# */ {
         value: function () {
             var newBounds;
             if (arguments.length === 1 && arguments[0] instanceof BoundingBox) {
-                newBounds = arguments[0]
+                newBounds = arguments[0];
             } else if (arguments.length === 4) {
                 newBounds = BoundingBox.withCoordinates(arguments[0], arguments[1], arguments[2], arguments[3]);
             }

@@ -428,15 +428,31 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             positions.forEach(function (position) {
                 var lng = position.longitude,
                     lat = position.latitude;
-                if (xMin > lng) xMin = lng;
-                if (xMax < lng) xMax = lng;
-                if (yMin > lat) yMin = lat;
-                if (yMax < lat) yMax = lat;
+                if (xMin > lng) {
+                    xMin = lng;
+                }
+                if (xMax < lng) {
+                    xMax = lng;
+                }
+                if (yMin > lat) {
+                    yMin = lat;
+                }
+                if (yMax < lat) {
+                    yMax = lat;
+                }
             });
-            if (this.xMin !== xMin) this.xMin = xMin;
-            if (this.yMin !== yMin) this.yMin = yMin;
-            if (this.xMax !== xMax) this.xMax = xMax;
-            if (this.yMax !== yMax) this.yMax = yMax;
+            if (this.xMin !== xMin) {
+                this.xMin = xMin;
+            }
+            if (this.yMin !== yMin) {
+                this.yMin = yMin;
+            }
+            if (this.xMax !== xMax) {
+                this.xMax = xMax;
+            }
+            if (this.yMax !== yMax) {
+                this.yMax = yMax;
+            }
         }
     },
 
