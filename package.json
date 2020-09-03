@@ -25,7 +25,7 @@
     "karma-phantomjs-launcher": "^1.0.2",
     "montage-testing": "hthetiot/montage-testing#upgrade",
     "mr": "montagejs/mr#master",
-    "open": "0.0.5"
+    "open": "7.2.1"
   },
   "scripts": {
     "test": "node test/run-node.js",
