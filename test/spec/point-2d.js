@@ -1,4 +1,5 @@
-var Point2D = require("montage-geo/logic/model/point-2d").Point2D;
+var Point2D = require("montage-geo/logic/model/point-2d").Point2D,
+    Point = require("montage-geo/logic/model/point").Point;
 
 describe("Point 2D", function () {
 
@@ -96,4 +97,15 @@ describe("Point 2D", function () {
         expect(Math.abs(max.coordinates.latitude)).toBe(min.coordinates.latitude);
     });
 
+    it("can be converted from a position", function () {
+        var center = Point2D.withPosition(Point.withCoordinates(0, 0).coordinates),
+            min = Point2D.withPosition(Point.withCoordinates(-180, -90).coordinates),
+            max = Point2D.withPosition(Point.withCoordinates(180, 90).coordinates);
+        expect(center.x).toBe(128);
+        expect(center.y).toBe(128);
+        expect(min.x).toBe(0);
+        expect(min.y).toBe(256);
+        expect(max.x).toBe(256);
+        expect(max.y).toBe(0);
+    });
 });

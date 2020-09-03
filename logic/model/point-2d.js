@@ -280,17 +280,15 @@ Object.defineProperties(exports.Point2D, /** @lends Point2D */ {
         value: function (position, zoom) {
             var clip = exports.Point2D.clip,
                 max = exports.Point2D.MAX_LATITUDE,
-                mapSize = 256,
+                mapSize = 256 << (zoom || 0),
                 latitude = clip(position.latitude, -max, max),
                 longitude = clip(position.longitude, -180, 180),
                 x = (longitude + 180) / 360,
                 sinLatitude = Math.sin(latitude * Math.PI / 180),
                 y = 0.5 - Math.log((1 + sinLatitude) / (1 - sinLatitude)) / (4 * Math.PI),
-                pixelX = clip(x, 0, mapSize),
-                pixelY = clip(y, 0, mapSize),
-                point = exports.Point2D.withCoordinates(pixelX, pixelY);
-
-            return arguments.length === 1 ? point : point.multiply(mapSize << zoom);
+                pixelX = clip(Math.round(x * mapSize), 0, mapSize),
+                pixelY = clip(Math.round(y * mapSize), 0, mapSize);
+            return exports.Point2D.withCoordinates(pixelX, pixelY);
         }
     },
 
