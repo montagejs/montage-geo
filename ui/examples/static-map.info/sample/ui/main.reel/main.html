@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>
+        Contour Action Menu Sample
+    </title>
+    <link rel="stylesheet" href="main.css">
+    <script type="text/montage-serialization">
+    {
+        "owner": {
+            "values": {
+                "element": {"#": "main"},
+                "map": {"@": "map"}
+            }
+        },
+        "map": {
+            "prototype": "montage-geo/ui/static-map.reel",
+            "values": {
+                "element": {"#": "map"},
+                "center": {"@": "center"},
+                "zoom": 8,
+                "size": {"@": "size"},
+                "backgroundTileDelegate": {"@": "tileDelegate"}
+            }
+        },
+        "center": {
+            "prototype": "montage-geo/logic/model/position",
+            "values": {
+                "latitude": 32.8,
+                "longitude": -117.1
+            }
+        },
+        "size": {
+            "prototype": "montage-geo/logic/model/size",
+            "values": {
+                "width": 1024,
+                "height": 1024
+            }
+        },
+        "tileDelegate": {
+            "prototype": "montage-geo/logic/arcgis-world-imagery-tile-delegate"
+        }
+    }
+    </script>
+</head>
+<body>
+    <div data-montage-id="main" class="Main">
+        <div data-montage-id="map"></div>
+    </div>
+</body>
+</html>
