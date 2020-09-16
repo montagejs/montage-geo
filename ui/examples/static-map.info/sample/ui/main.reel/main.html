@@ -11,7 +11,8 @@
         "owner": {
             "values": {
                 "element": {"#": "main"},
-                "map": {"@": "map"}
+                "map": {"@": "map"},
+                "featureCollection": {"@": "featureCollection"}
             }
         },
         "map": {
@@ -21,14 +22,15 @@
                 "center": {"@": "center"},
                 "zoom": 8,
                 "size": {"@": "size"},
-                "backgroundTileDelegate": {"@": "tileDelegate"}
+                "backgroundTileDelegate": {"@": "tileDelegate"},
+                "featureCollections": [{"@": "featureCollection"}]
             }
         },
         "center": {
             "prototype": "montage-geo/logic/model/position",
             "values": {
-                "latitude": 32.8,
-                "longitude": -117.1
+                "latitude": 20.8,
+                "longitude": -157
             }
         },
         "size": {
@@ -40,6 +42,9 @@
         },
         "tileDelegate": {
             "prototype": "montage-geo/logic/arcgis-world-imagery-tile-delegate"
+        },
+        "featureCollection": {
+            "prototype": "montage-geo/logic/model/feature-collection"
         }
     }
     </script>
