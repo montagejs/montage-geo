@@ -2,9 +2,14 @@
  * @module "ui/static-map.reel"
  */
 var Component = require("montage/ui/component").Component,
+    LineString = require("logic/model/line-string").LineString,
+    MultiLineString = require("logic/model/multi-line-string").MultiLineString,
+    MultiPolygon = require("logic/model/multi-polygon").MultiPolygon,
     Position = require("logic/model/position").Position,
     Point2D = require("logic/model/point-2d").Point2D,
+    Polygon = require("logic/model/polygon").Polygon,
     Size = require("logic/model/size").Size,
+    StyleType = require("logic/model/style").StyleType,
     TileBounds = require("logic/model/tile-bounds").TileBounds;
 
 /**
@@ -123,11 +128,18 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
 
     draw: {
         value: function () {
+            var self = this;
             this.canvas.width = this.size.width;
             this.element.style.width = this.size.width + "px";
             this.canvas.height = this.size.height;
             this.element.style.height = this.size.height + "px";
-            this.drawBaseMap();
+            this.drawBaseMap().then(function () {
+                return Promise.all(self.featureCollections.map(function (featureCollection) {
+                    return Promise.all(featureCollection.features.map(function (feature) {
+                        return self.drawFeature(feature);
+                    }));
+                }));
+            });
         }
     },
 
@@ -180,5 +192,111 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
             }
             return this._mercatorViewBounds;
         }
+    },
+
+    drawFeature: {
+        value: function (feature) {
+            var self = this,
+                ctx = this._context,
+                style = feature.style;
+            if (!style) {
+                return Promise.resolve();
+            }
+            ctx.save();
+            return Promise.resolve().then(function () {
+                if (style.type === StyleType.POINT) {
+                    if (style.dataURL) {
+                        var anchor = self.projectMercatorOntoCanvas(Point2D.withPosition(feature.geometry.coordinates, self.zoom));
+                        return self._fetchImage(feature.style.dataURL).then(function (image) {
+                            ctx.drawImage(image, anchor.x - image.width / 2, anchor.y - image.height / 2);
+                        });
+                    }
+                } else if (style.type === StyleType.LINE_STRING) {
+                    ctx.strokeStyle = style.strokeColor;
+                    if (feature.geometry.constructor === MultiLineString) {
+                        feature.geometry.coordinates.forEach(function (lineString) {
+                            self._drawLineString(lineString.coordinates, ctx);
+                        });
+                    } else if (feature.geometry.constructor === LineString) {
+                        self._drawLineString(feature.geometry.coordinates, ctx);
+                    }
+                } else if (style.type === StyleType.POLYGON) {
+                    ctx.strokeStyle = style.strokeColor;
+                    ctx.fillStyle = style.fillColor;
+                    if (feature.geometry.constructor === MultiPolygon) {
+                        feature.geometry.coordinates.forEach(function (polygon) {
+                            self._drawPolygon(polygon.coordinates, ctx);
+                        });
+                    } else if (feature.geometry.constructor === Polygon) {
+                        self._drawPolygon(feature.geometry.coordinates, ctx);
+                    }
+                }
+            }).then(function () {
+                ctx.restore();
+            }, function (error) {
+                ctx.restore();
+                throw error;
+            });
+        }
+    },
+
+    projectMercatorOntoCanvas: {
+        value: function (point) {
+            var bounds = this.mercatorViewBounds,
+                origin = Point2D.withCoordinates(bounds.xmin, bounds.ymin);
+            return point.subtract(origin);
+        }
+    },
+
+    _fetchImage: {
+        value: function (src) {
+            var image = new Image();
+            image.src = src;
+            return new Promise(function (resolve, reject) {
+                image.onload = function () {
+                    resolve(image);
+                };
+                image.onerror = function (err) {
+                    reject(err);
+                }
+            });
+        }
+    },
+
+    _drawLineString: {
+        value: function (coordinates, context) {
+            var self = this,
+                path = coordinates.map(function (position) {
+                    var point = Point2D.withPosition(position, self.zoom);
+                    return self.projectMercatorOntoCanvas(point);
+                });
+            context.beginPath();
+            context.moveTo(path[0].x, path[0].y);
+            path.forEach(function (p) {
+                context.lineTo(p.x, p.y);
+            });
+            context.closePath();
+            context.stroke();
+        }
+    },
+
+    _drawPolygon: {
+        value: function (coordinates, context) {
+            var self = this,
+                exteriorRing = coordinates[0],
+                path = exteriorRing.map(function (position) {
+                    var point = Point2D.withPosition(position, self.zoom);
+                    return self.projectMercatorOntoCanvas(point);
+                });
+            context.beginPath();
+            context.moveTo(path[0].x, path[0].y);
+            path.forEach(function (p) {
+                context.lineTo(p.x, p.y);
+            });
+            context.closePath();
+            context.stroke();
+            context.fill();
+        }
     }
+
 });
