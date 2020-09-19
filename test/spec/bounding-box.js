@@ -137,6 +137,19 @@ describe("A BoundingBox", function () {
         expect(bounds.contains(outPosition)).toBe(false);
     });
 
+    it("can test if it contains a bounding box", function () {
+        var bounds = BoundingBox.withCoordinates(0, 0, 10, 10),
+            inBoundingBoxA = BoundingBox.withCoordinates(1, 1, 9, 9),
+            inBoundingBoxB = BoundingBox.withCoordinates(0, 0, 5, 5),
+            outBoundingBoxA = BoundingBox.withCoordinates(5, 5, 15, 15),
+            outBoundingBoxB = BoundingBox.withCoordinates(11, 11, 21, 21);
+
+        expect(bounds.contains(inBoundingBoxA)).toBe(true);
+        expect(bounds.contains(inBoundingBoxB)).toBe(true);
+        expect(bounds.contains(outBoundingBoxA)).toBe(false);
+        expect(bounds.contains(outBoundingBoxB)).toBe(false);
+    });
+
     it ("can calculate its area", function () {
         var bounds = BoundingBox.withCoordinates(0, 0, 10, 10),
             southWest = Position.withCoordinates(0, 0),
