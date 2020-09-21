@@ -32,6 +32,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         set: function (value) {
             if (value && value !== this._center) {
                 this._center = value;
+                this._mercatorViewBounds = null;
             }
         }
     },
@@ -48,6 +49,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         set: function (value) {
             if (value != null && value !== this._zoom) {
                 this._zoom = value;
+                this._mercatorViewBounds = null;
             }
         }
     },
@@ -66,6 +68,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         set: function (value) {
             if (value && value !== this._size) {
                 this._size = value;
+                this._mercatorViewBounds = null;
             }
         }
     },
