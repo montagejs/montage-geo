@@ -182,6 +182,10 @@ var MarkerIcon = Enumeration.specialize(/** @lends MarkerIcon */ "id", {
         }
     },
 
+    _base64PrefixRegExp: {
+        value: /data:[-\w.]+\/[-\w.]+(\+\w+)?;base64,/
+    },
+
     _canvas: {
         get: function () {
             if (!this.__canvas) {
@@ -227,7 +231,7 @@ var MarkerIcon = Enumeration.specialize(/** @lends MarkerIcon */ "id", {
 
     _dimensionsForUrl: {
         value: function (url) {
-            var data = this._base64Decode(url.substring(22));
+            var data = this._base64Decode(url.replace(this._base64PrefixRegExp, ""));
             return Size.withHeightAndWidth(
                 this._toInt32(data.slice(20, 24)),
                 this._toInt32(data.slice(16, 20))
