@@ -8,7 +8,7 @@ var ClassBreaksRenderer = require("montage-geo/logic/model/class-breaks-renderer
 describe("Renderer", function() {
 
     var geometryConverter,
-        earthquake, stormZone, eoc;
+        earthquake, stormZone, eoc, historicalStormTrack;
 
     beforeAll(function () {
         geometryConverter = new EsriJsonToGeometryConverter();
@@ -27,6 +27,11 @@ describe("Renderer", function() {
             EOC.attributes,
             geometryConverter.convert(EOC.geometry)
         );
+        historicalStormTrack = Feature.withMembers(
+            HISTORICAL_STORM_TRACK.attributes["OBJECTID"],
+            HISTORICAL_STORM_TRACK.attributes,
+            geometryConverter.convert(HISTORICAL_STORM_TRACK.geometry)
+        )
     });
 
     it ("can create a class breaks renderer", function (done) {
@@ -88,6 +93,20 @@ describe("Renderer", function() {
             done();
         });
     });
+
+    it ("can match a feature to a unique value renderer with numeric entries", function (done) {
+        var rawData = STORM_TRACKS_UNIQUE_VALUE_RENDERER;
+        UniqueValueRenderer.withArguments(
+            rawData.field1, rawData.field2, rawData.field3,
+            rawData.fieldDelimiter, rawData.uniqueValueInfos,
+            rawData.defaultSymbol, rawData.defaultLabel
+        ).then(function (renderer) {
+            var style = renderer.convert(historicalStormTrack);
+            expect(style).toBeDefined();
+            expect(style instanceof Style).toBe(true);
+            done();
+        });
+    })
 
     it("can create a simple renderer", function (done) {
         var rawData = SIMPLE_RENDERER;
@@ -178,6 +197,130 @@ var SIMPLE_RENDERER = {
     },
     "label": "",
     "description": ""
+};
+
+var STORM_TRACKS_UNIQUE_VALUE_RENDERER = {
+    "type": "uniqueValue",
+    "field1": "USA_SSHS",
+    "field2": null,
+    "field3": null,
+    "fieldDelimiter": ", ",
+    "defaultSymbol": null,
+    "defaultLabel": null,
+    "uniqueValueInfos": [
+        {
+            "symbol": {
+                "type": "esriSLS",
+                "style": "esriSLSSolid",
+                "color": [
+                    197,
+                    219,
+                    0,
+                    255
+                ],
+                "width": 1.5
+            },
+            "value": "-1",
+            "label": "Tropical Depression: (< 34 mph)",
+            "description": ""
+        },
+        {
+            "symbol": {
+                "type": "esriSLS",
+                "style": "esriSLSSolid",
+                "color": [
+                    255,
+                    255,
+                    0,
+                    255
+                ],
+                "width": 1.5
+            },
+            "value": "0",
+            "label": "Tropical Storm: (34 < 64 mph)",
+            "description": ""
+        },
+        {
+            "symbol": {
+                "type": "esriSLS",
+                "style": "esriSLSSolid",
+                "color": [
+                    255,
+                    217,
+                    0,
+                    255
+                ],
+                "width": 1.5
+            },
+            "value": "1",
+            "label": "Category 1 Hurricane (64 < 83 mph)",
+            "description": ""
+        },
+        {
+            "symbol": {
+                "type": "esriSLS",
+                "style": "esriSLSSolid",
+                "color": [
+                    255,
+                    174,
+                    0,
+                    255
+                ],
+                "width": 1.5
+            },
+            "value": "2",
+            "label": "Category 2 Hurricane (83 < 96 mph)",
+            "description": ""
+        },
+        {
+            "symbol": {
+                "type": "esriSLS",
+                "style": "esriSLSSolid",
+                "color": [
+                    255,
+                    132,
+                    0,
+                    255
+                ],
+                "width": 1.5
+            },
+            "value": "3",
+            "label": "Category 3 Hurricane (96 < 113 mph)",
+            "description": ""
+        },
+        {
+            "symbol": {
+                "type": "esriSLS",
+                "style": "esriSLSSolid",
+                "color": [
+                    255,
+                    89,
+                    0,
+                    255
+                ],
+                "width": 1.5
+            },
+            "value": "4",
+            "label": "Category 4 Hurricane (113 < 137 mph)",
+            "description": ""
+        },
+        {
+            "symbol": {
+                "type": "esriSLS",
+                "style": "esriSLSSolid",
+                "color": [
+                    255,
+                    34,
+                    0,
+                    255
+                ],
+                "width": 1.5
+            },
+            "value": "5",
+            "label": "Category 5 Hurricane ( > 137 mph)",
+            "description": ""
+        }
+    ]
 };
 
 var UNIQUE_VALUE_RENDERER = {
@@ -413,6 +556,60 @@ var CLASS_BREAKS_RENDERER = {
     },
     "transparency": 0,
     "labelingInfo": null
+};
+
+var HISTORICAL_STORM_TRACK = {
+    "attributes": {
+        "OBJECTID": 989,
+        "SEASON": 2018,
+        "NUMBER": 23,
+        "SUBBASIN": "MM",
+        "ISO_TIME": "2018-05-10 18:00:00",
+        "NATURE": "TS",
+        "LAT": 12.3,
+        "LON": -126.2,
+        "TRACK_TYPE": "PROVISIONAL",
+        "DIST2LAND": 2030,
+        "LANDFALL": 2030,
+        "USA_AGENCY": "nhc_working_bt",
+        "USA_ATCFID": "EP012018",
+        "USA_RECORD": " ",
+        "USA_STATUS": "TD",
+        "USA_WIND": 35,
+        "USA_PRES": 1007,
+        "USA_SSHS": "-1",
+        "USA_EYE": 0,
+        "USA_GUST": 40,
+        "USA_SEAHGT": 0,
+        "STORM_SPD": 10,
+        "STORM_DR": 284,
+        "year": 2018,
+        "month": 5,
+        "day": 10,
+        "hour": 18,
+        "min": 0,
+        "Name": "Not Named",
+        "Date": 2019,
+        "Length_km": 56.29323922090161,
+        "Length_mi": 34.978927211598744,
+        "BASIN_1": "Eastern North Pacific",
+        "SAFFIR_SIMPSON_SCALE": "Tropical Depression (<39 mph)",
+        "Shape_Length": 0.5049764813046136
+    },
+    "geometry": {
+        "paths": [
+            [
+                [
+                    -126.19995117187494,
+                    12.300000190734806
+                ],
+                [
+                    -126.68981933593733,
+                    12.42259883880621
+                ]
+            ]
+        ]
+    }
 };
 
 var STORM_ZONE = {
