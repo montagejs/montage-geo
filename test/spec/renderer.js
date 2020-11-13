@@ -104,6 +104,7 @@ describe("Renderer", function() {
             var style = renderer.convert(historicalStormTrack);
             expect(style).toBeDefined();
             expect(style instanceof Style).toBe(true);
+            expect(style.strokeColor).toBe("rgba(255,217,0,1)");
             done();
         });
     })
@@ -577,7 +578,7 @@ var HISTORICAL_STORM_TRACK = {
         "USA_STATUS": "TD",
         "USA_WIND": 35,
         "USA_PRES": 1007,
-        "USA_SSHS": "-1",
+        "USA_SSHS": 1,
         "USA_EYE": 0,
         "USA_GUST": 40,
         "USA_SEAHGT": 0,

@@ -13,7 +13,33 @@ var Renderer = require("logic/model/renderer").Renderer,
  */
 exports.UniqueValueRenderer = Renderer.specialize(/** @lends UniqueValueRenderer.prototype */ {
 
+    _field1: {
+        value: undefined
+    },
 
+    _field2: {
+        value: undefined
+    },
+
+    _field3: {
+        value: undefined
+    },
+
+    _formattedProperties: {
+        value: function (properties) {
+            var formattedProperties = {};
+            if (this._field1) {
+                formattedProperties[this._field1] = String(properties[this._field1]);
+            }
+            if (this._field2) {
+                formattedProperties[this._field2] = String(properties[this._field2]);
+            }
+            if (this._field3) {
+                formattedProperties[this._field3] = String(properties[this._field3]);
+            }
+            return formattedProperties;
+        }
+    }
 
 }, {
 
@@ -30,6 +56,10 @@ exports.UniqueValueRenderer = Renderer.specialize(/** @lends UniqueValueRenderer
             if (defaultSymbol) {
                 stylePromises.push(converter.convert(defaultSymbol));
             }
+
+            renderer._field1 = field1;
+            renderer._field2 = field2;
+            renderer._field3 = field3;
 
             return Promise.all(stylePromises).then(function (values) {
                 var fields = [field1, field2, field3].filter(function (field) {

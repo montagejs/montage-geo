@@ -33,7 +33,7 @@ var Renderer = exports.Renderer = Converter.specialize( /** @lends Renderer.prot
     convert: {
         value: function (feature) {
             var entries = this.entries,
-                properties = feature.properties,
+                properties = this._formattedProperties(feature.properties),
                 wasFound = false,
                 entry, i, n;
             for (i = 0, n = entries.length; i < n && !wasFound; i += 1) {
@@ -56,6 +56,18 @@ var Renderer = exports.Renderer = Converter.specialize( /** @lends Renderer.prot
         value: deprecate.deprecateMethod(void 0, function (feature) {
             return this.convert(feature);
         }, "render", "convert")
+    },
+
+    /**
+     * Provides a layer of indirection to format properties before evaluation.
+     * Subclasses can use this method to coerce property values.
+     * @param {Object} - properties
+     * @returns {Object} - formatted properties
+     */
+    _formattedProperties: {
+        value: function (properties) {
+            return properties;
+        }
     }
 
 }, {
