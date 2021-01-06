@@ -111,7 +111,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
     xMid: {
         configurable: false,
         get: function () {
-            return this.xMin && this.width && (this.xMin + this.width / 2);
+            return !isNaN(this.xMin) && !isNaN(this.width) && (this.xMin + this.width / 2);
         }
     },
 
@@ -122,7 +122,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
     xMax: {
         configurable: false,
         get: function () {
-            return this.xMin && this.width && (this.xMin + this.width);
+            return !isNaN(this.xMin) && !isNaN(this.width) && (this.xMin + this.width);
         }
     },
 
@@ -133,7 +133,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
     yMin: {
         configurable: false,
         get: function () {
-            return this.yMax && this.height && (this.yMax - this.height);
+            return !isNaN(this.yMax) && !isNaN(this.height) && (this.yMax - this.height);
         }
     },
 
@@ -144,7 +144,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
     yMid: {
         configurable: false,
         get: function () {
-            return this.yMax && this.height && (this.yMax - this.height / 2);
+            return !isNaN(this.yMax) && !isNaN(this.height) && (this.yMax - this.height / 2);
         }
     },
 
