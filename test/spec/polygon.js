@@ -203,6 +203,37 @@ describe("A Polygon", function () {
         expect(p1.intersects(p2)).toBe(true);
     });
 
+    it("can observe tests for intersection", function () {
+        var p1 = Polygon.withCoordinates([
+                [[0,0], [0,10], [10,10], [10,0], [0,0]]
+            ]),
+            p2 = Polygon.withCoordinates([
+                [[5,5], [5,15], [15,15], [15,5], [5,5]]
+            ]),
+            p3 = Polygon.withCoordinates([
+                [[-10,0], [-10,10], [0,10], [0,0], [-10,0]]
+            ]),
+            p4 = Polygon.withCoordinates([
+                [[-5,5], [-5,15], [5,15], [5,5], [-5,5]]
+            ]),
+            p4Perimeter = p4.coordinates[0].slice(),
+            controller = {
+                intersects: false,
+                geometry: p2,
+                polygon: p1
+            };
+        Bindings.defineBinding(controller, "intersects", {"<-": "polygon.intersects(geometry)"});
+        expect(controller.intersects).toBeTruthy();
+        controller.geometry = p3;
+        expect(controller.intersects).toBeFalsy();
+        controller.polygon = p4;
+        expect(controller.intersects).toBeTruthy();
+        controller.polygon.coordinates.splice.apply(controller.polygon.coordinates, [0, Infinity].concat(p1.coordinates));
+        expect(controller.intersects).toBeFalsy();
+        controller.polygon.coordinates[0].splice.apply(controller.polygon.coordinates[0], [0, Infinity].concat(p4Perimeter));
+        expect(controller.intersects).toBeTruthy();
+    });
+
     it("can test another if polygon is in a hole", function () {
         var p1 = Polygon.withCoordinates([
                 [[0,0], [0,40], [40,40], [40,0], [0,0]],

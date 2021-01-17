@@ -1,6 +1,8 @@
 var Geometry = require("./geometry").Geometry,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
+    Circle = require("logic/model/circle").Circle,
     d3Geo = require("d3-geo"),
+    Point = require("logic/model/point").Point,
     Position = require("./position").Position;
 
 /**
@@ -106,9 +108,15 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
      */
     intersects: {
         value: function (geometry) {
-            var isPolygon = geometry instanceof exports.Polygon;
-            return isPolygon ?  this._intersectsPolygon(geometry) :
-                                this._intersectsBoundingBox(geometry);
+            var isMultiPolygon = geometry instanceof exports.Polygon.MultiPolygon,
+                isPolygon = geometry instanceof exports.Polygon,
+                isCircle = !isPolygon && geometry instanceof Circle,
+                isPoint = !isCircle && geometry instanceof Point;
+            return  isMultiPolygon ?    geometry.intersects(this) :
+                    isPolygon ?         this._intersectsPolygon(geometry) :
+                    isCircle ?          this._intersectsPolygon(geometry.toPolygon()) :
+                    isPoint ?           this.contains(geometry.coordinates) :
+                                        this._intersectsBoundingBox(geometry);
         }
     },
 
@@ -270,6 +278,45 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
             var self = this;
             return function observePerimeter(emit) {
                 return self.observePerimeter(emit);
+            };
+        }
+    },
+
+    makeIntersectsObserver: {
+        value: function (observeIntersects) {
+            var self = this;
+            return function intersectsObserver(emit, scope) {
+                return observeIntersects(function replaceGeometry(geometry) {
+                    return self.observeIntersects(emit, geometry);
+                }, scope);
+            }.bind(this);
+        }
+    },
+
+    observeIntersects: {
+        value: function (emit, geometry) {
+            var callback = this.intersects.bind(this),
+                coordinatesRangeChangeListener,
+                perimeterRangeChangeListener,
+                cancel;
+
+            function update() {
+                if (cancel) {
+                    cancel();
+                }
+                cancel = emit(callback(geometry));
+            }
+
+            update();
+            coordinatesRangeChangeListener = this.addRangeAtPathChangeListener("coordinates", update);
+            perimeterRangeChangeListener = this.addRangeAtPathChangeListener("coordinates.0", update);
+
+            return function cancelObserver() {
+                coordinatesRangeChangeListener();
+                perimeterRangeChangeListener();
+                if (cancel) {
+                    cancel();
+                }
             };
         }
     },
@@ -454,6 +501,12 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
     }
 
 }, {
+
+    MultiPolygon: {
+        get: function () {
+            return require("logic/model/multi-polygon").MultiPolygon
+        }
+    },
 
     GeoJsonConverter: {
         get: function () {

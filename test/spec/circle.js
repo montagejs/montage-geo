@@ -103,6 +103,28 @@ describe("A Circle", function () {
         }).join(":")).toBe("-156.73:20.83:-156.63:20.92");
     });
 
+    it("can observe tests for intersections", function () {
+        var coordinates = [-156.6825, 20.8783],
+            radius = 10000,
+            circle = Circle.withCoordinates(coordinates, radius),
+            geometryCoordinates = [0, 0],
+            geometryRadius = 1000,
+            geometry = Circle.withCoordinates(geometryCoordinates, geometryRadius),
+            controller = {
+                circle: circle,
+                geometry: geometry,
+                intersects: undefined
+            };
+        Bindings.defineBinding(controller, "intersects", {"<-": "circle.intersects(geometry)"});
+        expect(controller.intersects).toBeFalsy();
+        controller.circle.coordinates = Position.withCoordinates(0, 0);
+        expect(controller.intersects).toBeTruthy();
+        controller.circle.coordinates = Position.withCoordinates(coordinates);
+        expect(controller.intersects).toBeFalsy();
+        controller.geometry = Circle.withCoordinates(coordinates, geometryRadius);
+        expect(controller.intersects).toBeTruthy();
+    });
+
     it("can calculate its area", function () {
         var coordinates = [-156.6825, 20.8783],
             radius = 10,

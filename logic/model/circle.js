@@ -66,8 +66,8 @@ var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */
     },
 
     intersects: {
-        value: function (bounds) {
-            return bounds.contains(this.coordinates);
+        value: function (geometry) {
+            return this.toPolygon().intersects(geometry);
         }
     },
 
@@ -240,6 +240,48 @@ var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */
         }
     },
 
+    makeIntersectsObserver: {
+        value: function (observeIntersects) {
+            var self = this;
+            return function intersectsObserver(emit, scope) {
+                return observeIntersects(function replaceGeometry(geometry) {
+                    return self.observeIntersects(emit, geometry);
+                }, scope);
+            }.bind(this);
+        }
+    },
+
+    observeIntersects: {
+        value: function (emit, geometry) {
+            var callback = this.intersects.bind(this),
+                originLatitudeHandler,
+                originLongitudeHandler,
+                radiusHandler,
+                cancel;
+
+            function update() {
+                if (cancel) {
+                    cancel();
+                }
+                cancel = emit(callback(geometry));
+            }
+
+            update();
+            originLatitudeHandler = this.addPathChangeListener("coordinates.latitude", update);
+            originLongitudeHandler = this.addPathChangeListener("coordinates.longitude", update);
+            radiusHandler = this.addPathChangeListener("radius", update);
+
+            return function cancelObserver() {
+                originLatitudeHandler();
+                originLongitudeHandler();
+                radiusHandler();
+                if (cancel) {
+                    cancel();
+                }
+            };
+        }
+    },
+
     makePerimeterObserver: {
         value: function () {
             var self = this;
@@ -315,7 +357,7 @@ var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */
                 ring.push([position.longitude, position.latitude]);
             }
 
-            return Polygon.withCoordinates([ring]);
+            return exports.Circle.Polygon.withCoordinates([ring]);
         }
     },
 
@@ -346,6 +388,12 @@ var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */
     }
 
 }, {
+
+    Polygon: {
+        get: function () {
+            return require("logic/model/polygon").Polygon;
+        }
+    },
 
     /**
      * Returns a newly initialized circle with the specified center and radius.
