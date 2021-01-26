@@ -10,9 +10,9 @@ exports.ArcgisWorldImageryTileDelegate = Montage.specialize({
                 url += "/tile/";
                 url += tile.z;
                 url += "/";
-                url += tile.y;
+                url += tile.y % Math.pow(2, tile.z);
                 url += "/";
-                url += tile.x;
+                url += tile.x % Math.pow(2, tile.z);
                 return self._fetchImage(url).then(function (image) {
                     tile.image = image;
                     return tile;
