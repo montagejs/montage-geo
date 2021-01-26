@@ -133,9 +133,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         value: function () {
             var self = this;
             this.canvas.width = this.size.width;
-            this.element.style.width = this.size.width + "px";
             this.canvas.height = this.size.height;
-            this.element.style.height = this.size.height + "px";
             this.drawBaseMap().then(function () {
                 return Promise.all(self.featureCollections.map(function (featureCollection) {
                     return Promise.all(featureCollection.features.map(function (feature) {
