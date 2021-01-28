@@ -243,11 +243,28 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
             }
             ctx.save();
             return Promise.resolve().then(function () {
+                var anchor;
                 if (style.type === StyleType.POINT) {
+                    anchor = self.projectMercatorOntoCanvas(Point2D.withPosition(feature.geometry.coordinates, self.zoom));
                     if (style.dataURL) {
-                        var anchor = self.projectMercatorOntoCanvas(Point2D.withPosition(feature.geometry.coordinates, self.zoom));
-                        return self._fetchImage(feature.style.dataURL).then(function (image) {
-                            ctx.drawImage(image, anchor.x - image.width / 2, anchor.y - image.height / 2);
+                        return self._fetchImage(style.dataURL).then(function (image) {
+                            ctx.drawImage(
+                                image,
+                                anchor.x - image.width / 2,
+                                anchor.y - image.height / 2,
+                                image.width,
+                                image.height
+                            );
+                        });
+                    } else if (style.icon) {
+                        return self._fetchImage(style.icon.symbol).then(function (image) {
+                            ctx.drawImage(
+                                image,
+                                anchor.x - style.icon.anchor.x,
+                                anchor.y - style.icon.anchor.y,
+                                style.icon.size.width,
+                                style.icon.size.height
+                            );
                         });
                     }
                 } else if (style.type === StyleType.LINE_STRING) {
@@ -301,7 +318,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
             if (rects.length === 1 || rects[0].contains(point2d)) {
                 return point2d.subtract(rects[0].origin);
             } else {
-                return point2d.subtract(rects[1].origin).add(Point2D.withCoordinates(0, rects[0].size.width));
+                return point2d.subtract(rects[1].origin).add(Point2D.withCoordinates(rects[0].size.width, 0));
             }
         }
     },
