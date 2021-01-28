@@ -8,6 +8,7 @@ var Component = require("montage/ui/component").Component,
     Position = require("logic/model/position").Position,
     Point2D = require("logic/model/point-2d").Point2D,
     Polygon = require("logic/model/polygon").Polygon,
+    Rect = require("logic/model/rect").Rect,
     Size = require("logic/model/size").Size,
     StyleType = require("logic/model/style").StyleType,
     TileBounds = require("logic/model/tile-bounds").TileBounds;
@@ -85,7 +86,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         },
         set: function (value) {
             if (value && value !== this._layers) {
-                this._layers = layers;
+                this._layers = value;
             }
         }
     },
@@ -148,35 +149,62 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         value: function () {
             var self = this,
                 ctx = this._context,
-                tileBounds = this.makeTileBounds(),
-                tiles = tileBounds.tiles;
+                tileBounds = this.makeTileBounds();
             if (!this.backgroundTileDelegate) {
                 return Promise.resolve();
             }
-            return this.backgroundTileDelegate.loadTileImages(tiles).then(function () {
-                var tilesOrigin = Position.withCoordinates(tiles[0].bounds.xMin, tiles[0].bounds.yMax),
+            return Promise.all(tileBounds.map(function (tileBounds) {
+                return self.backgroundTileDelegate.loadTileImages(tileBounds.tiles);
+            })).then(function () {
+                var tiles = tileBounds[0].tiles,
+                    tilesOrigin = Position.withCoordinates(tiles[0].bounds.xMin, tiles[0].bounds.yMax),
                     tilesPixelOrigin = Point2D.withPosition(tilesOrigin, self.zoom),
-                    xOffset = self.mercatorViewBounds.xmin - tilesPixelOrigin.x,
-                    yOffset = self.mercatorViewBounds.ymin - tilesPixelOrigin.y;
-                ctx.save();
-                tiles.forEach(function (tile) {
-                    ctx.drawImage(tile.image, -xOffset + 256 * (tile.x - tiles[0].x), -yOffset + 256 * (tile.y - tiles[0].y));
+                    mercatorViewBounds = self.mercatorViewBounds,
+                    xOffset = mercatorViewBounds.xMin - tilesPixelOrigin.x,
+                    yOffset = mercatorViewBounds.yMin - tilesPixelOrigin.y;
+                tileBounds.forEach(function (tileBounds) {
+                    tiles = tileBounds.tiles;
+                    ctx.save();
+                    tiles.forEach(function (tile) {
+                        var drawX = -xOffset + 256 * (tile.x - tiles[0].x),
+                            drawY = -yOffset + 256 * (tile.y - tiles[0].y);
+                        ctx.drawImage(tile.image, drawX, drawY);
+                    });
+                    xOffset -= (tileBounds.maxX - tileBounds.minX + 1) * 256;
+                    ctx.restore();
                 });
-                ctx.restore();
             });
         }
     },
 
     makeTileBounds: {
         value: function () {
-            var zoomFactor = 1 << this.zoom,
+            var zoom = this.zoom,
+                zoomFactor = 1 << zoom,
                 worldPixelRange = 256 * zoomFactor,
-                bounds = this.mercatorViewBounds,
-                xmin = Math.floor(zoomFactor * bounds.xmin / worldPixelRange),
-                xmax = Math.floor(zoomFactor * bounds.xmax / worldPixelRange),
-                ymin = Math.floor(zoomFactor * bounds.ymin / worldPixelRange),
-                ymax = Math.floor(zoomFactor * bounds.ymax / worldPixelRange);
-            return TileBounds.withCoordinates(xmin, ymin, xmax, ymax, this.zoom, null);
+                mercatorViewBounds = this.mercatorViewBounds,
+                rects;
+            if (mercatorViewBounds.xMax > worldPixelRange) {
+                rects = [
+                    Rect.withOriginAndSize(
+                        Point2D.withCoordinates(mercatorViewBounds.xMin, mercatorViewBounds.yMin),
+                        Size.withHeightAndWidth(mercatorViewBounds.size.height, worldPixelRange - 1 - mercatorViewBounds.xMin)
+                    ),
+                    Rect.withOriginAndSize(
+                        Point2D.withCoordinates(0, mercatorViewBounds.yMin),
+                        Size.withHeightAndWidth(mercatorViewBounds.size.height, mercatorViewBounds.xMax - worldPixelRange)
+                    )
+                ]
+            } else {
+                rects = [mercatorViewBounds];
+            }
+            return rects.map(function (rect) {
+                var xmin = Math.floor(zoomFactor * rect.xMin / worldPixelRange),
+                    xmax = Math.floor(zoomFactor * rect.xMax / worldPixelRange),
+                    ymin = Math.floor(zoomFactor * rect.yMin / worldPixelRange),
+                    ymax = Math.floor(zoomFactor * rect.yMax / worldPixelRange);
+                return TileBounds.withCoordinates(xmin, ymin, xmax, ymax, zoom, null);
+            });
         }
     },
 
@@ -184,14 +212,24 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         get: function () {
             if (!this._mercatorViewBounds) {
                 var center = Point2D.withPosition(this.center, this.zoom);
-                this._mercatorViewBounds = {
-                    xmin: center.x - this.size.width / 2,
-                    ymin: center.y - this.size.height / 2,
-                    xmax: center.x + this.size.width / 2,
-                    ymax: center.y + this.size.height / 2
-                }
+                this._mercatorViewBounds = Rect.withOriginAndSize(
+                    Point2D.withCoordinates(this._normalizeX(center.x - this.size.width / 2, this.zoom), center.y - this.size.height / 2),
+                    this.size
+                );
             }
             return this._mercatorViewBounds;
+        }
+    },
+
+    _normalizeX: {
+        value: function (x, z) {
+            var mapSize = 256 << z;
+            if (x < 0) {
+                x += mapSize;
+            } else if (x > mapSize) {
+                x -= mapSize;
+            }
+            return x;
         }
     },
 
@@ -242,10 +280,29 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
     },
 
     projectMercatorOntoCanvas: {
-        value: function (point) {
-            var bounds = this.mercatorViewBounds,
-                origin = Point2D.withCoordinates(bounds.xmin, bounds.ymin);
-            return point.subtract(origin);
+        value: function (point2d) {
+            var mercatorViewBounds = this.mercatorViewBounds,
+                worldPixelRange = 256 << this.zoom,
+                rects;
+            if (mercatorViewBounds.xMax > worldPixelRange) {
+                rects = [
+                    Rect.withOriginAndSize(
+                        Point2D.withCoordinates(mercatorViewBounds.xMin, mercatorViewBounds.yMin),
+                        Size.withHeightAndWidth(mercatorViewBounds.size.height, worldPixelRange - 1 - mercatorViewBounds.xMin)
+                    ),
+                    Rect.withOriginAndSize(
+                        Point2D.withCoordinates(0, mercatorViewBounds.yMin),
+                        Size.withHeightAndWidth(mercatorViewBounds.size.height, mercatorViewBounds.xMax - worldPixelRange)
+                    )
+                ]
+            } else {
+                rects = [mercatorViewBounds];
+            }
+            if (rects.length === 1 || rects[0].contains(point2d)) {
+                return point2d.subtract(rects[0].origin);
+            } else {
+                return point2d.subtract(rects[1].origin).add(Point2D.withCoordinates(0, rects[0].size.width));
+            }
         }
     },
 
