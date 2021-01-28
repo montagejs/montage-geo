@@ -186,6 +186,17 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
         }
     },
 
+    /**
+     * Tests whether the specified point lies within the bounds of this rect.
+     * @param {Point2D} - the point to test.
+     * @returns {boolean}
+     */
+    contains: {
+        value: function (point) {
+            return point.x >= this.xMin && point.x <= this.xMax && point.y >= this.yMin && point.y <= this.yMax;
+        }
+    },
+
     /**************************************************************************
      * Serialization
      */
