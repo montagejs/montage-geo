@@ -108,6 +108,10 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         }
     },
 
+    featureRenderScale: {
+        value: 1
+    },
+
     /**
      * @type {Object}
      */
@@ -250,20 +254,20 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
                         return self._fetchImage(style.dataURL).then(function (image) {
                             ctx.drawImage(
                                 image,
-                                anchor.x - image.width / 2,
-                                anchor.y - image.height / 2,
-                                image.width,
-                                image.height
+                                anchor.x - image.width * self.featureRenderScale / 2,
+                                anchor.y - image.height * self.featureRenderScale / 2,
+                                image.width * self.featureRenderScale,
+                                image.height * self.featureRenderScale
                             );
                         });
                     } else if (style.icon) {
                         return self._fetchImage(style.icon.symbol).then(function (image) {
                             ctx.drawImage(
                                 image,
-                                anchor.x - style.icon.anchor.x,
-                                anchor.y - style.icon.anchor.y,
-                                style.icon.size.width,
-                                style.icon.size.height
+                                anchor.x - style.icon.anchor.x * self.featureRenderScale,
+                                anchor.y - style.icon.anchor.y * self.featureRenderScale,
+                                style.icon.size.width * self.featureRenderScale,
+                                style.icon.size.height * self.featureRenderScale
                             );
                         });
                     }
