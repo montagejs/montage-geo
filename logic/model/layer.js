@@ -35,6 +35,21 @@ exports.Layer = Montage.specialize(/** @lends Layer.prototype */ {
     },
 
     /**
+     *
+     * User to determine the stacking order of a layer within its
+     * type.  Layers are stacked together first by their geometry type
+     * e.g. Raster, Polygon, Line and Point.  The layer's depth indicates
+     * the layer's stacking order within its type.  The lower the depth
+     * the closer to the user it will appear.
+     *
+     * @type {number}
+     * @default {3}
+     */
+    depth: {
+        value: 3
+    },
+
+    /**
      * The maximum zoom level this layer can be displayed at.
      * @type {number}
      */
@@ -62,18 +77,12 @@ exports.Layer = Montage.specialize(/** @lends Layer.prototype */ {
     },
 
     /**
-     *
-     * User to determine the stacking order of a layer within its
-     * type.  Layers are stacked together first by their geometry type
-     * e.g. Raster, Polygon, Line and Point.  The layer's depth indicates
-     * the layer's stacking order within its type.  The lower the depth
-     * the closer to the user it will appear.
-     *
-     * @type {number}
-     * @default {3}
+     * The renderer used to style this layer's features.
+     * @type{Renderer}
      */
-    depth: {
-        value: 3
+    renderer: {
+        value: undefined
     }
+
 
 });
