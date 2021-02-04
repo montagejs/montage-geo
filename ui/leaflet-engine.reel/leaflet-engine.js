@@ -1226,6 +1226,9 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
 
     _handleZoomEnd: {
         value: function (event) {
+            this.dispatchBeforeOwnPropertyChange("zoom", this.zoom);
+            this._zoom = this._map.getZoom();
+            this.dispatchOwnPropertyChange("zoom", this.zoom);
             this._overlays.forEach(function (overlay) {
                 overlay.didReset();
             });

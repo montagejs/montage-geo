@@ -1,0 +1,24 @@
+.map {
+    -webkit-align-content: stretch;
+    -webkit-flex-direction: row;
+    display: -webkit-flex;
+    align-content: stretch;
+    display:flex;
+    flex-direction: row;
+    height: 100%;
+    z-index: 1;
+}
+
+.Main-map {
+    z-index: 1;
+}
+
+.Main-scaleOverlay {
+    align-items: center;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    width: 100%;
+    z-index: 10;
+}

@@ -3,28 +3,30 @@
 <head>
     <meta charset="utf-8">
     <title>
-        Basic Map Example
+        Scale Overlay Example
     </title>
     <link rel="stylesheet" href="main.css">
     <script type="text/montage-serialization">
     {
         "owner": {
-            "properties": {
-                "element": {"#": "main"},
-                "_map": {"@": "map"}
-            },
-            "bindings": {
-                "bounds": {"<-": "@map.bounds"},
-                "center": {"<-": "@map.center"},
-                "zoom": {"<-": "@map.zoom"}
+            "values": {
+                "element": {"#": "main"}
             }
         },
         "map": {
             "prototype": "montage-geo/ui/map.reel",
-            "properties": {
+            "values": {
                 "element": {"#": "map"},
                 "center": [-156.6825, 20.8783],
                 "zoom": 5
+            }
+        },
+        "scaleOverlay": {
+            "prototype": "montage-geo/ui/scale-overlay.reel",
+            "values": {
+                "element": {"#": "scaleOverlay"},
+                "position": {"<-": "@map.center"},
+                "zoom": {"<-": "@map.zoom"}
             }
         }
     }
@@ -32,7 +34,8 @@
 </head>
 <body>
     <div data-montage-id="main" class="Main">
-        <div data-montage-id="map"></div>
+        <div data-montage-id="map" class="Main-map"></div>
+        <div data-montage-id="scaleOverlay" class="Main-scaleOverlay"></div>
     </div>
 </body>
 </html>

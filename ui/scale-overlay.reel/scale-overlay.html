@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" href="scale-overlay.css">
+    <script type="text/montage-serialization">
+    {
+        "owner": {
+            "values": {
+                "element": {"#": "owner"},
+                "_imperialTab": {"#": "imperialTab"},
+                "_line": {"#": "line"},
+                "_metricTab": {"#": "metricTab"},
+                "_scale": {"#": "scale"}
+            },
+            "localizations": {
+                "_feetAbbreviation": {
+                    "key": "feet_abbreviation",
+                    "default": "ft"
+                },
+                "_milesAbbreviation": {
+                    "key": "miles_abbreviation",
+                    "default": "mi"
+                },
+                "_kilometersAbbreviation": {
+                    "key": "kilometers_abbreviation",
+                    "default": "km"
+                },
+                "_metersAbbreviation": {
+                    "key": "meters_abbreviation",
+                    "default": "m"
+                }
+            }
+        },
+        "imperialDistanceValue": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "imperialDistanceValue"},
+                "value": {"<-": "@owner._imperialDistanceValue"}
+            }
+        },
+        "latitudeLabel": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "latitudeLabel"}
+            },
+            "localizations": {
+                "value": {
+                    "key": "latitude_abbreviation",
+                    "default": "Lat"
+                }
+            }
+        },
+        "latitudeValue": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "latitudeValue"},
+                "converter": {"<-": "@owner._coordinateConverter"},
+                "value": {"<-": "@owner.position.latitude"}
+            }
+        },
+        "longitudeLabel": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "longitudeLabel"}
+            },
+            "localizations": {
+                "value": {
+                    "key": "longitude_abbreviation",
+                    "default": "Lon"
+                }
+            }
+        },
+        "longitudeValue": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "longitudeValue"},
+                "converter": {"<-": "@owner._coordinateConverter"},
+                "value": {"<-": "@owner.position.longitude"}
+            }
+        },
+        "mgrsLabel": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "mgrsLabel"}
+            },
+            "localizations": {
+                "value": {
+                    "key": "mgrs_label",
+                    "default": "MGRS"
+                }
+            }
+        },
+        "mgrsValue": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "mgrsValue"},
+                "_point": {"<-": "@owner._point"},
+                "value": {"<-": "_point.defined() && _point.coordinates.defined() ? _point.mgrs() : ''"}
+            }
+        },
+        "metricDistanceValue": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "metricDistanceValue"},
+                "value": {"<-": "@owner._metricDistanceValue"}
+            }
+        },
+        "scaleLabel": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "scaleLabel"}
+            },
+            "localizations": {
+                "value": {
+                    "key": "map_scale",
+                    "default": "Scale"
+                }
+            }
+        },
+        "scaleValue": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "scaleValue"},
+                "value": {"<-": "@owner._scaleValue"}
+            }
+        }
+    }
+    </script>
+</head>
+<body>
+    <div data-montage-id="owner" class="montageGeo-ScaleOverlay">
+        <div data-montage-id="scale" class="montageGeo-ScaleOverlay-item montageGeo-ScaleOverlay-scale">
+            <div data-montage-id="imperialDistanceValue"></div>
+            <div data-montage-id="metricDistanceValue"></div>
+            <div data-montage-id="line" class="montageGeo-ScaleOverlay-scaleLine"></div>
+            <div class="montageGeo-ScaleOverlay-scaleLine-tabTop montageGeo-ScaleOverlay-scaleLine-tab"></div>
+            <div class="montageGeo-ScaleOverlay-scaleLine-tabBottom montageGeo-ScaleOverlay-scaleLine-tab"></div>
+            <div data-montage-id="imperialTab" class="montageGeo-ScaleOverlay-scaleLine-tabTop montageGeo-ScaleOverlay-scaleLine-tab"></div>
+            <div data-montage-id="metricTab" class="montageGeo-ScaleOverlay-scaleLine-tabBottom montageGeo-ScaleOverlay-scaleLine-tab"></div>
+        </div>
+        <div class="montageGeo-ScaleOverlay-item">
+            <div data-montage-id="scaleLabel" class="montageGeo-ScaleOverlay-label"></div>
+            <div data-montage-id="scaleValue" class="montageGeo-ScaleOverlay-value"></div>
+        </div>
+        <div class="montageGeo-ScaleOverlay-item">
+            <div data-montage-id="latitudeLabel" class="montageGeo-ScaleOverlay-label"></div>
+            <div data-montage-id="latitudeValue" class="montageGeo-ScaleOverlay-value"></div>
+        </div>
+        <div class="montageGeo-ScaleOverlay-item">
+            <div data-montage-id="longitudeLabel" class="montageGeo-ScaleOverlay-label"></div>
+            <div data-montage-id="longitudeValue" class="montageGeo-ScaleOverlay-value"></div>
+        </div>
+        <div class="montageGeo-ScaleOverlay-item">
+            <div data-montage-id="mgrsLabel" class="montageGeo-ScaleOverlay-label"></div>
+            <div data-montage-id="mgrsValue" class="montageGeo-ScaleOverlay-value"></div>
+        </div>
+    </div>
+</body>
+</html>
