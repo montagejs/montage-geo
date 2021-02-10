@@ -1,7 +1,8 @@
 /**
  * @module "ui/static-map.reel"
  */
-var Component = require("montage/ui/component").Component,
+var BoundingBox = require("logic/model/bounding-box").BoundingBox,
+    Component = require("montage/ui/component").Component,
     LineString = require("logic/model/line-string").LineString,
     MultiLineString = require("logic/model/multi-line-string").MultiLineString,
     MultiPolygon = require("logic/model/multi-polygon").MultiPolygon,
@@ -20,36 +21,35 @@ var Component = require("montage/ui/component").Component,
 exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
 
     /**
-     * @type {Position|Point}
-     * @default 0,0
+     * @type {BoundingBox}
      */
-    center: {
+    bounds: {
         get: function () {
-            if (!this._center) {
-                this._center = Position.withCoordinates(0, 0);
+            if (!this._bounds) {
+                this._bounds = BoundingBox.withCoordinates(-10, -10, 10, 10);
             }
-            return this._center;
+            return this._bounds;
         },
         set: function (value) {
-            if (value && value !== this._center) {
-                this._center = value;
-                this._mercatorViewBounds = null;
+            if (value && value !== this._bounds) {
+                this._bounds = value;
             }
         }
     },
 
     /**
-     * Zoom level of the map.
      * @type {Number}
-     * @default 0
      */
-    zoom: {
+    devicePixelRatio: {
         get: function () {
-            return this._zoom || 0;
+            if (!this._dpr) {
+                this._dpr = window.devicePixelRatio;
+            }
+            return this._dpr;
         },
         set: function (value) {
-            if (value != null && value !== this._zoom) {
-                this._zoom = value;
+            if (value !== this._dpr) {
+                this._dpr = value;
                 this._mercatorViewBounds = null;
             }
         }
@@ -109,7 +109,9 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
     },
 
     featureRenderScale: {
-        value: 1
+        get: function () {
+            return this.webMercatorRect.width / this.size.width;
+        }
     },
 
     /**
@@ -126,6 +128,35 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         }
     },
 
+    constructor: {
+        value: function StaticMap() {
+            this.defineBinding("renderSize", {"<-": "size.multiply(devicePixelRatio)"});
+            this.defineBinding("zoom", {"<-": "_optimalZoomLevel(bounds, renderSize)"});
+            this.defineBinding("webMercatorRect", {"<-": "bounds.toRect(zoom)"});
+            this.addOwnPropertyChangeListener("webMercatorRect", this);
+        }
+    },
+
+    _optimalZoomLevel: {
+        value: function (bounds, renderSize) {
+            var zoom = 1,
+                rect = bounds.toRect(zoom);
+            while (
+                (rect = bounds.toRect(zoom)) &&
+                (rect.width < renderSize.width || rect.height < renderSize.height)
+            ) {
+                ++zoom;
+            }
+            return zoom;
+        }
+    },
+
+    handlePropertyChange: {
+        value: function () {
+            this.needsDraw = true;
+        }
+    },
+
     enterDocument: {
         value: function (firstTime) {
             if (firstTime) {
@@ -137,8 +168,10 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
     draw: {
         value: function () {
             var self = this;
-            this.canvas.width = this.size.width;
-            this.canvas.height = this.size.height;
+            this.canvas.width = this.webMercatorRect.width;
+            this.canvas.height = this.webMercatorRect.height;
+            this.canvas.style.width = this.size.width + "px";
+            this.canvas.style.height = this.size.height + "px";
             this.drawBaseMap().then(function () {
                 return Promise.all(self.featureCollections.map(function (featureCollection) {
                     return Promise.all(featureCollection.features.map(function (feature) {
@@ -163,9 +196,8 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
                 var tiles = tileBounds[0].tiles,
                     tilesOrigin = Position.withCoordinates(tiles[0].bounds.xMin, tiles[0].bounds.yMax),
                     tilesPixelOrigin = Point2D.withPosition(tilesOrigin, self.zoom),
-                    mercatorViewBounds = self.mercatorViewBounds,
-                    xOffset = mercatorViewBounds.xMin - tilesPixelOrigin.x,
-                    yOffset = mercatorViewBounds.yMin - tilesPixelOrigin.y;
+                    xOffset = self.webMercatorRect.xMin - tilesPixelOrigin.x,
+                    yOffset = self.webMercatorRect.yMin - tilesPixelOrigin.y;
                 tileBounds.forEach(function (tileBounds) {
                     tiles = tileBounds.tiles;
                     ctx.save();
@@ -185,24 +217,8 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         value: function () {
             var zoom = this.zoom,
                 zoomFactor = 1 << zoom,
-                worldPixelRange = 256 * zoomFactor,
-                mercatorViewBounds = this.mercatorViewBounds,
-                rects;
-            if (mercatorViewBounds.xMax > worldPixelRange) {
-                rects = [
-                    Rect.withOriginAndSize(
-                        Point2D.withCoordinates(mercatorViewBounds.xMin, mercatorViewBounds.yMin),
-                        Size.withHeightAndWidth(mercatorViewBounds.size.height, worldPixelRange - 1 - mercatorViewBounds.xMin)
-                    ),
-                    Rect.withOriginAndSize(
-                        Point2D.withCoordinates(0, mercatorViewBounds.yMin),
-                        Size.withHeightAndWidth(mercatorViewBounds.size.height, mercatorViewBounds.xMax - worldPixelRange)
-                    )
-                ]
-            } else {
-                rects = [mercatorViewBounds];
-            }
-            return rects.map(function (rect) {
+                worldPixelRange = 256 * zoomFactor;
+            return this._webMercatorRectSplitOverAntimeridian.map(function (rect) {
                 var xmin = Math.floor(zoomFactor * rect.xMin / worldPixelRange),
                     xmax = Math.floor(zoomFactor * rect.xMax / worldPixelRange),
                     ymin = Math.floor(zoomFactor * rect.yMin / worldPixelRange),
@@ -212,28 +228,25 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         }
     },
 
-    mercatorViewBounds: {
+    _webMercatorRectSplitOverAntimeridian: {
         get: function () {
-            if (!this._mercatorViewBounds) {
-                var center = Point2D.withPosition(this.center, this.zoom);
-                this._mercatorViewBounds = Rect.withOriginAndSize(
-                    Point2D.withCoordinates(this._normalizeX(center.x - this.size.width / 2, this.zoom), center.y - this.size.height / 2),
-                    this.size
-                );
+            var worldPixelRange = 256 << this.zoom,
+                rects;
+            if (this.webMercatorRect.xMax > worldPixelRange) {
+                rects = [
+                    Rect.withOriginAndSize(
+                        Point2D.withCoordinates(this.webMercatorRect.xMin, this.webMercatorRect.yMin),
+                        Size.withHeightAndWidth(this.webMercatorRect.size.height, worldPixelRange - 1 - this.webMercatorRect.xMin)
+                    ),
+                    Rect.withOriginAndSize(
+                        Point2D.withCoordinates(0, this.webMercatorRect.yMin),
+                        Size.withHeightAndWidth(this.webMercatorRect.size.height, this.webMercatorRect.xMax - worldPixelRange)
+                    )
+                ];
+            } else {
+                rects = [this.webMercatorRect];
             }
-            return this._mercatorViewBounds;
-        }
-    },
-
-    _normalizeX: {
-        value: function (x, z) {
-            var mapSize = 256 << z;
-            if (x < 0) {
-                x += mapSize;
-            } else if (x > mapSize) {
-                x -= mapSize;
-            }
-            return x;
+            return rects;
         }
     },
 
@@ -302,23 +315,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
 
     projectMercatorOntoCanvas: {
         value: function (point2d) {
-            var mercatorViewBounds = this.mercatorViewBounds,
-                worldPixelRange = 256 << this.zoom,
-                rects;
-            if (mercatorViewBounds.xMax > worldPixelRange) {
-                rects = [
-                    Rect.withOriginAndSize(
-                        Point2D.withCoordinates(mercatorViewBounds.xMin, mercatorViewBounds.yMin),
-                        Size.withHeightAndWidth(mercatorViewBounds.size.height, worldPixelRange - 1 - mercatorViewBounds.xMin)
-                    ),
-                    Rect.withOriginAndSize(
-                        Point2D.withCoordinates(0, mercatorViewBounds.yMin),
-                        Size.withHeightAndWidth(mercatorViewBounds.size.height, mercatorViewBounds.xMax - worldPixelRange)
-                    )
-                ]
-            } else {
-                rects = [mercatorViewBounds];
-            }
+            var rects = this._webMercatorRectSplitOverAntimeridian;
             if (rects.length === 1 || rects[0].contains(point2d)) {
                 return point2d.subtract(rects[0].origin);
             } else {
