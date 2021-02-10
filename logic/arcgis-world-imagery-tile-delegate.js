@@ -2,18 +2,31 @@ var Montage = require("montage/core/core").Montage;
 
 exports.ArcgisWorldImageryTileDelegate = Montage.specialize({
 
+    _cache: {
+        value: {}
+    },
+
     loadTileImages: {
         value: function (tiles) {
             var self = this;
             return Promise.all(tiles.map(function (tile) {
-                var url = self.constructor.WORLD_IMAGERY_SERVICE_URL;
+                var url = self.constructor.WORLD_IMAGERY_SERVICE_URL,
+                    imagePromise;
                 url += "/tile/";
                 url += tile.z;
                 url += "/";
                 url += tile.y % Math.pow(2, tile.z);
                 url += "/";
                 url += tile.x % Math.pow(2, tile.z);
-                return self._fetchImage(url).then(function (image) {
+                if (self._cache[url]) {
+                    imagePromise = Promise.resolve(self._cache[url]);
+                } else {
+                    imagePromise = self._fetchImage(url).then(function (image) {
+                        self._cache[url] = image;
+                        return image;
+                    });
+                }
+                return imagePromise.then(function (image) {
                     tile.image = image;
                     return tile;
                 });
