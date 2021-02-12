@@ -1,8 +1,8 @@
-var Component = require("montage/ui/component").Component,
-    Feature = require("montage-geo/logic/model/feature").Feature,
-    LineString = require("montage-geo/logic/model/line-string").LineString,
+var BoundingBox = require("montage-geo/logic/model/bounding-box").BoundingBox,
+    Component = require("montage/ui/component").Component,
     Point = require("montage-geo/logic/model/point").Point,
     Point2D = require("montage-geo/logic/model/point-2d").Point2D,
+    Rect = require("montage-geo/logic/model/rect").Rect,
     Size = require("montage-geo/logic/model/size").Size,
     Style = require("montage-geo/logic/model/style").Style,
     StyleType = require("montage-geo/logic/model/style").StyleType;
@@ -19,12 +19,24 @@ exports.Main = Component.specialize(/** @lends Main.prototype */ {
         }
     },
 
+    dpr: {
+        value: 1
+    },
+
     enterDocument: {
         value: function (firstTime) {
-            var lineStringFeature;
+            var center, center2d, rect, lineStringFeature;
             if (!firstTime) {
                 return;
             }
+
+            center = Point.withCoordinates(179.06738, -3.91511);
+            center2d = Point2D.withPosition(center.coordinates, 4);
+            rect = Rect.withOriginAndSize(
+                Point2D.withCoordinates(center2d.x - 512, center2d.y - 512),
+                Size.withHeightAndWidth(1024, 1024)
+            );
+            this.map.bounds = BoundingBox.withRectAtZoomLevel(rect, 4);
 
             lineStringFeature = Feature.withMembers(1, {}, Point.withCoordinates([178.25671,-4.67183]));
             lineStringFeature.style = new Style(StyleType.POINT);
