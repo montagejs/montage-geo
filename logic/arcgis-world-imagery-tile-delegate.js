@@ -1,4 +1,5 @@
-var Montage = require("montage/core/core").Montage;
+var Montage = require("montage/core/core").Montage,
+    Promise = require("montage/core/promise").Promise;
 
 exports.ArcgisWorldImageryTileDelegate = Montage.specialize({
 

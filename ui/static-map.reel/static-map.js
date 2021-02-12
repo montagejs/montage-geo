@@ -129,6 +129,14 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         }
     },
 
+    /**
+     * The delegate to use for requesting images.
+     * @type {TileDelegate}
+     */
+    tileDelegate: {
+        value: undefined
+    },
+
     constructor: {
         value: function StaticMap() {
             this.defineBinding("renderSize", {"<-": "size.multiply(devicePixelRatio)"});
@@ -174,6 +182,8 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
             this.canvas.style.width = this.size.width + "px";
             this.canvas.style.height = this.size.height + "px";
             this.drawBaseMap().then(function () {
+                return self.tileDelegate && self._drawLayers(self.layers.slice()) || null;
+            }).then(function () {
                 return Promise.all(self.featureCollections.map(function (featureCollection) {
                     return Promise.all(featureCollection.features.map(function (feature) {
                         return self.drawFeature(feature);
@@ -213,6 +223,50 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
             });
         }
     },
+
+    _drawLayers: {
+        value: function (layers) {
+            layers = layers || [];
+            return layers.length > 0 ? this._drawFirstLayer(layers) : null;
+        }
+    },
+
+    _drawFirstLayer: {
+        value: function (layers) {
+            var layer = layers.shift(),
+                tileBoundsSet = this.makeTileBounds(),
+                self = this;
+            return Promise.all(tileBoundsSet.map(function (tileBounds) {
+                return self.tileDelegate.loadImagesForTileAndLayer(tileBounds.tiles, layer);
+            })).then(function () {
+                self._drawTileBoundSet(tileBoundsSet);
+                return self._drawLayers(layers);
+            });
+        }
+    },
+
+    _drawTileBoundSet: {
+        value: function (tileBoundsSet) {
+            var tiles = tileBoundsSet[0].tiles,
+                tilesOrigin = Position.withCoordinates(tiles[0].bounds.xMin, tiles[0].bounds.yMax),
+                tilesPixelOrigin = Point2D.withPosition(tilesOrigin, this.zoom),
+                xOffset = this.webMercatorRect.xMin - tilesPixelOrigin.x,
+                yOffset = this.webMercatorRect.yMin - tilesPixelOrigin.y,
+                ctx = this._context;
+            tileBoundsSet.forEach(function (tileBounds) {
+                tiles = tileBounds.tiles;
+                ctx.save();
+                tiles.forEach(function (tile) {
+                    var drawX = -xOffset + 256 * (tile.x - tiles[0].x),
+                        drawY = -yOffset + 256 * (tile.y - tiles[0].y);
+                    ctx.drawImage(tile.image, drawX, drawY);
+                });
+                xOffset -= (tileBounds.maxX - tileBounds.minX + 1) * 256;
+                ctx.restore();
+            });
+        }
+    },
+
 
     makeTileBounds: {
         value: function () {
