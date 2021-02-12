@@ -196,7 +196,6 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
     drawBaseMap: {
         value: function () {
             var self = this,
-                ctx = this._context,
                 tileBounds = this.makeTileBounds();
             if (!this.backgroundTileDelegate) {
                 return Promise.resolve();
@@ -204,22 +203,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
             return Promise.all(tileBounds.map(function (tileBounds) {
                 return self.backgroundTileDelegate.loadTileImages(tileBounds.tiles);
             })).then(function () {
-                var tiles = tileBounds[0].tiles,
-                    tilesOrigin = Position.withCoordinates(tiles[0].bounds.xMin, tiles[0].bounds.yMax),
-                    tilesPixelOrigin = Point2D.withPosition(tilesOrigin, self.zoom),
-                    xOffset = self.webMercatorRect.xMin - tilesPixelOrigin.x,
-                    yOffset = self.webMercatorRect.yMin - tilesPixelOrigin.y;
-                tileBounds.forEach(function (tileBounds) {
-                    tiles = tileBounds.tiles;
-                    ctx.save();
-                    tiles.forEach(function (tile) {
-                        var drawX = -xOffset + 256 * (tile.x - tiles[0].x),
-                            drawY = -yOffset + 256 * (tile.y - tiles[0].y);
-                        ctx.drawImage(tile.image, drawX, drawY);
-                    });
-                    xOffset -= (tileBounds.maxX - tileBounds.minX + 1) * 256;
-                    ctx.restore();
-                });
+                self._drawTileBoundSetWithOpacity(tileBounds, 1.0);
             });
         }
     },
@@ -239,23 +223,25 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
             return Promise.all(tileBoundsSet.map(function (tileBounds) {
                 return self.tileDelegate.loadImagesForTileAndLayer(tileBounds.tiles, layer);
             })).then(function () {
-                self._drawTileBoundSet(tileBoundsSet);
+                self._drawTileBoundSetWithOpacity(tileBoundsSet, layer.opacity);
                 return self._drawLayers(layers);
             });
         }
     },
 
-    _drawTileBoundSet: {
-        value: function (tileBoundsSet) {
+    _drawTileBoundSetWithOpacity: {
+        value: function (tileBoundsSet, opacity) {
             var tiles = tileBoundsSet[0].tiles,
                 tilesOrigin = Position.withCoordinates(tiles[0].bounds.xMin, tiles[0].bounds.yMax),
                 tilesPixelOrigin = Point2D.withPosition(tilesOrigin, this.zoom),
                 xOffset = this.webMercatorRect.xMin - tilesPixelOrigin.x,
                 yOffset = this.webMercatorRect.yMin - tilesPixelOrigin.y,
                 ctx = this._context;
+            opacity = isNaN(opacity) ? 1.0 : opacity;
             tileBoundsSet.forEach(function (tileBounds) {
                 tiles = tileBounds.tiles;
                 ctx.save();
+                ctx.globalAlpha = opacity;
                 tiles.forEach(function (tile) {
                     var drawX = -xOffset + 256 * (tile.x - tiles[0].x),
                         drawY = -yOffset + 256 * (tile.y - tiles[0].y);
