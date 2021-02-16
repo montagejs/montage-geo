@@ -3,25 +3,34 @@ var Converter = require("montage/core/converter/converter").Converter,
     Feature = require("logic/model/feature").Feature,
     FeatureCollection = require("logic/model/feature-collection").FeatureCollection,
     GeometryCollection = require("logic/model/geometry-collection").GeometryCollection,
+    Icon = require("logic/model/icon").Icon,
     LineString = require("logic/model/line-string").LineString,
     Map = require("montage/collections/map"),
     MultiLineString = require("logic/model/multi-line-string").MultiLineString,
     MultiPoint = require("logic/model/multi-point").MultiPoint,
     MultiPolygon = require("logic/model/multi-polygon").MultiPolygon,
     Point = require("logic/model/point").Point,
+    Point2D = require("logic/model/point-2d").Point2D,
     Polygon = require("logic/model/polygon").Polygon,
-    Projection = require("logic/model/projection").Projection;
+    Projection = require("logic/model/projection").Projection,
+    Size = require("logic/model/size").Size,
+    Style = require("logic/model/style").Style,
+    StyleType = require("logic/model/style").StyleType;
 
 var MONTAGE_CONSTRUCTOR_TYPE_MAP = new Map();
     MONTAGE_CONSTRUCTOR_TYPE_MAP.set(Feature, "Feature");
     MONTAGE_CONSTRUCTOR_TYPE_MAP.set(FeatureCollection, "FeatureCollection");
     MONTAGE_CONSTRUCTOR_TYPE_MAP.set(GeometryCollection, "GeometryCollection");
+    MONTAGE_CONSTRUCTOR_TYPE_MAP.set(Icon, "Icon");
     MONTAGE_CONSTRUCTOR_TYPE_MAP.set(LineString, "LineString");
     MONTAGE_CONSTRUCTOR_TYPE_MAP.set(MultiLineString, "MultiLineString");
     MONTAGE_CONSTRUCTOR_TYPE_MAP.set(MultiPoint, "MultiPoint");
     MONTAGE_CONSTRUCTOR_TYPE_MAP.set(MultiPolygon, "MultiPolygon");
     MONTAGE_CONSTRUCTOR_TYPE_MAP.set(Point, "Point");
+    MONTAGE_CONSTRUCTOR_TYPE_MAP.set(Point2D, "Anchor");
     MONTAGE_CONSTRUCTOR_TYPE_MAP.set(Polygon, "Polygon");
+    MONTAGE_CONSTRUCTOR_TYPE_MAP.set(Size, "Size");
+    MONTAGE_CONSTRUCTOR_TYPE_MAP.set(Style, "Style");
 
 
 /**
@@ -215,9 +224,10 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
         convert: {
             value: function (value) {
                 var geometryType = GeoJson.forId(value.geometry.type),
-                    geometry = geometryType.convert(value.geometry);
+                    geometry = geometryType.convert(value.geometry),
+                    style = value.style && GeoJson.STYLE.convert(value.style);
 
-                return Feature.withMembers(value.id, value.properties || {}, geometry);
+                return Feature.withMembers(value.id, value.properties || {}, geometry, style);
             }
         },
 
@@ -234,6 +244,9 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
                 }
                 if (value.hasOwnProperty("properties")) {
                     reverted.properties = value.properties;
+                }
+                if (value.hasOwnProperty("style")) {
+                    reverted.style = GeoJson.STYLE.revert(value.style);
                 }
                 return reverted;
             }
@@ -379,6 +392,156 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
                 };
             }
         }
+    }],
+
+    STYLE: ["Style", {
+
+        convert: {
+            value: function (value) {
+                var styleType = value && value.styleType;
+                return  styleType === StyleType.POINT ?         this._convertPoint(value) :
+                        styleType === StyleType.LINE_STRING ?   this._convertLineString(value) :
+                        styleType === StyleType.POLYGON ?       this._convertPolygon(value) :
+                                                                null;
+            }
+        },
+
+        revert: {
+            value: function (value) {
+                var styleType = value && value.type;
+                return  styleType === StyleType.POINT ?         this._revertPoint(value) :
+                        styleType === StyleType.LINE_STRING ?   this._revertLineString(value) :
+                        styleType === StyleType.POLYGON ?       this._revertPolygon(value) :
+                                                                null;
+            }
+        },
+
+        _convertPoint: {
+            value: function (value) {
+                return Style.withValues(GeoJson.ICON.convert(value.icon));
+            }
+        },
+
+        _convertLineString: {
+            value: function (value) {
+                return Style.withValues(value.strokeColor, value.strokeOpacity, value.strokeWeight);
+            }
+        },
+
+        _convertPolygon: {
+            value: function (value) {
+                return Style.withValues(
+                    value.fillColor, value.fillOpacity, value.strokeColor, value.strokeOpacity, value.strokeWeight
+                );
+            }
+        },
+
+        _revertPoint: {
+            value: function (value) {
+                return {
+                    icon: GeoJson.ICON.revert(value.icon),
+                    styleType: value.type,
+                    type: "Style"
+                };
+            }
+        },
+
+        _revertLineString: {
+            value: function (value) {
+                return {
+                    strokeColor: value.strokeColor,
+                    strokeOpacity: value.strokeOpacity,
+                    strokeWeight: value.strokeWeight,
+                    styleType: value.type,
+                    type: "Style"
+                };
+            }
+        },
+
+        _revertPolygon: {
+            value: function (value) {
+                return {
+                    fillColor: value.fillColor,
+                    fillOpacity: value.fillOpacity,
+                    strokeColor: value.strokeColor,
+                    strokeOpacity: value.strokeOpacity,
+                    strokeWeight: value.strokeWeight,
+                    styleType: value.type,
+                    type: "Style"
+                };
+            }
+        }
+
+    }],
+
+    ICON: ["Icon", {
+        convert: {
+            value: function (value) {
+                if (!value) {
+                    return;
+                }
+                return Icon.withSymbolAnchorAndSize(
+                    value.symbol,
+                    GeoJson.ANCHOR.convert(value.anchor),
+                    GeoJson.SIZE.convert(value.size),
+                    GeoJson.SIZE.convert(value.scaledSize)
+                );
+            }
+        },
+
+        revert: {
+            value: function (value) {
+                if (!value) {
+                    return;
+                }
+                return {
+                    symbol: value.symbol,
+                    anchor: GeoJson.ANCHOR.revert(value.anchor),
+                    size: GeoJson.SIZE.revert(value.size),
+                    scaledSize: GeoJson.SIZE.revert(value.scaledSize),
+                    type: "Icon"
+                };
+            }
+        }
+    }],
+
+    ANCHOR: ["Anchor", {
+
+        convert: {
+            value: function (value) {
+                return value && Point2D.withCoordinates(value.x, value.y) || null;
+            }
+        },
+
+        revert: {
+            value: function (value) {
+                return value && {
+                    x: value.x,
+                    y: value.y,
+                    type: "Anchor"
+                } || null;
+            }
+        }
+    }],
+
+    SIZE: ["Size", {
+
+        convert: {
+            value: function (value) {
+                return value && Size.withHeightAndWidth(value.height, value.width) || null;
+            }
+        },
+
+        revert: {
+            value: function (value) {
+                return value && {
+                    height: value.height,
+                    width: value.width,
+                    type: "Size"
+                } || null;
+            }
+        }
+
     }]
 
 });
