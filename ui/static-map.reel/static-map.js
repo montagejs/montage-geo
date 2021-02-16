@@ -21,7 +21,34 @@ var BoundingBox = require("logic/model/bounding-box").BoundingBox,
  */
 exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
 
+    constructor: {
+        value: function StaticMap() {
+            this.defineBinding("renderSize", {"<-": "size.multiply(devicePixelRatio)"});
+            this.defineBinding("zoom", {"<-": "_optimalZoomLevel(bounds, renderSize)"});
+            this.defineBinding("webMercatorRect", {"<-": "bounds.toRect(zoom)"});
+            this.addOwnPropertyChangeListener("webMercatorRect", this);
+        }
+    },
+
+
     /**
+     * Set by owner
+     * // TODO: Standardize on the tile delegate instead.
+     * @type {Object}
+     */
+    backgroundTileDelegate: {
+        get: function () {
+            return this._backgroundTileDelegate;
+        },
+        set: function (value) {
+            if (value !== this._backgroundTileDelegate) {
+                this._backgroundTileDelegate = value;
+            }
+        }
+    },
+
+    /**
+     * Set by owner
      * @type {BoundingBox}
      */
     bounds: {
@@ -39,6 +66,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
     },
 
     /**
+     *
      * @type {Number}
      */
     devicePixelRatio: {
@@ -51,7 +79,55 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         set: function (value) {
             if (value !== this._dpr) {
                 this._dpr = value;
-                this._mercatorViewBounds = null;
+                this._mercatorViewBounds = null; // used?
+            }
+        }
+    },
+
+    /**
+     * The additional features to present on the map.
+     * @type {Array<FeatureCollection>}
+     */
+    featureCollections: {
+        get: function () {
+            if (!this._featureCollections) {
+                this._featureCollections = [];
+            }
+            return this._featureCollections;
+        },
+        set: function (value) {
+            if (value && value !== this._featureCollections) {
+                this._featureCollections = value;
+            }
+        }
+    },
+
+    /**
+     * A coefficient computed by dividing the web mercator rect by the print's
+     * width;
+     * @type {number}
+     */
+    featureRenderScale: {
+        get: function () {
+            return this.webMercatorRect.width / this.size.width;
+        }
+    },
+
+    /**
+     * The layers to display on the static map.
+     * Set by owner.
+     * @type {Array<Layer>}
+     */
+    layers: {
+        get: function () {
+            if (!this._layers) {
+                this._layers = [];
+            }
+            return this._layers;
+        },
+        set: function (value) {
+            if (value && value !== this._layers) {
+                this._layers = value;
             }
         }
     },
@@ -70,61 +146,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         set: function (value) {
             if (value && value !== this._size) {
                 this._size = value;
-                this._mercatorViewBounds = null;
-            }
-        }
-    },
-
-    /**
-     * @type {Array<Layer>}
-     */
-    layers: {
-        get: function () {
-            if (!this._layers) {
-                this._layers = [];
-            }
-            return this._layers;
-        },
-        set: function (value) {
-            if (value && value !== this._layers) {
-                this._layers = value;
-            }
-        }
-    },
-
-    /**
-     * @type {Array<FeatureCollection>}
-     */
-    featureCollections: {
-        get: function () {
-            if (!this._featureCollections) {
-                this._featureCollections = [];
-            }
-            return this._featureCollections;
-        },
-        set: function (value) {
-            if (value && value !== this._featureCollections) {
-                this._featureCollections = value;
-            }
-        }
-    },
-
-    featureRenderScale: {
-        get: function () {
-            return this.webMercatorRect.width / this.size.width;
-        }
-    },
-
-    /**
-     * @type {Object}
-     */
-    backgroundTileDelegate: {
-        get: function () {
-            return this._backgroundTileDelegate;
-        },
-        set: function (value) {
-            if (value !== this._backgroundTileDelegate) {
-                this._backgroundTileDelegate = value;
+                this._mercatorViewBounds = null; // used?
             }
         }
     },
@@ -137,13 +159,13 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         value: undefined
     },
 
-    constructor: {
-        value: function StaticMap() {
-            this.defineBinding("renderSize", {"<-": "size.multiply(devicePixelRatio)"});
-            this.defineBinding("zoom", {"<-": "_optimalZoomLevel(bounds, renderSize)"});
-            this.defineBinding("webMercatorRect", {"<-": "bounds.toRect(zoom)"});
-            this.addOwnPropertyChangeListener("webMercatorRect", this);
-        }
+    /**
+     * The value of this property is calculated from the assigned bounds and
+     * the computed zoom level.
+     * @type {Rect}
+     */
+    webMercatorRect: {
+        value: undefined
     },
 
     _optimalZoomLevel: {
@@ -160,19 +182,19 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         }
     },
 
+    /**************************************************************************
+     * Event Handlers
+     */
+
     handlePropertyChange: {
         value: function () {
             this.needsDraw = true;
         }
     },
 
-    enterDocument: {
-        value: function (firstTime) {
-            if (firstTime) {
-                this._context = this.canvas.getContext("2d");
-            }
-        }
-    },
+    /**************************************************************************
+     * Component Delegate Methods
+     */
 
     draw: {
         value: function () {
@@ -181,7 +203,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
             this.canvas.height = this.webMercatorRect.height;
             this.canvas.style.width = this.size.width + "px";
             this.canvas.style.height = this.size.height + "px";
-            this.drawBaseMap().then(function () {
+            this._drawBaseMap().then(function () {
                 return self.tileDelegate && self._drawLayers(self.layers.slice()) || null;
             }).then(function () {
                 return Promise.all(self.featureCollections.map(function (featureCollection) {
@@ -193,7 +215,15 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         }
     },
 
-    drawBaseMap: {
+    enterDocument: {
+        value: function (firstTime) {
+            if (firstTime) {
+                this._context = this.canvas.getContext("2d");
+            }
+        }
+    },
+
+    _drawBaseMap: {
         value: function () {
             var self = this,
                 tileBounds = this.makeTileBounds();
@@ -291,15 +321,21 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         }
     },
 
+    /**************************************************************************
+     * Drawing Features
+     */
+
     drawFeature: {
         value: function (feature) {
             var self = this,
                 ctx = this._context,
-                style = feature.style;
+                style = feature.style,
+                size;
             if (!style) {
                 return Promise.resolve();
             }
             ctx.save();
+            // TODO Refactor
             return Promise.resolve().then(function () {
                 var anchor;
                 if (style.type === StyleType.POINT) {
@@ -316,12 +352,16 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
                         });
                     } else if (style.icon) {
                         return self._fetchImage(style.icon.symbol).then(function (image) {
+                            anchor = style.anchor || self.projectMercatorOntoCanvas(
+                                Point2D.withPosition(feature.geometry.coordinates, self.zoom)
+                            );
+                            size = style.icon.scaledSize || style.icon.size || Size.withHeightAndWidth(image.height, image.width);
                             ctx.drawImage(
                                 image,
-                                anchor.x - style.icon.anchor.x * self.featureRenderScale,
-                                anchor.y - style.icon.anchor.y * self.featureRenderScale,
-                                style.icon.size.width * self.featureRenderScale,
-                                style.icon.size.height * self.featureRenderScale
+                                anchor.x - size.width * self.featureRenderScale / 2,
+                                anchor.y - size.height * self.featureRenderScale / 2,
+                                size.width * self.featureRenderScale,
+                                size.height * self.featureRenderScale
                             );
                         });
                     }
