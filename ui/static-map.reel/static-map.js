@@ -4,7 +4,6 @@
 var BoundingBox = require("logic/model/bounding-box").BoundingBox,
     Component = require("montage/ui/component").Component,
     LineString = require("logic/model/line-string").LineString,
-    MapImage = require("logic/model/map-image").MapImage,
     MultiLineString = require("logic/model/multi-line-string").MultiLineString,
     MultiPolygon = require("logic/model/multi-polygon").MultiPolygon,
     Position = require("logic/model/position").Position,
@@ -14,7 +13,7 @@ var BoundingBox = require("logic/model/bounding-box").BoundingBox,
     Rect = require("logic/model/rect").Rect,
     Size = require("logic/model/size").Size,
     StyleType = require("logic/model/style").StyleType,
-    Tile = require("logic/model/tile").Tile;
+    TileBounds = require("logic/model/tile-bounds").TileBounds;
 
 /**
  * @class StaticMap
@@ -31,13 +30,21 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         }
     },
 
+
     /**
      * Set by owner
-     * The layer to draw for the base map.
-     * @type {Layer}
+     * // TODO: Standardize on the tile delegate instead.
+     * @type {Object}
      */
-    baseMap: {
-        value: undefined
+    backgroundTileDelegate: {
+        get: function () {
+            return this._backgroundTileDelegate;
+        },
+        set: function (value) {
+            if (value !== this._backgroundTileDelegate) {
+                this._backgroundTileDelegate = value;
+            }
+        }
     },
 
     /**
@@ -146,9 +153,9 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
 
     /**
      * The delegate to use for requesting images.
-     * @type {MapImageDelegate}
+     * @type {TileDelegate}
      */
-    mapImageDelegate: {
+    tileDelegate: {
         value: undefined
     },
 
@@ -197,7 +204,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
             this.canvas.style.width = this.size.width + "px";
             this.canvas.style.height = this.size.height + "px";
             this._drawBaseMap().then(function () {
-                return self.mapImageDelegate && self._drawLayers(self.layers.slice()) || null;
+                return self.tileDelegate && self._drawLayers(self.layers.slice()) || null;
             }).then(function () {
                 return Promise.all(self.featureCollections.map(function (featureCollection) {
                     return Promise.all(featureCollection.features.map(function (feature) {
@@ -218,7 +225,16 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
 
     _drawBaseMap: {
         value: function () {
-            return this.baseMap && this._drawMapLayer(this.baseMap) || Promise.resolve(null);
+            var self = this,
+                tileBounds = this.makeTileBounds();
+            if (!this.backgroundTileDelegate) {
+                return Promise.resolve();
+            }
+            return Promise.all(tileBounds.map(function (tileBounds) {
+                return self.backgroundTileDelegate.loadTileImages(tileBounds.tiles);
+            })).then(function () {
+                self._drawTileBoundSetWithOpacity(tileBounds, 1.0);
+            });
         }
     },
 
@@ -232,70 +248,76 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
     _drawFirstLayer: {
         value: function (layers) {
             var layer = layers.shift(),
-                promise = layer.featureCollection ? this._drawLayerFeatures(layer) : this._drawMapLayer(layer),
+                tileBoundsSet = this.makeTileBounds(),
                 self = this;
-
-            return promise.then(function () {
+            return Promise.all(tileBoundsSet.map(function (tileBounds) {
+                return self.tileDelegate.loadImagesForTileAndLayer(tileBounds.tiles, layer);
+            })).then(function () {
+                self._drawTileBoundSetWithOpacity(tileBoundsSet, layer.opacity);
                 return self._drawLayers(layers);
             });
         }
     },
 
-    _drawMapLayer: {
-        value: function (layer) {
-            var self = this,
-                mapImages = this._makeMapImagesForLayer(layer);
-            return this.mapImageDelegate.loadMapImagesForLayer(mapImages, layer).then(
-                function () {
-                    mapImages.forEach(function (mapImage) {
-                        self._drawMapImage(mapImage, layer.opacity);
-                    });
-                },
-                function (error) {
-                    console.error("Failed to load images for layer (" + layer.name + ") with error (" + error + ")");
-                }
-            );
-        }
-    },
-
-    _makeMapImagesForLayer: {
-        value: function (layer) {
-            if (layer.protocol.supportsGenericMapImageRequests) {
-                return MapImage.mapImagesInBoundsWithZoomAndDpi(this.bounds, this.zoom, this.devicePixelRatio * 96);
-            } else {
-                return Tile.tilesInBoundsWithZoomRange(this.bounds, this.zoom, this.zoom);
-            }
-        }
-    },
-
-    _drawMapImage: {
-        value: function (mapImage, opacity) {
-            var origin = Position.withCoordinates(mapImage.bounds.xMin, mapImage.bounds.yMax),
-                mercatorOrigin = Point2D.withPosition(origin, this.zoom),
-                canvasOrigin = this.projectMercatorOntoCanvas(mercatorOrigin);
-            this._context.save();
-            this._context.globalAlpha = opacity;
-            this._context.drawImage(mapImage.image, canvasOrigin.x, canvasOrigin.y, mapImage.size.width, mapImage.size.height);
-            this._context.restore();
-        }
-    },
-
-    _drawLayerFeatures: {
-        value: function (layer) {
-            var self = this;
-            this._context.globalAlpha = 1.0;
-            return new Promise(function (resolve) {
-                var promises = layer.featureCollection.features.map(function (feature) {
-                    return self.drawFeature(feature);
+    _drawTileBoundSetWithOpacity: {
+        value: function (tileBoundsSet, opacity) {
+            var tiles = tileBoundsSet[0].tiles,
+                tilesOrigin = Position.withCoordinates(tiles[0].bounds.xMin, tiles[0].bounds.yMax),
+                tilesPixelOrigin = Point2D.withPosition(tilesOrigin, this.zoom),
+                xOffset = this.webMercatorRect.xMin - tilesPixelOrigin.x,
+                yOffset = this.webMercatorRect.yMin - tilesPixelOrigin.y,
+                ctx = this._context;
+            opacity = isNaN(opacity) ? 1.0 : opacity;
+            tileBoundsSet.forEach(function (tileBounds) {
+                tiles = tileBounds.tiles;
+                ctx.save();
+                ctx.globalAlpha = opacity;
+                tiles.forEach(function (tile) {
+                    var drawX = -xOffset + 256 * (tile.x - tiles[0].x),
+                        drawY = -yOffset + 256 * (tile.y - tiles[0].y);
+                    ctx.drawImage(tile.image, drawX, drawY);
                 });
-                return Promise.all(promises)
-                    .then(function () {
-                        resolve();
-                    }).catch(function (error) {
-                        console.error("Failed to draw features for layer (" + layer.name + ") with error (" + error + ")");
-                        resolve();
-                    });
+                xOffset -= (tileBounds.maxX - tileBounds.minX + 1) * 256;
+                ctx.restore();
             });
+        }
+    },
+
+
+    makeTileBounds: {
+        value: function () {
+            var zoom = this.zoom,
+                zoomFactor = 1 << zoom,
+                worldPixelRange = 256 * zoomFactor;
+            return this._webMercatorRectSplitOverAntimeridian.map(function (rect) {
+                var xmin = Math.floor(zoomFactor * rect.xMin / worldPixelRange),
+                    xmax = Math.floor(zoomFactor * rect.xMax / worldPixelRange),
+                    ymin = Math.floor(zoomFactor * rect.yMin / worldPixelRange),
+                    ymax = Math.floor(zoomFactor * rect.yMax / worldPixelRange);
+                return TileBounds.withCoordinates(xmin, ymin, xmax, ymax, zoom, null);
+            });
+        }
+    },
+
+    _webMercatorRectSplitOverAntimeridian: {
+        get: function () {
+            var worldPixelRange = 256 << this.zoom,
+                rects;
+            if (this.webMercatorRect.xMax > worldPixelRange) {
+                rects = [
+                    Rect.withOriginAndSize(
+                        Point2D.withCoordinates(this.webMercatorRect.xMin, this.webMercatorRect.yMin),
+                        Size.withHeightAndWidth(this.webMercatorRect.size.height, worldPixelRange - 1 - this.webMercatorRect.xMin)
+                    ),
+                    Rect.withOriginAndSize(
+                        Point2D.withCoordinates(0, this.webMercatorRect.yMin),
+                        Size.withHeightAndWidth(this.webMercatorRect.size.height, this.webMercatorRect.xMax - worldPixelRange)
+                    )
+                ];
+            } else {
+                rects = [this.webMercatorRect];
+            }
+            return rects;
         }
     },
 
@@ -315,30 +337,29 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
             ctx.save();
             // TODO Refactor
             return Promise.resolve().then(function () {
-                var origin;
+                var anchor;
                 if (style.type === StyleType.POINT) {
-                    origin = self.projectMercatorOntoCanvas(Point2D.withPosition(feature.geometry.coordinates, self.zoom));
+                    anchor = self.projectMercatorOntoCanvas(Point2D.withPosition(feature.geometry.coordinates, self.zoom));
                     if (style.dataURL) {
                         return self._fetchImage(style.dataURL).then(function (image) {
                             ctx.drawImage(
                                 image,
-                                origin.x,
-                                origin.y,
+                                anchor.x - image.width * self.featureRenderScale / 2,
+                                anchor.y - image.height * self.featureRenderScale / 2,
                                 image.width * self.featureRenderScale,
                                 image.height * self.featureRenderScale
                             );
                         });
                     } else if (style.icon) {
                         return self._fetchImage(style.icon.symbol).then(function (image) {
-                            var anchor = style.icon.anchor || Point2D.withCoordinates(0, 0);
-                            origin = self.projectMercatorOntoCanvas(
+                            anchor = style.anchor || self.projectMercatorOntoCanvas(
                                 Point2D.withPosition(feature.geometry.coordinates, self.zoom)
                             );
                             size = style.icon.scaledSize || style.icon.size || Size.withHeightAndWidth(image.height, image.width);
                             ctx.drawImage(
                                 image,
-                                origin.x - (anchor.x * self.featureRenderScale || 0),
-                                origin.y - (anchor.y * self.featureRenderScale || 0),
+                                anchor.x - size.width * self.featureRenderScale / 2,
+                                anchor.y - size.height * self.featureRenderScale / 2,
                                 size.width * self.featureRenderScale,
                                 size.height * self.featureRenderScale
                             );
@@ -346,7 +367,6 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
                     }
                 } else if (style.type === StyleType.LINE_STRING) {
                     ctx.strokeStyle = style.strokeColor;
-                    ctx.lineWidth = style.strokeWeight;
                     if (feature.geometry.constructor === MultiLineString) {
                         feature.geometry.coordinates.forEach(function (lineString) {
                             self._drawLineString(lineString.coordinates, ctx);
@@ -357,7 +377,6 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
                 } else if (style.type === StyleType.POLYGON) {
                     ctx.strokeStyle = style.strokeColor;
                     ctx.fillStyle = style.fillColor;
-                    ctx.lineWidth = style.strokeWeight;
                     if (feature.geometry.constructor === MultiPolygon) {
                         feature.geometry.coordinates.forEach(function (polygon) {
                             self._drawPolygon(polygon.coordinates, ctx);
@@ -377,14 +396,11 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
 
     projectMercatorOntoCanvas: {
         value: function (point2d) {
-            var mapSize = 256 << this.zoom;
-            if (this.webMercatorRect.xMax > mapSize && point2d.x <= this.webMercatorRect.xMax % mapSize) {
-                return Point2D.withCoordinates(
-                    point2d.x + (mapSize - this.webMercatorRect.xMin),
-                    point2d.y - this.webMercatorRect.yMin
-                );
+            var rects = this._webMercatorRectSplitOverAntimeridian;
+            if (rects.length === 1 || rects[0].contains(point2d)) {
+                return point2d.subtract(rects[0].origin);
             } else {
-                return point2d.subtract(this.webMercatorRect.origin);
+                return point2d.subtract(rects[1].origin).add(Point2D.withCoordinates(rects[0].size.width, 0));
             }
         }
     },
@@ -397,7 +413,9 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
                 image.onload = function () {
                     resolve(image);
                 };
-                image.onerror = reject;
+                image.onerror = function (err) {
+                    reject(err);
+                }
             });
         }
     },
