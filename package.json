@@ -23,7 +23,7 @@
     "karma-firefox-launcher": "^1.0.1",
     "karma-jasmine": "^1.1.0",
     "karma-phantomjs-launcher": "^1.0.2",
-    "montage-testing": "hthetiot/montage-testing#upgrade",
+    "montage-testing": "montagejs/montage-testing",    
     "mr": "montagejs/mr#master",
     "open": "0.0.5"
   },
