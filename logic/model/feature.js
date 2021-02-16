@@ -147,13 +147,15 @@ exports.Feature = Montage.specialize(/** @lends Feature.prototype */ {
      * @param {object|null} properties      - The properties member of this feature.
      * @param {Geometry|null} geometry      - The geometry for this feature.  Null if the
      *                                        feature does not have a location.
+     * @param {Style|null} style            - The style definition for this feature.
      */
     withMembers: {
-        value: function (id, properties, geometry) {
+        value: function (id, properties, geometry, style) {
             var self = new this();
             if (id) self.id = id;
             self.properties = properties || null;
             self.geometry = geometry || null;
+            self.style = style || null;
             return self;
         }
     }
