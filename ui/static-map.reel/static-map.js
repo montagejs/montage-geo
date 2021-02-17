@@ -29,22 +29,14 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
             this.addOwnPropertyChangeListener("webMercatorRect", this);
         }
     },
-
-
+    
     /**
      * Set by owner
-     * // TODO: Standardize on the tile delegate instead.
-     * @type {Object}
+     * The layer to draw for the base map.
+     * @type {Layer}
      */
-    backgroundTileDelegate: {
-        get: function () {
-            return this._backgroundTileDelegate;
-        },
-        set: function (value) {
-            if (value !== this._backgroundTileDelegate) {
-                this._backgroundTileDelegate = value;
-            }
-        }
+    baseMap: {
+        value: undefined
     },
 
     /**
@@ -225,16 +217,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
 
     _drawBaseMap: {
         value: function () {
-            var self = this,
-                tileBounds = this.makeTileBounds();
-            if (!this.backgroundTileDelegate) {
-                return Promise.resolve();
-            }
-            return Promise.all(tileBounds.map(function (tileBounds) {
-                return self.backgroundTileDelegate.loadTileImages(tileBounds.tiles);
-            })).then(function () {
-                self._drawTileBoundSetWithOpacity(tileBounds, 1.0);
-            });
+            return this.baseMap && this._drawTileLayer(this.baseMap) || Promise.resolve(null);
         }
     },
 
