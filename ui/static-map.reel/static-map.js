@@ -248,13 +248,53 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
     _drawFirstLayer: {
         value: function (layers) {
             var layer = layers.shift(),
-                tileBoundsSet = this.makeTileBounds(),
+                promise = layer.featureCollection ? this._drawLayerFeatures(layer) : this._drawTileLayer(layer),
                 self = this;
-            return Promise.all(tileBoundsSet.map(function (tileBounds) {
-                return self.tileDelegate.loadImagesForTileAndLayer(tileBounds.tiles, layer);
-            })).then(function () {
-                self._drawTileBoundSetWithOpacity(tileBoundsSet, layer.opacity);
+
+            return promise.then(function () {
                 return self._drawLayers(layers);
+            });
+        }
+    },
+
+    _drawTileLayer: {
+        value: function (layer) {
+            var tileBoundsSet = this.makeTileBounds(),
+                self = this;
+            return new Promise(function (resolve) {
+                var promises = tileBoundsSet.map(function (tileBounds) {
+                        return self.tileDelegate.loadImagesForTileAndLayer(tileBounds.tiles, layer);
+                    });
+                return Promise.all(promises)
+                    .then(function () {
+                        self._drawTileBoundSetWithOpacity(tileBoundsSet, layer.opacity);
+                        resolve();
+                    }).catch(function (error) {
+                        console.log("---------------------");
+                        console.log("Failed to load images for layer (" + layer.name + ") with error (" + error + ")");
+                        console.log("---------------------");
+                        resolve();
+                    });
+            });
+        }
+    },
+
+    _drawLayerFeatures: {
+        value: function (layer) {
+            var self = this;
+            return new Promise(function (resolve) {
+                var promises = layer.featureCollection.features.map(function (feature) {
+                    return self.drawFeature(feature);
+                });
+                return Promise.all(promises)
+                    .then(function () {
+                        resolve();
+                    }).catch(function (error) {
+                        console.log("---------------------");
+                        console.log("Failed to draw features for layer (" + layer.name + ") with error (" + error + ")");
+                        console.log("---------------------");
+                        resolve();
+                    });
             });
         }
     },
@@ -282,7 +322,6 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
             });
         }
     },
-
 
     makeTileBounds: {
         value: function () {
