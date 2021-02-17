@@ -48,6 +48,9 @@ exports.GeoJsonToGeometryConverter = Converter.specialize( /** @lends GeoJsonToG
      */
     convert: {
         value: function (value) {
+            if (!value) {
+                return;
+            }
             GeoJson.prototype.projection = this.projection;
             return GeoJson.forId(value.type).convert(value);
         }
