@@ -29,7 +29,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
             this.addOwnPropertyChangeListener("webMercatorRect", this);
         }
     },
-    
+
     /**
      * Set by owner
      * The layer to draw for the base map.
@@ -374,7 +374,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
                         });
                     } else if (style.icon) {
                         return self._fetchImage(style.icon.symbol).then(function (image) {
-                            anchor = style.anchor || self.projectMercatorOntoCanvas(
+                            anchor = self.projectMercatorOntoCanvas(
                                 Point2D.withPosition(feature.geometry.coordinates, self.zoom)
                             );
                             size = style.icon.scaledSize || style.icon.size || Size.withHeightAndWidth(image.height, image.width);
@@ -389,6 +389,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
                     }
                 } else if (style.type === StyleType.LINE_STRING) {
                     ctx.strokeStyle = style.strokeColor;
+                    ctx.lineWidth = style.strokeWeight;
                     if (feature.geometry.constructor === MultiLineString) {
                         feature.geometry.coordinates.forEach(function (lineString) {
                             self._drawLineString(lineString.coordinates, ctx);
@@ -399,6 +400,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
                 } else if (style.type === StyleType.POLYGON) {
                     ctx.strokeStyle = style.strokeColor;
                     ctx.fillStyle = style.fillColor;
+                    ctx.lineWidth = style.strokeWeight;
                     if (feature.geometry.constructor === MultiPolygon) {
                         feature.geometry.coordinates.forEach(function (polygon) {
                             self._drawPolygon(polygon.coordinates, ctx);
