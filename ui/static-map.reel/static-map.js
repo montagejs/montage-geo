@@ -265,6 +265,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
     _drawLayerFeatures: {
         value: function (layer) {
             var self = this;
+            this._context.globalAlpha = 1.0;
             return new Promise(function (resolve) {
                 var promises = layer.featureCollection.features.map(function (feature) {
                     return self.drawFeature(feature);
