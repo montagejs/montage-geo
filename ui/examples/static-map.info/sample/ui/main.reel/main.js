@@ -1,5 +1,6 @@
 var BoundingBox = require("montage-geo/logic/model/bounding-box").BoundingBox,
     Component = require("montage/ui/component").Component,
+    Feature = require("montage-geo/logic/model/feature").Feature,
     Point = require("montage-geo/logic/model/point").Point,
     Point2D = require("montage-geo/logic/model/point-2d").Point2D,
     Rect = require("montage-geo/logic/model/rect").Rect,

@@ -4,6 +4,7 @@
 var BoundingBox = require("logic/model/bounding-box").BoundingBox,
     Component = require("montage/ui/component").Component,
     LineString = require("logic/model/line-string").LineString,
+    MapImage = require("logic/model/map-image").MapImage,
     MultiLineString = require("logic/model/multi-line-string").MultiLineString,
     MultiPolygon = require("logic/model/multi-polygon").MultiPolygon,
     Position = require("logic/model/position").Position,
@@ -13,7 +14,7 @@ var BoundingBox = require("logic/model/bounding-box").BoundingBox,
     Rect = require("logic/model/rect").Rect,
     Size = require("logic/model/size").Size,
     StyleType = require("logic/model/style").StyleType,
-    TileBounds = require("logic/model/tile-bounds").TileBounds;
+    Tile = require("logic/model/tile").Tile;
 
 /**
  * @class StaticMap
@@ -145,9 +146,9 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
 
     /**
      * The delegate to use for requesting images.
-     * @type {TileDelegate}
+     * @type {MapImageDelegate}
      */
-    tileDelegate: {
+    mapImageDelegate: {
         value: undefined
     },
 
@@ -196,7 +197,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
             this.canvas.style.width = this.size.width + "px";
             this.canvas.style.height = this.size.height + "px";
             this._drawBaseMap().then(function () {
-                return self.tileDelegate && self._drawLayers(self.layers.slice()) || null;
+                return self.mapImageDelegate && self._drawLayers(self.layers.slice()) || null;
             }).then(function () {
                 return Promise.all(self.featureCollections.map(function (featureCollection) {
                     return Promise.all(featureCollection.features.map(function (feature) {
@@ -217,7 +218,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
 
     _drawBaseMap: {
         value: function () {
-            return this.baseMap && this._drawTileLayer(this.baseMap) || Promise.resolve(null);
+            return this.baseMap && this._drawMapLayer(this.baseMap) || Promise.resolve(null);
         }
     },
 
@@ -231,7 +232,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
     _drawFirstLayer: {
         value: function (layers) {
             var layer = layers.shift(),
-                promise = layer.featureCollection ? this._drawLayerFeatures(layer) : this._drawTileLayer(layer),
+                promise = layer.featureCollection ? this._drawLayerFeatures(layer) : this._drawMapLayer(layer),
                 self = this;
 
             return promise.then(function () {
@@ -240,25 +241,42 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         }
     },
 
-    _drawTileLayer: {
+    _drawMapLayer: {
         value: function (layer) {
-            var tileBoundsSet = this.makeTileBounds(),
-                self = this;
-            return new Promise(function (resolve) {
-                var promises = tileBoundsSet.map(function (tileBounds) {
-                        return self.tileDelegate.loadImagesForTileAndLayer(tileBounds.tiles, layer);
+            var self = this,
+                mapImages = this._makeMapImagesForLayer(layer);
+            return this.mapImageDelegate.loadMapImagesForLayer(mapImages, layer).then(
+                function () {
+                    mapImages.forEach(function (mapImage) {
+                        self._drawMapImage(mapImage, layer.opacity);
                     });
-                return Promise.all(promises)
-                    .then(function () {
-                        self._drawTileBoundSetWithOpacity(tileBoundsSet, layer.opacity);
-                        resolve();
-                    }).catch(function (error) {
-                        console.log("---------------------");
-                        console.log("Failed to load images for layer (" + layer.name + ") with error (" + error + ")");
-                        console.log("---------------------");
-                        resolve();
-                    });
-            });
+                },
+                function (error) {
+                    console.error("Failed to load images for layer (" + layer.name + ") with error (" + error + ")");
+                }
+            );
+        }
+    },
+
+    _makeMapImagesForLayer: {
+        value: function (layer) {
+            if (layer.protocol.supportsGenericMapImageRequests) {
+                return MapImage.mapImagesInBoundsWithZoomAndDpi(this.bounds, this.zoom, this.devicePixelRatio * 96);
+            } else {
+                return Tile.tilesInBoundsWithZoomRange(this.bounds, this.zoom, this.zoom);
+            }
+        }
+    },
+
+    _drawMapImage: {
+        value: function (mapImage, opacity) {
+            var origin = Position.withCoordinates(mapImage.bounds.xMin, mapImage.bounds.yMax),
+                mercatorOrigin = Point2D.withPosition(origin, this.zoom),
+                canvasOrigin = this.projectMercatorOntoCanvas(mercatorOrigin);
+            this._context.save();
+            this._context.globalAlpha = opacity;
+            this._context.drawImage(mapImage.image, canvasOrigin.x, canvasOrigin.y);
+            this._context.restore();
         }
     },
 
@@ -274,50 +292,9 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
                     .then(function () {
                         resolve();
                     }).catch(function (error) {
-                        console.log("---------------------");
-                        console.log("Failed to draw features for layer (" + layer.name + ") with error (" + error + ")");
-                        console.log("---------------------");
+                        console.error("Failed to draw features for layer (" + layer.name + ") with error (" + error + ")");
                         resolve();
                     });
-            });
-        }
-    },
-
-    _drawTileBoundSetWithOpacity: {
-        value: function (tileBoundsSet, opacity) {
-            var tiles = tileBoundsSet[0].tiles,
-                tilesOrigin = Position.withCoordinates(tiles[0].bounds.xMin, tiles[0].bounds.yMax),
-                tilesPixelOrigin = Point2D.withPosition(tilesOrigin, this.zoom),
-                xOffset = this.webMercatorRect.xMin - tilesPixelOrigin.x,
-                yOffset = this.webMercatorRect.yMin - tilesPixelOrigin.y,
-                ctx = this._context;
-            opacity = isNaN(opacity) ? 1.0 : opacity;
-            tileBoundsSet.forEach(function (tileBounds) {
-                tiles = tileBounds.tiles;
-                ctx.save();
-                ctx.globalAlpha = opacity;
-                tiles.forEach(function (tile) {
-                    var drawX = -xOffset + 256 * (tile.x - tiles[0].x),
-                        drawY = -yOffset + 256 * (tile.y - tiles[0].y);
-                    ctx.drawImage(tile.image, drawX, drawY);
-                });
-                xOffset -= (tileBounds.maxX - tileBounds.minX + 1) * 256;
-                ctx.restore();
-            });
-        }
-    },
-
-    makeTileBounds: {
-        value: function () {
-            var zoom = this.zoom,
-                zoomFactor = 1 << zoom,
-                worldPixelRange = 256 * zoomFactor;
-            return this._webMercatorRectSplitOverAntimeridian.map(function (rect) {
-                var xmin = Math.floor(zoomFactor * rect.xMin / worldPixelRange),
-                    xmax = Math.floor(zoomFactor * rect.xMax / worldPixelRange),
-                    ymin = Math.floor(zoomFactor * rect.yMin / worldPixelRange),
-                    ymax = Math.floor(zoomFactor * rect.yMax / worldPixelRange);
-                return TileBounds.withCoordinates(xmin, ymin, xmax, ymax, zoom, null);
             });
         }
     },
@@ -439,9 +416,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
                 image.onload = function () {
                     resolve(image);
                 };
-                image.onerror = function (err) {
-                    reject(err);
-                }
+                image.onerror = reject;
             });
         }
     },
