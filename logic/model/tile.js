@@ -1,5 +1,7 @@
 var BoundingBox = require("logic/model/bounding-box").BoundingBox,
-    Position = require("logic/model/position").Position;
+    MapImage = require("logic/model/map-image").MapImage,
+    Position = require("logic/model/position").Position,
+    Size = require("logic/model/size").Size;
 
 /**
  * One of the tiles in a raster {@link Layer}.
@@ -9,7 +11,7 @@ var BoundingBox = require("logic/model/bounding-box").BoundingBox,
  */
 var Tile = exports.Tile = function () {};
 
-exports.Tile.prototype = Object.create({}, /** @lends Tile.prototype */ {
+exports.Tile.prototype = Object.create(MapImage.prototype, /** @lends Tile.prototype */ {
 
     constructor: {
         configurable: true,
@@ -30,16 +32,6 @@ exports.Tile.prototype = Object.create({}, /** @lends Tile.prototype */ {
             }
             return this._id;
         }
-    },
-
-    /**
-     * The data for this tile's image.
-     * @type {string}
-     */
-    dataUrl: {
-        configurable: true,
-        writable: true,
-        value: undefined
     },
 
     _x: {
@@ -100,22 +92,8 @@ exports.Tile.prototype = Object.create({}, /** @lends Tile.prototype */ {
         }
     },
 
-    /**
-     * @type {boolean}
-     */
-    isLoaded: {
-        configurable: true,
-        writable: true,
-        value: false
-    },
-
-    /**
-     * @type {Image}
-     */
-    image: {
-        configurable: true,
-        writable: true,
-        value: undefined
+    size: {
+        value: Size.withHeightAndWidth(256, 256)
     },
 
     /**
