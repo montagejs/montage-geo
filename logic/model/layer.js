@@ -35,6 +35,15 @@ exports.Layer = Montage.specialize(/** @lends Layer.prototype */ {
     },
 
     /**
+     * A layer may optionally provide a collection of features to directly draw onto the
+     * map.
+     * @type {FeatureCollection}
+     */
+    featureCollection: {
+        value: undefined
+    },
+
+    /**
      *
      * User to determine the stacking order of a layer within its
      * type.  Layers are stacked together first by their geometry type
