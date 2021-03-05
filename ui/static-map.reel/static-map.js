@@ -360,29 +360,30 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
             ctx.save();
             // TODO Refactor
             return Promise.resolve().then(function () {
-                var anchor;
+                var origin;
                 if (style.type === StyleType.POINT) {
-                    anchor = self.projectMercatorOntoCanvas(Point2D.withPosition(feature.geometry.coordinates, self.zoom));
+                    origin = self.projectMercatorOntoCanvas(Point2D.withPosition(feature.geometry.coordinates, self.zoom));
                     if (style.dataURL) {
                         return self._fetchImage(style.dataURL).then(function (image) {
                             ctx.drawImage(
                                 image,
-                                anchor.x - image.width * self.featureRenderScale / 2,
-                                anchor.y - image.height * self.featureRenderScale / 2,
+                                origin.x,
+                                origin.y,
                                 image.width * self.featureRenderScale,
                                 image.height * self.featureRenderScale
                             );
                         });
                     } else if (style.icon) {
                         return self._fetchImage(style.icon.symbol).then(function (image) {
-                            anchor = self.projectMercatorOntoCanvas(
+                            var anchor = style.icon.anchor || Point2D.withCoordinates(0, 0);
+                            origin = self.projectMercatorOntoCanvas(
                                 Point2D.withPosition(feature.geometry.coordinates, self.zoom)
                             );
                             size = style.icon.scaledSize || style.icon.size || Size.withHeightAndWidth(image.height, image.width);
                             ctx.drawImage(
                                 image,
-                                anchor.x - size.width * self.featureRenderScale / 2,
-                                anchor.y - size.height * self.featureRenderScale / 2,
+                                origin.x + (anchor.x || 0),
+                                origin.y + (anchor.y || 0),
                                 size.width * self.featureRenderScale,
                                 size.height * self.featureRenderScale
                             );
