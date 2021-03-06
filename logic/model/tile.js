@@ -174,8 +174,8 @@ Object.defineProperties(exports.Tile, /** @lends Tile.prototype */ {
         value: function (longitude, latitude, zoom) {
             var latRadians = Position.toRadians(latitude),
                 n = Math.pow(2, zoom),
-                x = parseInt((longitude + 180.0) / 360.0 * n),
-                y = parseInt((1.0 - Math.log(Math.tan(latRadians) + (1 / Math.cos(latRadians))) / Math.PI) / 2.0 * n);
+                x = Math.floor((longitude + 180.0) / 360.0 * n),
+                y = Math.floor((1.0 - Math.log(Math.tan(latRadians) + (1 / Math.cos(latRadians))) / Math.PI) / 2.0 * n);
 
             return exports.Tile.withIdentifier(x, y, zoom);
         }
