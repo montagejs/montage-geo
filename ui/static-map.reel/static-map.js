@@ -337,8 +337,8 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
                             size = style.icon.scaledSize || style.icon.size || Size.withHeightAndWidth(image.height, image.width);
                             ctx.drawImage(
                                 image,
-                                origin.x + (anchor.x || 0),
-                                origin.y + (anchor.y || 0),
+                                origin.x - (anchor.x * self.featureRenderScale || 0),
+                                origin.y - (anchor.y * self.featureRenderScale || 0),
                                 size.width * self.featureRenderScale,
                                 size.height * self.featureRenderScale
                             );
