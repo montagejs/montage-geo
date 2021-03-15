@@ -299,28 +299,6 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
         }
     },
 
-    _webMercatorRectSplitOverAntimeridian: {
-        get: function () {
-            var worldPixelRange = 256 << this.zoom,
-                rects;
-            if (this.webMercatorRect.xMax > worldPixelRange) {
-                rects = [
-                    Rect.withOriginAndSize(
-                        Point2D.withCoordinates(this.webMercatorRect.xMin, this.webMercatorRect.yMin),
-                        Size.withHeightAndWidth(this.webMercatorRect.size.height, worldPixelRange - 1 - this.webMercatorRect.xMin)
-                    ),
-                    Rect.withOriginAndSize(
-                        Point2D.withCoordinates(0, this.webMercatorRect.yMin),
-                        Size.withHeightAndWidth(this.webMercatorRect.size.height, this.webMercatorRect.xMax - worldPixelRange)
-                    )
-                ];
-            } else {
-                rects = [this.webMercatorRect];
-            }
-            return rects;
-        }
-    },
-
     /**************************************************************************
      * Drawing Features
      */
@@ -399,11 +377,14 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
 
     projectMercatorOntoCanvas: {
         value: function (point2d) {
-            var rects = this._webMercatorRectSplitOverAntimeridian;
-            if (rects.length === 1 || rects[0].contains(point2d)) {
-                return point2d.subtract(rects[0].origin);
+            var mapSize = 256 << this.zoom;
+            if (this.webMercatorRect.xMax > mapSize && point2d.x <= this.webMercatorRect.xMax % mapSize) {
+                return Point2D.withCoordinates(
+                    point2d.x + (mapSize - this.webMercatorRect.xMin),
+                    point2d.y - this.webMercatorRect.yMin
+                );
             } else {
-                return point2d.subtract(rects[1].origin).add(Point2D.withCoordinates(rects[0].size.width, 0));
+                return point2d.subtract(this.webMercatorRect.origin);
             }
         }
     },
