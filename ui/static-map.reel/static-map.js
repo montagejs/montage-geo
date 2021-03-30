@@ -275,7 +275,7 @@ exports.StaticMap = Component.specialize(/** @lends StaticMap.prototype */{
                 canvasOrigin = this.projectMercatorOntoCanvas(mercatorOrigin);
             this._context.save();
             this._context.globalAlpha = opacity;
-            this._context.drawImage(mapImage.image, canvasOrigin.x, canvasOrigin.y);
+            this._context.drawImage(mapImage.image, canvasOrigin.x, canvasOrigin.y, mapImage.size.width, mapImage.size.height);
             this._context.restore();
         }
     },
