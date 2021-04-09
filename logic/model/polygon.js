@@ -178,6 +178,7 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
         value: function (emit) {
             var callback = this.area.bind(this),
                 coordinates = this.coordinates,
+                coordinatesPathChangeListener,
                 ringsHandler, ringHandlers = [],
                 cancel;
 
@@ -199,7 +200,7 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
                     canceller();
                 }
             }
-
+            coordinatesPathChangeListener = this.addPathChangeListener("coordinates", update);
             function initializeObservers() {
                 ringsHandler = coordinates.addRangeChangeListener(update);
                 coordinates.forEach(function (ring) {
@@ -209,6 +210,7 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
 
             update();
             return function cancelObserver() {
+                coordinatesPathChangeListener();
                 clearObservers();
                 if (cancel) {
                     cancel();
@@ -325,6 +327,7 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
         value: function (emit) {
             var callback = this.perimeter.bind(this),
                 coordinates = this.coordinates,
+                coordinatesPathChangeListener,
                 rangeChangeListener,
                 cancel;
 
@@ -342,7 +345,7 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
                     rangeChangeListener();
                 }
             }
-
+            coordinatesPathChangeListener = this.addPathChangeListener("coordinates", update);
             function initializeObserver() {
                 if (coordinates && coordinates.length) {
                     rangeChangeListener = coordinates[0].addRangeChangeListener(update);
@@ -351,6 +354,7 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
 
             update();
             return function cancelObserver() {
+                coordinatesPathChangeListener();
                 clearObserver();
                 if (cancel) {
                     cancel();

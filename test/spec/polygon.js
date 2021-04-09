@@ -62,6 +62,9 @@ describe("A Polygon", function () {
             p1 = Position.withCoordinates([0, 20]),
             p2 = Position.withCoordinates([20, 20]),
             p3 = Position.withCoordinates([20, 0]),
+            p4 = Position.withCoordinates([0, 30]),
+            p5 = Position.withCoordinates([30, 30]),
+            p6 = Position.withCoordinates([30, 0]),
             controller = {
                 polygon: polygon,
                 area: undefined
@@ -72,6 +75,8 @@ describe("A Polygon", function () {
         expect(Math.round(controller.area / 1000)).toBe(1233);
         coordinates.splice.apply(coordinates, [1, 3].concat([p1, p2, p3]));
         expect(Math.round(controller.area / 1000)).toBe(4857);
+        polygon.coordinates = [[polygon.coordinates[0][0], p4, p5, p6, polygon.coordinates[0][0]]];
+        expect(Math.round(controller.area / 1000)).toBe(10650);
     });
 
     it("can properly calculate its perimeter", function () {
@@ -88,6 +93,9 @@ describe("A Polygon", function () {
             p1 = Position.withCoordinates([0, 20]),
             p2 = Position.withCoordinates([10, 20]),
             p3 = Position.withCoordinates([10, 0]),
+            p4 = Position.withCoordinates([0, 30]),
+            p5 = Position.withCoordinates([30, 30]),
+            p6 = Position.withCoordinates([30, 0]),
             controller = {
                 polygon: polygon,
                 perimeter: undefined
@@ -98,6 +106,8 @@ describe("A Polygon", function () {
         expect(Math.round(controller.perimeter / 1000)).toBe(4431);
         coordinates.splice.apply(coordinates, [1, 3].concat([p1, p2, p3]));
         expect(Math.round(controller.perimeter / 1000)).toBe(6604);
+        polygon.coordinates = [[polygon.coordinates[0][0], p4, p5, p6, polygon.coordinates[0][0]]];
+        expect(Math.round(controller.perimeter / 1000)).toBe(12888);
     });
 
     it("can calculate the bounds of a small polygon", function () {
