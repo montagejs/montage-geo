@@ -15,6 +15,8 @@ var Component = require("montage/ui/component").Component,
     Position = require("logic/model/position").Position,
     Set = require("montage/collections/set"),
     Size = require("logic/model/size").Size,
+    Tile = require("logic/model/tile").Tile,
+    WeakMap = require("montage/collections/weak-map").WeakMap,
     DEFAULT_ZOOM = 4;
 
 var DRAW_QUEUE_COMMANDS = new Enum().initWithMembers("DRAW", "ERASE", "REDRAW");
@@ -1340,6 +1342,39 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
             if (delta) {
                 this._setCenter(delta, position.latitude);
             }
+        }
+    },
+
+    /*****************************************************
+     * Image Overlays
+     */
+
+    registerImageOverlay: {
+        value: function (component) {
+            var self = this,
+                gridLayer = L.GridLayer.extend({
+
+                createTile: function (coords, done) {
+                    var tile =
+                        element = component.elementForTile()
+                }
+
+            });
+        }
+    },
+
+    unregisterImageOverlay: {
+        value: function (component) {
+
+        }
+    },
+
+    _componentGridLayerMap: {
+        get: function () {
+            if (!this.__componentGridLayerMap) {
+                this.__componentGridLayerMap = new WeakMap();
+            }
+            return this.__componentGridLayerMap;
         }
     },
 
