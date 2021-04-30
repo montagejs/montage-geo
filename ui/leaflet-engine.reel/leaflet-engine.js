@@ -1351,6 +1351,31 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
     // },
 
     /*****************************************************
+     * Base Maps
+     */
+
+    _createBackgroundOverlayWithLayer: {
+        value: function (layer) {
+            var self = this,
+                service = this.application.delegate.service;
+            return new L.TileLayer.Functional(function (view) {
+                var tile = self._baseMapTileWithId([view.tile.column, view.tile.row, view.zoom].join(":")),
+                    expression = "$tile == tile && $layer == layer",
+                    criteria = new Criteria().initWithExpression(expression, {
+                        tile: tile,
+                        layer: layer
+                    }),
+                    query = DataQuery.withTypeAndCriteria(Tile, criteria);
+
+                return service.fetchData(query);
+            }, {
+                minZoom: layer && layer.minZoom !== undefined ? layer.minZoom : 0,
+                maxZoom: layer && layer.maxZoom !== undefined ? layer.maxZoom : 18
+            });
+        }
+    },
+
+    /*****************************************************
      * Logging
      */
 
