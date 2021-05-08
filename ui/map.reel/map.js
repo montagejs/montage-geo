@@ -1,7 +1,10 @@
 var Component = require("montage/ui/component").Component,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
+    ImageTileOverlay = require("ui/image-tile-overlay.reel").ImageTileOverlay,
     LeafletEngine = require("ui/leaflet-engine.reel").LeafletEngine,
+    Map = require("montage/collections/map").Map,
     Point = require("logic/model/point").Point,
+    Point2D = require("logic/model/point-2d").Point2D,
     Position = require("logic/model/position").Position,
     Promise = require("montage/core/promise").Promise;
 
@@ -18,6 +21,21 @@ exports.Map = Component.specialize(/** @lends Map# */ {
     constructor: {
         value: function Map() {
             this.addRangeAtPathChangeListener("overlays", this);
+            this.defineBinding("_tileLayers", {
+                "<-":   "layers.filter{protocol.defined() && " +
+                        "protocol.supportsTileImageRequests && " +
+                        "(!protocol.supportsFeatureRequests || featureMinZoom <= ^zoom)} ?? " +
+                        "[]"
+            });
+            this.defineBinding("_featureLayers", {
+                "<-":   "layers.filter{protocol.defined() && " +
+                        "(!protocol.supportsTileImageRequests || " +
+                        "(protocol.supportsFeatureRequests && featureMinZoom >= ^zoom))} ?? " +
+                        "[]"
+            });
+            this.addRangeAtPathChangeListener("_featureLayers", this._handleTileLayersRangeChange.bind(this));
+            this.addRangeAtPathChangeListener("_tileLayers", this._handleTileLayersRangeChange.bind(this));
+            // this.addOwnPropertyChangeListener("bounds", this);
         }
     },
 
@@ -50,6 +68,22 @@ exports.Map = Component.specialize(/** @lends Map# */ {
                 this._center = value;
             }
         }
+    },
+
+    /**
+     * The layers to display as overlays in the map.
+     * @type {Layer[]}
+     */
+    layers: {
+        value: undefined
+    },
+
+    /**
+     * The Map Image delegate that is passed to map image overlays.
+     * @type {MapImageDelegate}
+     */
+    mapImageDelegate: {
+        value: undefined
     },
 
     /**
@@ -88,6 +122,7 @@ exports.Map = Component.specialize(/** @lends Map# */ {
     },
 
     /**
+     * Defines the dimensions of the map in pixel units.
      * @type {Size}
      */
     size: {
@@ -130,6 +165,15 @@ exports.Map = Component.specialize(/** @lends Map# */ {
                 this.__engine = value;
                 this._startEngine(value);
             }
+        }
+    },
+
+    _layerComponentMap: {
+        get: function () {
+            if (!this.__layerComponentMap) {
+                this.__layerComponentMap = new Map();
+            }
+            return this.__layerComponentMap;
         }
     },
 
@@ -227,6 +271,46 @@ exports.Map = Component.specialize(/** @lends Map# */ {
      * Event Handlers
      */
 
+    _handleTileLayersRangeChange: {
+        value: function (plus, minus) {
+            var layerComponentMap = this._layerComponentMap,
+                engine = this._engine,
+                freeIterations = [],
+                component, i, n;
+
+            for (i = 0, n = minus.length; i < n; i += 1) {
+                freeIterations.push(layerComponentMap.get(minus[i]));
+            }
+
+            for (i = 0, n = plus.length; i < n; i += 1) {
+                if (freeIterations.length > 0) {
+                    component = freeIterations.pop();
+                } else {
+                    component = this._buildTileOverlay();
+                    engine.addOverlay(component);
+                }
+                component.layer = plus[i];
+                layerComponentMap.set(component.layer, component);
+            }
+
+            for (i = 0, n = freeIterations.length; i < n; i += 1) {
+                component = freeIterations[i];
+                engine.removeOverlay(component);
+                layerComponentMap.delete(component.layer);
+            }
+
+        }
+    },
+
+    _buildTileOverlay: {
+        value: function () {
+            var tileOverlay = new ImageTileOverlay();
+            tileOverlay.map = this;
+            tileOverlay.mapImageDelegate = this.mapImageDelegate;
+            return tileOverlay;
+        }
+    },
+
     handleRangeChange: {
         value: function (plus, minus) {
             var engine = this._engine;
@@ -244,40 +328,7 @@ exports.Map = Component.specialize(/** @lends Map# */ {
     },
 
     /**
-     * Remove events in preference to delegate methods.  These functions should
-     * be called synchronously to make the changes as smooth as possible.
-     */
-
-    // handleDidMove: {
-    //     value: function (event) {
-    //         event.stopPropagation();
-    //         this.dispatchEventNamed("didMove", true, true, event.detail);
-    //     }
-    // },
-    //
-    // handleDidZoom: {
-    //     value: function (event) {
-    //         event.stopPropagation();
-    //         this.dispatchEventNamed("didZoom", true, true, event.detail);
-    //     }
-    // },
-    //
-    // handleZoom: {
-    //     value: function (event) {
-    //         event.stopPropagation();
-    //         this.dispatchEventNamed("zoom", true, true, event.detail);
-    //     }
-    // },
-    //
-    // handleWillZoom: {
-    //     value: function (event) {
-    //         event.stopPropagation();
-    //         this.dispatchEventNamed("willZoom", true, true, event.detail);
-    //     }
-    // },
-
-    /**
-     * These events may remain as is as components other than overlays may
+     * These events may remain as is as components other than overlays that
      * need to listen to these.
      */
     handleFeatureMouseout: {
@@ -337,6 +388,7 @@ exports.Map = Component.specialize(/** @lends Map# */ {
             if (index !== -1) {
                 this.overlays.splice(index, 1);
             }
+
         }
     },
 

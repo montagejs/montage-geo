@@ -1,0 +1,60 @@
+{
+    "root": {
+        "prototype": "montage/core/meta/module-object-descriptor",
+        "properties": {
+            "name": "MapImage",
+            "propertyDescriptors": [
+                {"@": "id"},
+                {"@": "bounds"},
+                {"@": "dataUrl"},
+                {"@": "dpi"},
+                {"@": "size"}
+            ],
+            "exportName": "MapImage",
+            "module": {
+                "%": "logic/model/map-image"
+            }
+        }
+    },
+
+    "id": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "id",
+            "valueType": "string"
+        }
+    },
+
+    "bounds": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "bounds",
+            "valueType": "BoundingBox"
+        }
+    },
+
+    "dataUrl": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "dataUrl",
+            "valueType": "string"
+        }
+    },
+
+    "dpi": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "dpi",
+            "valueType": "number"
+        }
+    },
+
+    "size": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "size",
+            "valueType": "Size"
+        }
+    }
+
+}

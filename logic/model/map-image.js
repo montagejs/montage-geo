@@ -70,6 +70,9 @@ exports.MapImage.prototype = Object.create({}, /** @lends MapImage.prototype */ 
     dpi: {
         get: function () {
             return this._dpi;
+        },
+        set: function (value) {
+            this._dpi = value;
         }
     },
 
@@ -105,6 +108,7 @@ exports.MapImage.prototype = Object.create({}, /** @lends MapImage.prototype */ 
         writable: true,
         value: undefined
     }
+
 });
 
 Object.defineProperties(exports.MapImage, {

@@ -47,6 +47,9 @@ exports.Tile.prototype = Object.create(MapImage.prototype, /** @lends Tile.proto
     x: {
         get: function () {
             return this._x;
+        },
+        set: function (value) {
+            this._x = value;
         }
     },
 
@@ -63,6 +66,9 @@ exports.Tile.prototype = Object.create(MapImage.prototype, /** @lends Tile.proto
     y: {
         get: function () {
             return this._y;
+        },
+        set: function (value) {
+            this._y = value;
         }
     },
 
@@ -79,6 +85,9 @@ exports.Tile.prototype = Object.create(MapImage.prototype, /** @lends Tile.proto
     z: {
         get: function () {
             return this._z;
+        },
+        set: function (value) {
+            this._z = value;
         }
     },
 

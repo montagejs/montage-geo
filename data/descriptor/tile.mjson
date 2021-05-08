@@ -1,0 +1,88 @@
+{
+    "root": {
+        "prototype": "montage/core/meta/module-object-descriptor",
+        "properties": {
+            "name": "Tile",
+            "propertyDescriptors": [
+                {"@": "id"},
+                {"@": "bounds"},
+                {"@": "dataUrl"},
+                {"@": "dpi"},
+                {"@": "size"},
+                {"@": "x"},
+                {"@": "y"},
+                {"@": "z"}
+            ],
+            "exportName": "Tile",
+            "module": {
+                "%": "logic/model/tile"
+            }
+        }
+    },
+
+    "id": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "id",
+            "valueType": "string"
+        }
+    },
+
+    "bounds": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "bounds",
+            "readOnly": true,
+            "valueType": "BoundingBox"
+        }
+    },
+
+    "dataUrl": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "dataUrl",
+            "valueType": "string"
+        }
+    },
+
+    "dpi": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "dpi",
+            "valueType": "number"
+        }
+    },
+
+    "size": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "size",
+            "valueType": "Size"
+        }
+    },
+
+    "x": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "x",
+            "valueType": "string"
+        }
+    },
+
+    "y": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "y",
+            "valueType": "string"
+        }
+    },
+
+    "z": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "z",
+            "valueType": "string"
+        }
+    }
+
+}

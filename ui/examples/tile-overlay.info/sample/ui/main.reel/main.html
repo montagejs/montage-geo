@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>
-        Contour Action Menu Sample
+        Tile Overlays
     </title>
     <link rel="stylesheet" href="main.css">
     <script type="text/montage-serialization">
@@ -13,19 +13,71 @@
                 "element": {"#": "main"}
             }
         },
+        "checkbox": {
+            "prototype": "montage/ui/image.reel",
+            "values": {
+                "element": {"#": "checkbox"},
+                "src": {"<-": "@layers:iteration.selected ? 'images/default-checkbox-filled.svg' : 'images/default-checkbox-empty.svg'"}
+            }
+        },
+        "darkGreyCanvas": {
+            "prototype": "montage-geo/logic/model/layer",
+            "values": {
+                "name": "Dark Grey Canvas",
+                "id": "Dark Grey Canvas",
+                "protocolId": "WMTS",
+                "mapServiceLayerId": "Dark Gray Canvas Base",
+                "url": "https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer"
+            }
+        },
+        "layerName": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "layerName"},
+                "value": {"<-": "@layers:iteration.object.name"}
+            }
+        },
+        "layers": {
+            "prototype": "montage/ui/repetition.reel",
+            "values": {
+                "element": {"#": "layers"},
+                "content": [
+                    {"@": "darkGreyCanvas"},
+                    {"@": "worldImagery"}
+                ],
+                "allowsSelection": true,
+                "allowsMultipleSelection": true
+            }
+        },
         "map": {
             "prototype": "montage-geo/ui/map.reel",
             "values": {
                 "element": {"#": "map"},
                 "center": [-156.6825, 20.8783],
-                "overlays": [{"@": "tileOverlay"}],
+                "layers": {"<-": "@layers.selection"},
                 "zoom": 5
             }
         },
-        "tileOverlay": {
-            "prototype": "montage-geo/ui/tile-overlay.reel",
+        "menuHeader": {
+            "prototype": "montage/ui/text.reel",
             "values": {
-                "element": {"#": "tileOverlay"}
+                "element": {"#": "menuHeader"}
+            },
+            "localizations": {
+                "value": {
+                    "default": "Overlays",
+                    "key": "overlays"
+                }
+            }
+        },
+        "worldImagery": {
+            "prototype": "montage-geo/logic/model/layer",
+            "values": {
+                "name": "ArcGIS World Imagery",
+                "id": "ArcGIS World Imagery",
+                "protocolId": "WMTS",
+                "mapServiceLayerId": "World_Imagery",
+                "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer"
             }
         }
     }
@@ -33,8 +85,16 @@
 </head>
 <body>
     <div data-montage-id="main" class="Main">
-        <div data-montage-id="tileOverlay"></div>
-        <div data-montage-id="map"></div>
+        <div class="Main-layerSelector">
+            <div data-montage-id="menuHeader" class="Main-menuHeader"></div>
+            <div data-montage-id="layers">
+                <div class="Main-layersListItem">
+                    <image data-montage-id="checkbox" class="Main-checkbox"/>
+                    <div data-montage-id="layerName"></div>
+                </div>
+            </div>
+        </div>
+        <div class="Main-map" data-montage-id="map"></div>
     </div>
 </body>
 </html>

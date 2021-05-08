@@ -1,0 +1,16 @@
+{
+    "root": {
+        "prototype": "montage/data/service/data-service",
+        "properties": {
+            "name": "DataService",
+            "childServices": [
+                {
+                    "@": "mapImageService"
+                }
+            ]
+        }
+    },
+    "mapImageService": {
+        "object": "montage-geo/data/map-image-service.mjson"
+    }
+}

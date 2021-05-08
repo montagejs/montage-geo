@@ -1,16 +1,13 @@
 var Component = require("montage/ui/component").Component,
-    BoundingBox = require("montage-geo/logic/model/bounding-box").BoundingBox,
-    Feature = require("montage-geo/logic/model/feature").Feature;
+    defaultLocalizer = require("montage/core/localizer").defaultLocalizer,
+    Service = require("data/montage-data.mjson").montageObject; // Keep.  Used to load the main service.
+
+defaultLocalizer.locale = "en-US";
+
 /**
  * @class Main
  * @extends Component
  */
 exports.Main = Component.specialize(/** @lends Main.prototype */ {
-
-    maxBounds: {
-        get: function () {
-            return BoundingBox.withCoordinates(-20, -20, 20, 20);
-        }
-    }
 
 });

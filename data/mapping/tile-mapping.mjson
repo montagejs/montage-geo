@@ -1,0 +1,35 @@
+{
+
+    "root": {
+        "prototype": "montage/data/service/expression-data-mapping",
+        "properties": {
+            "rawDataPrimaryKeys":["x", "y", "z", "layerId"],
+            "objectDescriptor": {"@":"TileDescriptor"},
+            "objectMapping": {
+                "rules": {
+                    "dataUrl": {"<-": "dataUrl"},
+                    "dpi": {"<-": "dpi"},
+                    "size": {
+                        "<-": "size",
+                        "converter": {"@": "objectToSizeConverter"}
+                    },
+                    "x": {"<-": "x"},
+                    "y": {"<-": "y"},
+                    "z": {"<-": "z"}
+                }
+            },
+            "requisitePropertyNames": [
+                "dataUrl", "dpi", "size", "x", "y", "z"
+            ]
+        }
+    },
+
+    "TileDescriptor": {
+        "object": "data/descriptor/tile.mjson"
+    },
+
+    "objectToSizeConverter": {
+        "prototype": "logic/converter/object-to-size-converter"
+    }
+
+}
