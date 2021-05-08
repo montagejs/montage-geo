@@ -1,49 +1,14 @@
-var ProtocolRoutedService = require("logic/service/protocol-routed-service").ProtocolRoutedService,
-    Tile = require("logic/model/tile").Tile;
+var HttpService = require("montage/data/service/http-service").HttpService,
+    Promise = require("montage/core/promise").Promise,
+    Tile = require("montage-geo/logic/model/tile").Tile;
 
 /**
  *
- * Returns MapImages and Tiles from services in various formats.
- * @type {MapImageService}
+ * @type {function|*}
  */
-exports.MapImageService = ProtocolRoutedService.specialize(/** @lends MapImageService.prototype */ {
-
-    /**************************************************************************
-     * Fetching
-     */
+exports.MapImageService = HttpService.specialize(/** @lends MapImageService.prototype */ {
 
     fetchRawData: {
-        value: function (stream) {
-            var protocol = this.protocolForStream(stream),
-                childService = protocol && this.childServiceForProtocol(protocol);
-
-            if (!protocol) {
-                // TODO: Implement Auto-discovery of protocol
-                stream.dataError(
-                    "A fetch for layers requires the protocol and the service" +
-                    " url to be defined."
-                );
-                return;
-            } else if (!childService) {
-                stream.dataError(
-                    "The supplied protocol (" + protocol.id + ") is not supported"
-                );
-                return;
-            }
-            childService.fetchMapImageData(stream);
-        }
-    },
-
-    protocolForStream: {
-        value: function (stream) {
-            var criteria = stream.query.criteria,
-                parameters = criteria && criteria.parameters,
-                layer = parameters && parameters.layer;
-            return layer && layer.protocol;
-        }
-    },
-
-    fetchMapImageData: {
         value: function (stream) {
             var self = this,
                 request = new XMLHttpRequest(),
@@ -71,17 +36,9 @@ exports.MapImageService = ProtocolRoutedService.specialize(/** @lends MapImageSe
         }
     },
 
-    /**
-     * Child Services must override this method to provide the Url to use for
-     * map image request.
-     * @method
-     * @param {Layer}
-     * @param {MapImage}
-     * @returns {string}
-     */
     makeUrlWithLayerAndMapImage: {
         value: function (layer, mapImage) {
-            console.error("Only a subclass should call this method.");
+            return layer.protocol.makeUrlWithLayerAndTile(layer, mapImage);
         }
     },
 
@@ -112,21 +69,21 @@ exports.MapImageService = ProtocolRoutedService.specialize(/** @lends MapImageSe
         value: function (mapImage, layer, dataUrl) {
             var rawData = {};
             if (mapImage instanceof Tile) {
-                rawData.x = mapImage.x;
-                rawData.y = mapImage.y;
-                rawData.z = mapImage.z;
+                rawData["x"] = mapImage.x;
+                rawData["y"] = mapImage.y;
+                rawData["z"] = mapImage.z;
             } else {
-                rawData.id = mapImage.bounds.bbox.join(":");
+                rawData["id"] = mapImage.bounds.bbox.join(":");
             }
-            rawData.layerId = layer.id;
-            rawData.dataUrl = dataUrl;
+            rawData["layerId"] = layer.id;
+            rawData["dataUrl"] = dataUrl;
             if (mapImage.size) {
-                rawData.size = {
+                rawData["size"] = {
                     height: mapImage.size.height,
                     width: mapImage.size.width
                 };
             }
-            rawData.dpi = mapImage.dpi;
+            rawData["dpi"] = mapImage.dpi;
             return rawData;
         }
     }

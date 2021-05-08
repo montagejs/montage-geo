@@ -3,14 +3,13 @@ var Montage = require("montage/core/core").Montage,
     DataQuery = require("montage/data/model/data-query").DataQuery,
     DataService = require("montage/data/service/data-service").DataService,
     DataStream = require("montage/data/service/data-stream").DataStream,
-    MapImage = require("logic/model/map-image").MapImage,
     Promise = require("montage/core/promise").Promise,
     Tile = require("logic/model/tile").Tile,
     TransparentImage = require("logic/model/tile").TransparentImage;
 
 /**
  *
- * The map-image-overlay uses this delegate to fetch map images to display in its
+ * The tile-overlay uses this delegate to fetch map images to display in its
  * mosaic.  This default implementation fetches map images using Montage Data.
  * Implement this delegate if you need an alternative way of supplying map
  * images.
@@ -34,10 +33,7 @@ var MapImageDelegate = exports.MapImageDelegate = Montage.specialize(/** @lends 
 
             var rootService = DataService.mainService;
 
-            if (!rootService || (
-                !rootService.childServiceForType(Tile) &&
-                !rootService.childServiceForType(MapImage)
-            )) {
+            if (!rootService || !rootService.childServiceForType(Tile)) {
                 return this.constructor._TransparentImagePromise;
             }
 
