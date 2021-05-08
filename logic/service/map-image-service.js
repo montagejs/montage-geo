@@ -1,6 +1,5 @@
 var HttpService = require("montage/data/service/http-service").HttpService,
-    Promise = require("montage/core/promise").Promise,
-    Tile = require("montage-geo/logic/model/tile").Tile;
+    Tile = require("logic/model/tile").Tile;
 
 /**
  *
