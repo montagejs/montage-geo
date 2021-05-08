@@ -1,15 +1,12 @@
-/**
- * @module "ui/image-tile-overlay.reel"
- */
 var Overlay = require("ui/overlay").Overlay,
     Map = require("montage/collections/map"),
-    defaultMapImageDelegate = require("logic/model/map-image-delegatee").defaultMapImageDelegate;
+    defaultMapImageDelegate = require("logic/model/map-image-delegate").defaultMapImageDelegate;
 
 /**
  * @class ImageTileOverlay
  * @extends Component
  */
-exports.ImageTileOverlay = Overlay.specialize(/** @lends ImageTileOverlay.prototype */{
+exports.MapImageOverlay = Overlay.specialize(/** @lends MapImageOverlay.prototype */{
 
     constructor: {
         value: function ImageTileOverlay() {
@@ -34,13 +31,13 @@ exports.ImageTileOverlay = Overlay.specialize(/** @lends ImageTileOverlay.protot
     mapImageDelegate: {
         get: function () {
             if (!this._mapImageDelegate) {
-                this.mapImageDelegate = defaultMapImageDelegate;
+                this._mapImageDelegate = defaultMapImageDelegate;
             }
-            return this.mapImageDelegate;
+            return this._mapImageDelegate;
         },
         set: function (value) {
             if (value) {
-                this.mapImageDelegate = value;
+                this._mapImageDelegate = value;
             }
         }
     },
