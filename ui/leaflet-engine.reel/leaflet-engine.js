@@ -4,7 +4,7 @@ var Component = require("montage/ui/component").Component,
     Enumeration = require("montage/data/model/enumeration").Enumeration,
     L = require("leaflet"),
     LineString = require("logic/model/line-string").LineString,
-    Map = require("montage/collections/map").Map,
+    Map = require("montage/collections/map"),
     MapPane = require("logic/model/map-pane").MapPane,
     MultiLineString = require("logic/model/multi-line-string").MultiLineString,
     MultiPoint = require("logic/model/multi-point").MultiPoint,
@@ -16,7 +16,7 @@ var Component = require("montage/ui/component").Component,
     Set = require("montage/collections/set"),
     Size = require("logic/model/size").Size,
     Tile = require("logic/model/tile").Tile,
-    WeakMap = require("montage/collections/weak-map").WeakMap,
+    WeakMap = require("montage/collections/weak-map"),
     DEFAULT_ZOOM = 4;
 
 var DRAW_QUEUE_COMMANDS = new Enum().initWithMembers("DRAW", "ERASE", "REDRAW");
@@ -497,7 +497,7 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
                 pane = component.pane || MapPane.Overlay,
                 container = this.elementForPane(pane),
                 element = component.element;
-            if (element) {
+            if (element && container) {
                 container.appendChild(component.element);
             }
             component.didAdd(this);
@@ -514,8 +514,10 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
             var component = queuedItem.overlay,
                 pane = component.pane || MapPane.Overlay,
                 container = this.elementForPane(pane);
-            container.removeChild(component.element);
-            component.didRemove();
+            if (container) {
+                container.removeChild(component.element);
+            }
+            component.didRemove(this);
         }
     },
 
@@ -1322,30 +1324,28 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
 
     registerImageOverlay: {
         value: function (component) {
-            var self = this,
-                gridLayer = L.GridLayer.extend({
-
-                createTile: function (coords, done) {
-                    var tile =
-                        element = component.elementForTile()
-                }
-
-            });
+            var mapImageLayer = new L.TileLayer.MontageGeoMapImageLayer(component);
+            this.componentMapImageLayerMap.set(component, mapImageLayer);
+            mapImageLayer.addTo(this._map);
         }
     },
 
     unregisterImageOverlay: {
         value: function (component) {
-
+            var map = this.componentMapImageLayerMap;
+            if (map.has(component)) {
+                map.get(component).removeFrom(this._map);
+                map.delete(component);
+            }
         }
     },
 
-    _componentGridLayerMap: {
+    componentMapImageLayerMap: {
         get: function () {
-            if (!this.__componentGridLayerMap) {
-                this.__componentGridLayerMap = new WeakMap();
+            if (!this._componentMapImageLayerMap) {
+                this._componentMapImageLayerMap = new WeakMap();
             }
-            return this.__componentGridLayerMap;
+            return this._componentMapImageLayerMap;
         }
     },
 
@@ -1841,6 +1841,95 @@ L.TileLayer.Functional = L.TileLayer.extend({
 L.tileLayer.functional = function (tileFunction, options) {
     return new L.TileLayer.Functional(tileFunction, options);
 };
+
+L.TileLayer.MontageGeoMapImageLayer = L.TileLayer.extend({
+
+    component: undefined,
+
+    _tileCache: function () {
+        if (!this.__tileCache) {
+            this.__tileCache = {};
+        }
+        return this.__tileCache;
+    },
+
+
+    initialize: function (component, options) {
+        this.component = component;
+        L.TileLayer.prototype.initialize.call(this, null, options);
+    },
+
+    getTileUrl: function (coords) {
+        return void 0;
+        // In the end this must return a URL for a promise.
+    },
+
+    _onTileRemove: function (e) {
+        var coords = e.coords,
+            tile = this._tileWithIdentifier(coords.x, coords.y, coords.z);
+        this.component.releaseTile(tile);
+        this._releaseTileFromCache(coords);
+        L.TileLayer.prototype._onTileRemove.call(this, e);
+    },
+
+    createTile: function (coords, done) {
+        var tile = this._tileWithIdentifier(coords.x, coords.y, coords.z),
+            element = this.component.elementForTile(tile),
+            size = this.getTileSize();
+
+        L.DomEvent.on(element, 'load', L.bind(this._tileOnLoad, this, done, element));
+        L.DomEvent.on(element, 'error', L.bind(this._tileOnError, this, done, element));
+
+        if (this.options.crossOrigin) {
+            element.crossOrigin = '';
+        }
+
+        /*
+         Alt tag is set to empty string to keep screen readers from reading URL and for compliance reasons
+         http://www.w3.org/TR/WCAG20-TECHS/H67
+        */
+        element.alt = '';
+
+        /*
+         Set role="presentation" to force screen readers to ignore this
+         https://www.w3.org/TR/wai-aria/roles#textalternativecomputation
+        */
+        element.setAttribute('role', 'presentation');
+        element.style.width = size.width + "px";
+        element.style.height = size.height + "px";
+        return element;
+    },
+
+    _tileWithIdentifier: function (x, y, z) {
+        var cache = this._tileCache();
+        return cache[x] && cache[x][y] && cache[x][y][z] || this._buildTile(x, y, z);
+    },
+
+    _buildTile: function (x, y, z) {
+        var tile = Tile.withIdentifier(x, y, z);
+        this._cacheTile(tile);
+        return tile;
+    },
+
+    _releaseTileFromCache: function (tile) {
+        var cache = this._tileCache(),
+            x = tile.x,
+            y = tile.y,
+            z = tile.z;
+        if (cache[x] && cache[x][y] && cache[x][y][z]) {
+            delete cache[x][y][z];
+        }
+    },
+
+    _cacheTile: function (tile) {
+        var cache = this._tileCache();
+        cache[tile.x] = cache[tile.x] || {};
+        cache[tile.x][tile.y] = cache[tile.x][tile.y] || {};
+        cache[tile.x][tile.y][tile.z] = tile;
+    }
+
+});
+
 
 L.BingLayer = L.TileLayer.extend({
 

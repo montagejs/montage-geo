@@ -59,6 +59,16 @@ exports.TileBounds.prototype = Object.create({}, /** @lends TileBounds.prototype
         }
     },
 
+    has: {
+        value: function (tile) {
+            return  this.zoom === tile.z &&
+                    this.minX <= tile.x &&
+                    this.maxX >= tile.x &&
+                    this.minY <= tile.y &&
+                    this.maxY >= tile.y;
+        }
+    },
+
     _makeTiles: {
         value: function () {
             var tiles = [],
