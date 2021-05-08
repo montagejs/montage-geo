@@ -1,0 +1,28 @@
+{
+    "mapImage": {
+        "object": "data/descriptor/map-image.mjson"
+    },
+    "mapImageMapping": {
+        "object": "data/mapping/map-image-mapping.mjson"
+    },
+    "tile": {
+        "object": "data/descriptor/tile.mjson"
+    },
+    "tileMapping": {
+        "object": "data/mapping/tile-mapping.mjson"
+    },
+    "root": {
+        "prototype": "logic/service/map-image-service",
+        "values": {
+            "name": "MapImageService",
+            "types": [
+                {"@": "mapImage"},
+                {"@": "tile"}
+            ],
+            "mappings": [
+                {"@": "mapImageMapping"},
+                {"@": "tileMapping"}
+            ]
+        }
+    }
+}

@@ -1,0 +1,41 @@
+{
+
+    "root": {
+        "prototype": "montage/data/service/expression-data-mapping",
+        "properties": {
+            "rawDataPrimaryKeys": ["id", "layerId"],
+            "objectDescriptor": {"@":"MapImageDescriptor"},
+            "objectMapping": {
+                "rules": {
+                    "bounds": {
+                        "<-":  "bounds",
+                        "converter": {"@":  "bboxToBoundsConverter"}
+                    },
+                    "dataUrl": {"<-": "dataUrl"},
+                    "dpi": {"<-": "dpi"},
+                    "id": {"<-":  "id"},
+                    "size": {
+                        "<-": "size",
+                        "converter": {"@": "objectToSizeConverter"}
+                    }
+                }
+            },
+            "requisitePropertyNames": [
+                "bounds", "dataUrl", "dpi", "id", "size"
+            ]
+        }
+    },
+
+    "MapImageDescriptor": {
+        "object": "data/descriptor/map-image.mjson"
+    },
+
+    "bboxToBoundsConverter": {
+        "prototype": "logic/converter/bbox-to-bounds-converter"
+    },
+
+    "objectToSizeConverter": {
+        "prototype": "logic/converter/object-to-size-converter"
+    }
+
+}

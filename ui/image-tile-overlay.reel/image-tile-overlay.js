@@ -1,30 +1,21 @@
 /**
  * @module "ui/image-tile-overlay.reel"
  */
-var Component = require("montage/ui/component").Component,
-    WeakMap = require("montage/collections/weak-map").WeakMap;
+var Overlay = require("ui/overlay").Overlay,
+    Map = require("montage/collections/map"),
+    defaultMapImageDelegate = require("logic/model/map-image-delegatee").defaultMapImageDelegate;
 
 /**
  * @class ImageTileOverlay
  * @extends Component
  */
-exports.ImageTileOverlay = Component.specialize(/** @lends ImageTileOverlay.prototype */{
-
+exports.ImageTileOverlay = Overlay.specialize(/** @lends ImageTileOverlay.prototype */{
 
     constructor: {
         value: function ImageTileOverlay() {
-            this.addOwnPropertyChangeListener("engine", this);
+            this.addOwnPropertyChangeListener("layer", this, this);
             this.addOwnPropertyChangeListener("layer", this);
         }
-    },
-
-    /**
-     * The engine is a reference to the interface to the actual map
-     * implementation technology, e.g., LeafletJS, Google Maps, etc.
-     * @type {MapEngine}
-     */
-    engine: {
-        value: undefined
     },
 
     /**
@@ -35,12 +26,41 @@ exports.ImageTileOverlay = Component.specialize(/** @lends ImageTileOverlay.prot
         value: undefined
     },
 
-    _tileElementMap: {
+    /**
+     * The delegate to use for fetching images for tiles.
+     * Set by owner
+     * @type {TileDelegate}
+     */
+    mapImageDelegate: {
         get: function () {
-            if (!this.__tileElementMap) {
-                this.__tileElementMap = new WeakMap();
+            if (!this._mapImageDelegate) {
+                this.mapImageDelegate = defaultMapImageDelegate;
             }
-            return this.__tileElementMap;
+            return this.mapImageDelegate;
+        },
+        set: function (value) {
+            if (value) {
+                this.mapImageDelegate = value;
+            }
+        }
+    },
+
+    _mapImageElementMap: {
+        get: function () {
+            if (!this.__mapImageElementMap) {
+                this.__mapImageElementMap = new Map();
+                this.__mapImageElementMap.addMapChangeListener(this._mapImageElementMapChangeListener.bind(this));
+            }
+            return this.__mapImageElementMap;
+        }
+    },
+
+    _mapImageFetchMap: {
+        get: function () {
+            if (!this.__mapImageFetchMap) {
+                this.__mapImageFetchMap = new Map();
+            }
+            return this.__mapImageFetchMap;
         }
     },
 
@@ -48,38 +68,43 @@ exports.ImageTileOverlay = Component.specialize(/** @lends ImageTileOverlay.prot
      * Event Handlers
      */
 
-    handleEngineChange: {
-        value: function (value) {
-            // TODO: reinitialize the overlay with the new implementation.
+    handleLayerWillChange: {
+        value: function () {
+            // TODO remove image element srcs...
         }
     },
 
     handleLayerChange: {
         value: function (value) {
-            // TODO: update the tiles with the new data set.
+            if (value) {
+                this._fetchAllMapImages();
+            }
+        }
+    },
+
+    _mapImageElementMapChangeListener: {
+        value: function (value, key) {
+            if (value && key && this.layer) {
+                this._fetchMapImage(key);
+            }
         }
     },
 
     /**************************************************************************
-     * Setup
+     * Engine Delegate Methods
      */
 
-    register: {
+    didAdd: {
         value: function (engine) {
-            // TODO: Invoke image overlay registration method on engine.
+            engine.registerImageOverlay(this);
         }
     },
 
-    /**************************************************************************
-     * Teardown
-     */
-
-    unregister: {
+    didRemove: {
         value: function (engine) {
-            // TODO: Invoke unregister image overlay method on engine.
+            engine.unregisterImageOverlay(this);
         }
     },
-
 
     /**************************************************************************
      * Image Overlay Delegate Methods
@@ -87,19 +112,61 @@ exports.ImageTileOverlay = Component.specialize(/** @lends ImageTileOverlay.prot
 
     elementForTile: {
         value: function (tile) {
-            var element = this._tileElementMap.get(tile);
-            if (!element) {
-                element = document.createElement("DIV");
-                this._tileElementMap.set(tile, element);
-            }
+            var element = document.createElement("IMG");
+            this._mapImageElementMap.set(tile, element);
             return element;
         }
     },
 
     releaseTile: {
         value: function (tile) {
-            this._tileElementMap.delete(tile);
+            var mapImageElementMap = this._mapImageElementMap,
+                mapImageFetchMap = this._mapImageFetchMap;
+            if (mapImageElementMap.has(tile)) {
+                mapImageElementMap.delete(tile);
+            }
+            if (mapImageFetchMap.has(tile)) {
+                this.mapImageDelegate.cancel(mapImageFetchMap.get(tile));
+                mapImageFetchMap.delete(tile);
+            }
         }
+    },
+
+    /**************************************************************************
+     * Tile Fetching
+     */
+
+     _fetchAllMapImages: {
+         value: function () {
+             var iterator = this._mapImageElementMap.keys(),
+                 tile;
+             while ((tile = iterator.next().value)) {
+                this._fetchTile(tile);
+             }
+         }
+    },
+
+    _fetchMapImage: {
+         value: function (tile) {
+            var self = this,
+                promise = this.mapImageDelegate.fetchMapImageWithMapImageAndLayer(tile, this.layer);
+            this._mapImageFetchMap.set(tile, promise);
+            promise.then(function (cookedTile) {
+                self._mapImageFetchMap.delete(tile);
+                self._updateTileAssociatedElementWithImage(tile, cookedTile.dataUrl);
+            }).catch(function () {
+                self._mapImageFetchMap.delete(tile);
+            });
+         }
+    },
+
+    _updateTileAssociatedElementWithImage: {
+         value: function (tile, imageSrc) {
+            var element = this._mapImageElementMap.get(tile);
+            if (element && imageSrc) {
+                element.src = imageSrc;
+            }
+         }
     }
 
 });
