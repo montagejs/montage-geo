@@ -1,8 +1,8 @@
 var Component = require("montage/ui/component").Component,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
-    ImageTileOverlay = require("ui/image-tile-overlay.reel").ImageTileOverlay,
     LeafletEngine = require("ui/leaflet-engine.reel").LeafletEngine,
     Map = require("montage/collections/map").Map,
+    MapImageOverlay = require("ui/map-image-overlay.reel").MapImageOverlay,
     Point = require("logic/model/point").Point,
     Point2D = require("logic/model/point-2d").Point2D,
     Position = require("logic/model/position").Position,
@@ -304,10 +304,10 @@ exports.Map = Component.specialize(/** @lends Map# */ {
 
     _buildTileOverlay: {
         value: function () {
-            var tileOverlay = new ImageTileOverlay();
-            tileOverlay.map = this;
-            tileOverlay.mapImageDelegate = this.mapImageDelegate;
-            return tileOverlay;
+            var mapImageOverlay = new MapImageOverlay();
+            mapImageOverlay.map = this;
+            mapImageOverlay.mapImageDelegate = this.mapImageDelegate;
+            return mapImageOverlay;
         }
     },
 
