@@ -37,7 +37,7 @@ exports.MapImageService = HttpService.specialize(/** @lends MapImageService.prot
 
     makeUrlWithLayerAndMapImage: {
         value: function (layer, mapImage) {
-            return layer.protocol.makeUrlWithLayerAndTile(layer, mapImage);
+            return layer.protocol.makeUrlWithLayerAndMapImage(layer, mapImage);
         }
     },
 

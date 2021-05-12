@@ -26,6 +26,7 @@
     flex: 0 0 320px;
     flex-direction: column;
     font-size: 16px;
+    overflow: auto;
     padding: 20px;
 }
 
@@ -46,6 +47,11 @@
 
 .Main-menuHeader {
     font-size: 24px;
+}
+
+.Main-menuSubHeader {
+    font-size: 18px;
+    padding: 10px;
 }
 
 .Main-map {

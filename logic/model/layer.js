@@ -87,6 +87,14 @@ exports.Layer = Montage.specialize(/** @lends Layer.prototype */ {
     },
 
     /**
+     * The numerical ID of a layer in an ArcGIS map service.
+     * @type {number}
+     */
+    mapServiceLayerIndex: {
+        value: undefined
+    },
+
+    /**
      * The maximum zoom level this layer can be displayed at.
      * @type {number}
      */
@@ -99,6 +107,30 @@ exports.Layer = Montage.specialize(/** @lends Layer.prototype */ {
      * @type {number}
      */
     minZoom: {
+        value: undefined
+    },
+
+    /**
+     * The coordinate system used to store the layer's geometry.
+     * @type {Porjection}
+     */
+    projection: {
+        value: undefined
+    },
+
+    /**
+     * The shape of this layer's data.
+     * @type {Protocol}
+     */
+    protocol: {
+        value: undefined
+    },
+
+    /**
+     * The version of this layer's protocol.
+     * @type {string}
+     */
+    protocolVersion: {
         value: undefined
     },
 
@@ -118,22 +150,6 @@ exports.Layer = Montage.specialize(/** @lends Layer.prototype */ {
      * @type{Renderer}
      */
     renderer: {
-        value: undefined
-    },
-
-    /**
-     * The coordinate system used to store the layer's geometry.
-     * @type {Porjection}
-     */
-    projection: {
-        value: undefined
-    },
-
-    /**
-     * The shape of this layer's data.
-     * @type {Protocol}
-     */
-    protocol: {
         value: undefined
     },
 
@@ -158,6 +174,7 @@ exports.Layer = Montage.specialize(/** @lends Layer.prototype */ {
             this.depth = deserializer.getProperty("depth");
             this.imageFormat = deserializer.getProperty("imageFormat");
             this.mapServiceLayerId = deserializer.getProperty("mapServiceLayerId");
+            this.mapServiceLayerIndex = deserializer.getProperty("mapServiceLayerIndex");
             this.maxZoom = deserializer.getProperty("maxZoom");
             this.minZoom = deserializer.getProperty("minZoom");
             projectionId = deserializer.getProperty("projectionId");
@@ -168,6 +185,7 @@ exports.Layer = Montage.specialize(/** @lends Layer.prototype */ {
             if (protocolId) {
                 this.protocol = Protocol.forId(protocolId);
             }
+            this.protocolVersion = deserializer.getProperty("protocolVersion");
             this.refreshInterval = deserializer.getProperty("refreshInterval");
             this.renderer = deserializer.getProperty("renderer");
             this.url = deserializer.getProperty("url");
