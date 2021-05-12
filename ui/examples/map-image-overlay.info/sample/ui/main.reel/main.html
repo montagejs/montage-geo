@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>
+        Tile Overlays
+    </title>
+    <link rel="stylesheet" href="main.css">
+    <script type="text/montage-serialization">
+    {
+        "owner": {
+            "values": {
+                "element": {"#": "main"}
+            }
+        },
+        "checkbox": {
+            "prototype": "montage/ui/image.reel",
+            "values": {
+                "element": {"#": "checkbox"},
+                "src": {"<-": "@wmtsLayers:iteration.selected ? 'images/default-checkbox-filled.svg' : 'images/default-checkbox-empty.svg'"}
+            }
+        },
+        "arcGisCheckbox": {
+            "prototype": "montage/ui/image.reel",
+            "values": {
+                "element": {"#": "arcGisCheckbox"},
+                "src": {"<-": "@arcGisLayers:iteration.selected ? 'images/default-checkbox-filled.svg' : 'images/default-checkbox-empty.svg'"}
+            }
+        },
+        "wmsCheckbox": {
+            "prototype": "montage/ui/image.reel",
+            "values": {
+                "element": {"#": "wmsCheckbox"},
+                "src": {"<-": "@wmsLayers:iteration.selected ? 'images/default-checkbox-filled.svg' : 'images/default-checkbox-empty.svg'"}
+            }
+        },
+        "darkGreyCanvas": {
+            "prototype": "montage-geo/logic/model/layer",
+            "values": {
+                "name": "Dark Grey Canvas",
+                "id": "Dark Grey Canvas",
+                "protocolId": "WMTS",
+                "mapServiceLayerId": "Dark Gray Canvas Base",
+                "url": "https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer"
+            }
+        },
+        "floodHazardZones": {
+            "prototype": "montage-geo/logic/model/layer",
+            "values": {
+                "name": "Flood Hazard Zones",
+                "id": "Flood Hazard Zones",
+                "protocolId": "WMS",
+                "protocolVersion": "1.3.0",
+                "projectionId": "4269",
+                "mapServiceLayerId": "4",
+                "url": "https://hazards.fema.gov/nfhl/services/public/NFHLWMS/MapServer/WMSServer?"
+            }
+        },
+        "politicalJurisdictions": {
+            "prototype": "montage-geo/logic/model/layer",
+            "values": {
+                "name": "Political Jurisdictions",
+                "id": "Political Jurisdictions",
+                "protocolId": "WMS",
+                "protocolVersion": "1.3.0",
+                "projectionId": "4269",
+                "mapServiceLayerId": "10",
+                "url": "https://hazards.fema.gov/nfhl/services/public/NFHLWMS/MapServer/WMSServer?"
+            }
+        },
+        "layerName": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "layerName"},
+                "value": {"<-": "@wmtsLayers:iteration.object.name"}
+            }
+        },
+        "arcGisLayerName": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "arcGisLayerName"},
+                "value": {"<-": "@arcGisLayers:iteration.object.name"}
+            }
+        },
+        "wmsLayerName": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "wmsLayerName"},
+                "value": {"<-": "@wmsLayers:iteration.object.name"}
+            }
+        },
+        "arcGisLayers": {
+            "prototype": "montage/ui/repetition.reel",
+            "values": {
+                "element": {"#": "arcGisLayers"},
+                "content": {"<-": "@owner._arcGisLayers"},
+                "allowsSelection": true,
+                "allowsMultipleSelection": true
+            }
+        },
+        "wmsLayers": {
+            "prototype": "montage/ui/repetition.reel",
+            "values": {
+                "element": {"#": "wmsLayers"},
+                "content": [
+                    {"@": "floodHazardZones"},
+                    {"@": "politicalJurisdictions"}
+                ],
+                "allowsSelection": true,
+                "allowsMultipleSelection": true
+            }
+        },
+        "wmtsLayers": {
+            "prototype": "montage/ui/repetition.reel",
+            "values": {
+                "element": {"#": "wmtsLayers"},
+                "content": [
+                    {"@": "darkGreyCanvas"},
+                    {"@": "worldImagery"}
+                ],
+                "allowsSelection": true,
+                "allowsMultipleSelection": true
+            }
+        },
+        "map": {
+            "prototype": "montage-geo/ui/map.reel",
+            "values": {
+                "element": {"#": "map"},
+                "center": [-156.6825, 20.8783],
+                "layers": {"<-": "@wmtsLayers.selection.concat(@wmsLayers.selection).concat(@arcGisLayers.selection)"},
+                "zoom": 5
+            }
+        },
+        "menuHeader": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "menuHeader"}
+            },
+            "localizations": {
+                "value": {
+                    "default": "Overlays",
+                    "key": "overlays"
+                }
+            }
+        },
+        "arcGisHeader": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "arcGisHeader"}
+            },
+            "localizations": {
+                "value": {
+                    "default": "ARCGIS",
+                    "key": "ARCGIS"
+                }
+            }
+        },
+        "wmsHeader": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "wmsHeader"}
+            },
+            "localizations": {
+                "value": {
+                    "default": "WMS",
+                    "key": "wms"
+                }
+            }
+        },
+        "wmtsHeader": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "wmtsHeader"}
+            },
+            "localizations": {
+                "value": {
+                    "default": "WMTS",
+                    "key": "wmts"
+                }
+            }
+        },
+        "worldImagery": {
+            "prototype": "montage-geo/logic/model/layer",
+            "values": {
+                "name": "ArcGIS World Imagery",
+                "id": "ArcGIS World Imagery",
+                "protocolId": "WMTS",
+                "mapServiceLayerId": "World_Imagery",
+                "url": "https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer"
+            }
+        }
+    }
+    </script>
+</head>
+<body>
+    <div data-montage-id="main" class="Main">
+        <div class="Main-layerSelector">
+            <div data-montage-id="menuHeader" class="Main-menuHeader"></div>
+            <div data-montage-id="wmtsHeader" class="Main-menuSubHeader"></div>
+            <div data-montage-id="wmtsLayers">
+                <div class="Main-layersListItem">
+                    <image data-montage-id="checkbox" class="Main-checkbox"/>
+                    <div data-montage-id="layerName"></div>
+                </div>
+            </div>
+            <div data-montage-id="wmsHeader" class="Main-menuSubHeader"></div>
+            <div data-montage-id="wmsLayers">
+                <div class="Main-layersListItem">
+                    <image data-montage-id="wmsCheckbox" class="Main-checkbox"/>
+                    <div data-montage-id="wmsLayerName"></div>
+                </div>
+            </div>
+            <div data-montage-id="arcGisHeader" class="Main-menuSubHeader"></div>
+            <div data-montage-id="arcGisLayers">
+                <div class="Main-layersListItem">
+                    <image data-montage-id="arcGisCheckbox" class="Main-checkbox"/>
+                    <div data-montage-id="arcGisLayerName"></div>
+                </div>
+            </div>
+        </div>
+        <div class="Main-map" data-montage-id="map"></div>
+    </div>
+</body>
+</html>

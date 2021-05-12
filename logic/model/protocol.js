@@ -11,7 +11,12 @@ var Enumeration = require("montage/data/model/enumeration").Enumeration,
 exports.Protocol = Enumeration.specialize("id", "realID", "name", /** @lends Protocol.prototype */ {
 
     _supportedImageFormats: {
-        value: new Set()
+        get: function () {
+            if (!this.__supportedImageFormats) {
+                this.__supportedImageFormats = new Set();
+            }
+            return this.__supportedImageFormats;
+        }
     },
 
     isSupportedImageFormat: {
@@ -94,136 +99,119 @@ exports.Protocol = Enumeration.specialize("id", "realID", "name", /** @lends Pro
 
 }, /** @lends Protocol */ {
 
-    // /** @type {Protocol} */
-    // ARCGIS: ["ArcGIS Server REST", "ARCGIS", "ArcGIS", {
-    //
-    //     defaultImageFormat: {
-    //         value: "png32"
-    //     },
-    //
-    //     _supportedImageFormats: {
-    //         get: function () {
-    //             if (!this.__supportedImageFormats) {
-    //                 this.__supportedImageFormats = new Set(["png32", "png"]);
-    //             }
-    //             return this.__supportedImageFormats;
-    //         }
-    //     },
-    //
-    //     isForMapService: {
-    //         value: true
-    //     },
-    //
-    //     supportsTileImageRequests: {
-    //         value: true
-    //     },
-    //
-    //     supportsGenericMapImageRequests: {
-    //         value: true
-    //     },
-    //
-    //     makeUrlWithLayerAndMapImage: {
-    //         value: function (layer, mapImage) {
-    //             var bounds = layer.projection.projectBounds(mapImage.bounds),
-    //                 url = layer.url;
-    //             url += "/export";
-    //             url += "?format=";
-    //             url += layer.imageType;
-    //             url += "&bboxSR=";
-    //             url += layer.projection.srid;
-    //             url += "&SRS=EPSG:";
-    //             url += layer.projection.srid;
-    //             url += "&version=";
-    //             url += layer.protocolVersion;
-    //             url += "&BBOX=";
-    //             url += bounds.xMin;
-    //             url += ",";
-    //             url += bounds.yMin;
-    //             url += ",";
-    //             url += bounds.xMax;
-    //             url += ",";
-    //             url += bounds.yMax;
-    //             url += "&layers=show:";
-    //             url += layer.mapServiceLayerIndex;
-    //             url += "&size=";
-    //             url += mapImage.size.width;
-    //             url += ",";
-    //             url += mapImage.size.height;
-    //             url += "&transparent=true";
-    //             url += "&f=image";
-    //             url += "&dpi=";
-    //             url += mapImage.dpi;
-    //             url += "&imageSR=";
-    //             url += layer.projection.srid;
-    //             return url;
-    //         }
-    //     }
-    //
-    // }],
-    //
-    // /** @type {Protocol} */
-    // BING: ["Microsoft VirtualEarth", "BING", "Bing", {
-    //
-    //     supportsTileImageRequests: {
-    //         value: true
-    //     },
-    //
-    //     makeUrlWithLayerAndTile: {
-    //         value: function (layer, tile) {
-    //             var url;
-    //             if (tile.y < 0) {
-    //                 url = Tile.transparentImage;
-    //             } else if (layer.name === "Bing Imagery") {
-    //                 url = "https://t";
-    //                 url += this._subdomain(tile.x, tile.y);
-    //                 url += ".ssl.ak.dynamic.tiles.virtualearth.net/comp/CompositionHandler/";
-    //                 url += this._quadkey(tile.x, tile.y, tile.z);
-    //                 url += "?mkt=en-US&it=A,G,RL&shading=hill";
-    //             } else if (layer.name === "Bing Hybrid") {
-    //                 url = "https://t";
-    //                 url += this._subdomain(tile.x, tile.y);
-    //                 url += ".ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/";
-    //                 url += this._quadkey(tile.x, tile.y, tile.z);
-    //                 url += "?mkt=en-US&it=A,G,L";
-    //             } else if (layer.name === "Bing Roads") {
-    //                 url = "https://t";
-    //                 url += this._subdomain(tile.x, tile.y);
-    //                 url += ".ssl.ak.dynamic.tiles.virtualearth.net/comp/CompositionHandler/";
-    //                 url += this._quadkey(tile.x, tile.y, tile.z);
-    //                 url += "?mkt=en-US&it=G,VE,BX,L,LA";
-    //             }
-    //             return url;
-    //         }
-    //     },
-    //
-    //     _subdomain: {
-    //         value: function (x, y) {
-    //             return Math.abs(x + y) % 4;
-    //         }
-    //     },
-    //
-    //     _quadkey: {
-    //         value: function (x, y, z) {
-    //             var quadKey = "",
-    //                 digit, mask, i;
-    //
-    //             for (i = z; i > 0; i--) {
-    //                 digit = 0;
-    //                 mask = 1 << (i - 1);
-    //                 if ((x & mask) != 0) {
-    //                     digit++;
-    //                 }
-    //                 if ((y & mask) != 0) {
-    //                     digit++;
-    //                     digit++;
-    //                 }
-    //                 quadKey += String(digit);
-    //             }
-    //             return quadKey;
-    //         }
-    //     }
-    //
-    // }],
+    /** @type {Protocol} */
+        ARCGIS: ["ArcGIS Server REST", "ARCGIS", "ArcGIS", {
+
+        defaultImageFormat: {
+            value: "image/png"
+        },
+
+        _supportedImageFormats: {
+            get: function () {
+                if (!this.__supportedImageFormats) {
+                    this.__supportedImageFormats = new Set(["png32", "png"]);
+                }
+                return this.__supportedImageFormats;
+            }
+        },
+
+        isForMapService: {
+            value: true
+        },
+
+        supportsTileImageRequests: {
+            value: true
+        },
+
+        supportsGenericMapImageRequests: {
+            value: true
+        },
+
+        makeUrlWithLayerAndMapImage: {
+            value: function (layer, mapImage) {
+                var bounds = layer.projection.projectBounds(mapImage.bounds),
+                    mapImageSize = mapImage.size,
+                    url = new URL(layer.url + "/export");
+
+                url.searchParams.append("format", layer.imageFormat || this.defaultImageFormat);
+                url.searchParams.append("bboxSR", "EPSG:" + layer.projection.srid);
+                url.searchParams.append("SRS", "EPSG:" + layer.projection.srid);
+                url.searchParams.append("version", layer.protocolVersion);
+                url.searchParams.append("BBOX", bounds.bbox.join(","));
+                url.searchParams.append("layers", "show:" + layer.mapServiceLayerIndex);
+                url.searchParams.append("size", [mapImageSize.width, mapImageSize.height].join(","));
+                url.searchParams.append("transparent", "true");
+                url.searchParams.append("f", "image");
+                url.searchParams.append("dpi", mapImage.dpi);
+                url.searchParams.append("imageSR", layer.projection.srid);
+                return url.href;
+            }
+        }
+    }],
+
+    /** @type {Protocol} */
+    BING: ["Microsoft VirtualEarth", "BING", "Bing", {
+
+        supportsTileImageRequests: {
+            value: true
+        },
+
+        makeUrlWithLayerAndMapImage: {
+            value: function (layer, tile) {
+                var url;
+                if (tile.y < 0) {
+                    url = Tile.transparentImage;
+                } else if (layer.name === "Bing Imagery") {
+                    url = "https://t";
+                    url += this._subdomain(tile.x, tile.y);
+                    url += ".ssl.ak.dynamic.tiles.virtualearth.net/comp/CompositionHandler/";
+                    url += this._quadkey(tile.x, tile.y, tile.z);
+                    url += "?mkt=en-US&it=A,G,RL&shading=hill";
+                } else if (layer.name === "Bing Hybrid") {
+                    url = "https://t";
+                    url += this._subdomain(tile.x, tile.y);
+                    url += ".ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/";
+                    url += this._quadkey(tile.x, tile.y, tile.z);
+                    url += "?mkt=en-US&it=A,G,L";
+                } else if (layer.name === "Bing Roads") {
+                    url = "https://t";
+                    url += this._subdomain(tile.x, tile.y);
+                    url += ".ssl.ak.dynamic.tiles.virtualearth.net/comp/CompositionHandler/";
+                    url += this._quadkey(tile.x, tile.y, tile.z);
+                    url += "?mkt=en-US&it=G,VE,BX,L,LA";
+                }
+                return url;
+            }
+        },
+
+        _subdomain: {
+            value: function (x, y) {
+                return Math.abs(x + y) % 4;
+            }
+        },
+
+        _quadkey: {
+            value: function (x, y, z) {
+                var quadKey = "",
+                    digit, mask, i;
+
+                for (i = z; i > 0; i--) {
+                    digit = 0;
+                    mask = 1 << (i - 1);
+                    if ((x & mask) != 0) {
+                        digit++;
+                    }
+                    if ((y & mask) != 0) {
+                        digit++;
+                        digit++;
+                    }
+                    quadKey += String(digit);
+                }
+                return quadKey;
+            }
+        }
+
+    }],
     //
     // /** @type {Protocol} */
     // BSP_DOCUMENT: ["BSP Groups & Documents", "BSP_DOCUMENT", "BSP Document", {
@@ -256,13 +244,13 @@ exports.Protocol = Enumeration.specialize("id", "realID", "name", /** @lends Pro
     //         value: true
     //     },
     //
-    //     makeUrlWithLayerAndTile: {
+    //     makeUrlWithLayerAndMapImage: {
     //         value: function (layer, tile) {
     //             var id = layer.id,
     //                 name =  id === "Google_Hybrid" ?    "Bing Hybrid" :
     //                     id === "Google_Street" ?    "Bing Roads" :
     //                         "Bing Imagery";
-    //             return exports.Protocol.BING.makeUrlWithLayerAndTile({name: name}, tile);
+    //             return exports.Protocol.BING.makeUrlWithLayerAndMapImage({name: name}, tile);
     //         }
     //     }
     //
@@ -360,7 +348,7 @@ exports.Protocol = Enumeration.specialize("id", "realID", "name", /** @lends Pro
     //         value: true
     //     },
     //
-    //     makeUrlWithLayerAndTile: {
+    //     makeUrlWithLayerAndMapImage: {
     //         value: function (layer, tile) {
     //             var x = this._normalize(tile.x, tile.z),
     //                 url = layer.url;
@@ -388,7 +376,7 @@ exports.Protocol = Enumeration.specialize("id", "realID", "name", /** @lends Pro
     //         value: true
     //     },
     //
-    //     makeUrlWithLayerAndTile: {
+    //     makeUrlWithLayerAndMapImage: {
     //         value: function (layer, tile) {
     //             var x = this._normalize(tile.x, tile.z),
     //                 url = layer.url;
@@ -465,72 +453,67 @@ exports.Protocol = Enumeration.specialize("id", "realID", "name", /** @lends Pro
     //
     // }],
     //
-    // /** @type {Protocol} */
-    // WMS: ["WMS", "WMS", "WMS", {
-    //
-    //     defaultImageFormat: {
-    //         value: "image/png"
-    //     },
-    //
-    //     _supportedImageFormats: {
-    //         get: function () {
-    //             if (!this.__supportedImageFormats) {
-    //                 this.__supportedImageFormats = new Set(["image/png", "image/jpeg"]);
-    //             }
-    //             return this.__supportedImageFormats;
-    //         }
-    //     },
-    //
-    //     isForMapService: {
-    //         value: true
-    //     },
-    //
-    //     supportsTileImageRequests: {
-    //         value: true
-    //     },
-    //
-    //     makeUrlWithLayerAndTile: {
-    //         value: function (layer, tile) {
-    //             var bounds = layer.projection.projectBounds(tile.bounds),
-    //                 url = layer.url;
-    //             url += "LAYERS=";
-    //             url += layer.mapServiceLayerId;
-    //             url += "&format=";
-    //             url += layer.imageType;
-    //             url += "&version=";
-    //             url += layer.protocolVersion;
-    //             url += "&service=WMS";
-    //             url += "&TRANSPARENT=true";
-    //             url += "&request=GetMap";
-    //             url += "&bboxSR=";
-    //             url += layer.projection.srid;
-    //             if (parseFloat(layer.protocolVersion) >= 1.3) {
-    //                 url += "&CRS=EPSG:";
-    //             } else {
-    //                 url += "&SRS=EPSG:";
-    //             }
-    //             url += layer.projection.srid;
-    //             url += "&WIDTH=256";
-    //             url += "&HEIGHT=256";
-    //             url += "&BBOX=";
-    //             url += bounds.xMin;
-    //             url += ",";
-    //             url += bounds.yMin;
-    //             url += ",";
-    //             url += bounds.xMax;
-    //             url += ",";
-    //             url += bounds.yMax;
-    //             url += "&STYLES=";
-    //             if (layer.animationTime) {
-    //                 url += "&TIME=";
-    //                 url += layer.animationTime.utc().format("YYYY-MM-DDTHH:mm:ss");
-    //                 url += ".000Z";
-    //             }
-    //             return url;
-    //         }
-    //     }
-    //
-    // }],
+    /** @type {Protocol} */
+    WMS: ["WMS", "WMS", "WMS", {
+
+        defaultImageFormat: {
+            value: "image/png"
+        },
+
+        _supportedImageFormats: {
+            get: function () {
+                if (!this.__supportedImageFormats) {
+                    this.__supportedImageFormats = new Set(["image/png", "image/jpeg"]);
+                }
+                return this.__supportedImageFormats;
+            }
+        },
+
+        isForMapService: {
+            value: true
+        },
+
+        supportsTileImageRequests: {
+            value: true
+        },
+
+        makeUrlWithLayerAndMapImage: {
+            value: function (layer, tile) {
+                var bounds, tileSize, url, sridQueryParam;
+
+                if (!(tile instanceof Tile)) {
+                    return;
+                }
+
+                bounds = layer.projection.projectBounds(tile.bounds);
+                tileSize = tile.size;
+                url = layer.url;
+                sridQueryParam = parseFloat(layer.protocolVersion) >= 1.3 ? "CRS": "SRS";
+
+                url = new URL(layer.url);
+                url.searchParams.append("LAYERS", layer.mapServiceLayerId);
+                url.searchParams.append("format", layer.imageFormat || this.defaultImageFormat);
+                url.searchParams.append("version", layer.protocolVersion);
+                url.searchParams.append("service", "WMS");
+                url.searchParams.append("TRANSPARENT", "true");
+                url.searchParams.append("request", "GetMap");
+                url.searchParams.append("bboxSR", layer.projection.srid);
+                url.searchParams.append(sridQueryParam, "EPSG:" + layer.projection.srid);
+                url.searchParams.append("WIDTH", tileSize.width);
+                url.searchParams.append("HEIGHT", tileSize.height);
+                url.searchParams.append("BBOX", bounds.bbox.join(","));
+                url.searchParams.append("STYLES", "");
+                // Contour Specific
+                // if (layer.animationTime) {
+                //     url += "&TIME=";
+                //     url += layer.animationTime.utc().format("YYYY-MM-DDTHH:mm:ss");
+                //     url += ".000Z";
+                // }
+                return url.href;
+            }
+        }
+
+    }],
 
     /** @type {Protocol} */
     WMTS: ["WMTS", "WMTS", "WMTS", {
@@ -543,28 +526,30 @@ exports.Protocol = Enumeration.specialize("id", "realID", "name", /** @lends Pro
             value: true
         },
 
-        makeUrlWithLayerAndTile: {
+        makeUrlWithLayerAndMapImage: {
             value: function (layer, tile) {
+                if (!(tile instanceof Tile)) {
+                    return;
+                }
                 return layer.tileUrlTemplate ?  this._makeUrlFromTemplateForLayerAndTile(layer, tile) :
-                    this._makeDefaultUrlForLayerAndTile(layer, tile);
+                                                this._makeDefaultUrlForLayerAndTile(layer, tile);
             }
         },
 
         _makeDefaultUrlForLayerAndTile: {
             value: function (layer, tile) {
-                var url = layer.url;
-                url += "/WMTS?";
-                url += "service=WMTS";
-                url += "&version=" + (layer.protocolVersion || "1.0.0");
-                url += "&request=GetTile";
-                url += "&format=" + (layer.imageFormat || "image/png");
-                url += "&tileMatrix=" + tile.z;
-                url += "&TileRow=" + tile.y;
-                url += "&TileCol=" + this._normalizeTileColumn(tile.x, tile.y, tile.z);
-                url += "&style=default";
-                url += "&tileMatrixSet=" + (layer.tileMatrixSet || "default028mm");
-                url += "&layer=" + layer.mapServiceLayerId;
-                return url;
+                var url = new URL(layer.url + "/WMTS");
+                url.searchParams.append("service", "WMTS");
+                url.searchParams.append("version", layer.protocolVersion || "1.0.0");
+                url.searchParams.append("request", "GetTile");
+                url.searchParams.append("format", layer.imageFormat || "image/png");
+                url.searchParams.append("tileMatrix", tile.z);
+                url.searchParams.append("TileRow", tile.y);
+                url.searchParams.append("TileCol", this._normalizeTileColumn(tile.x, tile.y, tile.z));
+                url.searchParams.append("style", "default");
+                url.searchParams.append("tileMatrixSet", layer.tileMatrixSet || "default028mm");
+                url.searchParams.append("layer", layer.mapServiceLayerId);
+                return url.href;
             }
         },
 
