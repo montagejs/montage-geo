@@ -1,10 +1,11 @@
-var LayerService = require("logic/service/layer-service").LayerService;
+var ProtocolRoutedService = require("logic/service/protocol-routed-service").ProtocolRoutedService,
+    Protocol = require("logic/model/protocol").Protocol;
 
 /**
  *
  * @type {function|*}
  */
-exports.ArcGisLayerService = LayerService.specialize(/** @lends ArcGisLayerService.prototype */ {
+exports.ArcGisLayerService = ProtocolRoutedService.specialize(/** @lends ArcGisLayerService.prototype */ {
 
     fetchRawData: {
         value: function (stream) {
@@ -22,6 +23,11 @@ exports.ArcGisLayerService = LayerService.specialize(/** @lends ArcGisLayerServi
             this._fetchLayersFromArcGisServiceWithUrl(stream, serviceUrl);
 
         }
+    },
+
+    protocol: {
+        writable: false,
+        value: Protocol.ARCGIS
     },
 
     _fetchLayersFromArcGisServiceWithUrl: {

@@ -33,7 +33,7 @@ exports.Map = Component.specialize(/** @lends Map# */ {
                         "(protocol.supportsFeatureRequests && featureMinZoom >= ^zoom))} ?? " +
                         "[]"
             });
-            this.addRangeAtPathChangeListener("_featureLayers", this._handleTileLayersRangeChange.bind(this));
+            this.addRangeAtPathChangeListener("_featureLayers", this._handleFeatureLayersRangeChange.bind(this));
             this.addRangeAtPathChangeListener("_tileLayers", this._handleTileLayersRangeChange.bind(this));
             // this.addOwnPropertyChangeListener("bounds", this);
         }
@@ -71,6 +71,16 @@ exports.Map = Component.specialize(/** @lends Map# */ {
     },
 
     /**
+     * The feature delegate used to query layer features.  If a delegate is not
+     * defined, the delegate defaults to the MapImageDelegate defined in this
+     * project.
+     * @type {Featuredelegate}
+     */
+    featureDelegate: {
+        value: undefined
+    },
+
+    /**
      * The layers to display as overlays in the map.
      * @type {Layer[]}
      */
@@ -80,6 +90,8 @@ exports.Map = Component.specialize(/** @lends Map# */ {
 
     /**
      * The Map Image delegate that is passed to map image overlays.
+     * If a delegate is not defined, the delegate defaults to the
+     * MapImageDelegate defined in this project.
      * @type {MapImageDelegate}
      */
     mapImageDelegate: {
@@ -168,12 +180,40 @@ exports.Map = Component.specialize(/** @lends Map# */ {
         }
     },
 
-    _layerComponentMap: {
+    _featureLayerComponentMap: {
         get: function () {
-            if (!this.__layerComponentMap) {
-                this.__layerComponentMap = new Map();
+            if (!this.__featureLayerComponentMap) {
+                this.__featureLayerComponentMap = new Map();
             }
-            return this.__layerComponentMap;
+            return this.__featureLayerComponentMap;
+        }
+    },
+
+    _layerCriteriaMap: {
+        get: function () {
+            if (!this.__layerCriteriaMap) {
+                this.__layerCriteriaMap = new Map();
+                this.__layerCriteriaMap.addMapChangeListener(this._layerCriteriaDidChange.bind(this));
+            }
+            return this.__layerCriteriaMap;
+        }
+    },
+
+    _layerFeatureCollectionMap: {
+        get: function () {
+            if (!this.__layerFeatureCollectionMap) {
+                this.__layerFeatureCollectionMap = new Map();
+            }
+            return this.__layerFeatureCollectionMap;
+        }
+    },
+
+    _tileLayerComponentMap: {
+        get: function () {
+            if (!this.__tileLayerComponentMap) {
+                this.__tileLayerComponentMap = new Map();
+            }
+            return this.__tileLayerComponentMap;
         }
     },
 
@@ -268,12 +308,63 @@ exports.Map = Component.specialize(/** @lends Map# */ {
     },
 
     /**************************************************************************
+     * Managing Layer Features
+     */
+
+    /**
+     * @method
+     * @param {Criteria} - the criteria to apply to the layer
+     * @param {Layer} - the layer to assign the criteria
+     */
+    assignCriteriaToLayer: {
+        value: function (criteria, layer) {
+            this._layerCriteriaMap.set(layer, criteria);
+        }
+    },
+
+    _layerCriteriaDidChange: {
+        value: function (value, key) {
+
+        }
+    },
+
+    /**************************************************************************
      * Event Handlers
      */
 
+    _handleFeatureLayersRangeChange: {
+        value: function (plus, minus) {
+            var layerComponentMap = this._featureLayerComponentMap,
+                engine = this._engine,
+                freeIterations = [],
+                component, i, n;
+
+            for (i = 0, n = minus.length; i < n; i += 1) {
+                freeIterations.push(layerComponentMap.get(minus[i]));
+            }
+
+            for (i = 0, n = plus.length; i < n; i += 1) {
+                if (freeIterations.length > 0) {
+                    component = freeIterations.pop();
+                } else {
+                    component = this._buildFeatureCollectionOverlay();
+                    engine.addOverlay(component);
+                }
+                component.layer = plus[i];
+                layerComponentMap.set(component.layer, component);
+            }
+
+            for (i = 0, n = freeIterations.length; i < n; i += 1) {
+                component = freeIterations[i];
+                engine.removeOverlay(component);
+                layerComponentMap.delete(component.layer);
+            }
+        }
+    },
+
     _handleTileLayersRangeChange: {
         value: function (plus, minus) {
-            var layerComponentMap = this._layerComponentMap,
+            var layerComponentMap = this._tileLayerComponentMap,
                 engine = this._engine,
                 freeIterations = [],
                 component, i, n;
@@ -299,6 +390,12 @@ exports.Map = Component.specialize(/** @lends Map# */ {
                 layerComponentMap.delete(component.layer);
             }
 
+        }
+    },
+
+    _handleLayerCriteriaMapChange: {
+        value: function (value, key) {
+            // TODO - update feature-collection for layer
         }
     },
 

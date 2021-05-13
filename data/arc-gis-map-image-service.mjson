@@ -1,0 +1,8 @@
+{
+    "root": {
+        "prototype": "logic/service/arc-gis-map-image-service",
+        "values": {
+            "name": "ArcGisMapImageService"
+        }
+    }
+}
