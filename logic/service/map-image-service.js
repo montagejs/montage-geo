@@ -1,13 +1,44 @@
-var HttpService = require("montage/data/service/http-service").HttpService,
+var ProtocolRoutedService = require("logic/service/protocol-routed-service").ProtocolRoutedService,
     Tile = require("logic/model/tile").Tile;
 
 /**
  *
  * @type {function|*}
  */
-exports.MapImageService = HttpService.specialize(/** @lends MapImageService.prototype */ {
+exports.MapImageService = ProtocolRoutedService.specialize(/** @lends MapImageService.prototype */ {
 
     fetchRawData: {
+        value: function (stream) {
+            var protocol = this.protocolForStream(stream),
+                childService = protocol && this.childServiceForProtocol(protocol);
+
+            if (!protocol) {
+                // TODO: Implement Auto-discovery of protocol
+                stream.dataError(
+                    "A fetch for layers requires the protocol and the service" +
+                    " url to be defined."
+                );
+                return;
+            } else if (!childService) {
+                stream.dataError(
+                    "The supplied protocol (" + protocol.id + ") is not supported"
+                );
+                return;
+            }
+            childService.fetchMapImageData(stream);
+        }
+    },
+
+    protocolForStream: {
+        value: function (stream) {
+            var criteria = stream.query.criteria,
+                parameters = criteria && criteria.parameters,
+                layer = parameters && parameters.layer;
+            return layer && layer.protocol;
+        }
+    },
+
+    fetchMapImageData: {
         value: function (stream) {
             var self = this,
                 request = new XMLHttpRequest(),
@@ -35,9 +66,17 @@ exports.MapImageService = HttpService.specialize(/** @lends MapImageService.prot
         }
     },
 
+    /**
+     * Child Services must override this method to provide the Url to use for
+     * map image request.
+     * @param {Layer}
+     * @param {MapImage}
+     * @type {function}
+     * @returns {string}
+     */
     makeUrlWithLayerAndMapImage: {
         value: function (layer, mapImage) {
-            return layer.protocol.makeUrlWithLayerAndMapImage(layer, mapImage);
+            console.error("Only a subclass should call this method.");
         }
     },
 

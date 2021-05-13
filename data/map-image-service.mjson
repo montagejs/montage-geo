@@ -1,4 +1,13 @@
 {
+    "arcGisLMapImageService": {
+        "object": "data/arc-gis-map-image-service.mjson"
+    },
+    "wmsMapImageService": {
+        "object": "data/wms-map-image-service.mjson"
+    },
+    "wmtsMapImageService": {
+        "object": "data/wmts-map-image-service.mjson"
+    },
     "mapImage": {
         "object": "data/descriptor/map-image.mjson"
     },
@@ -22,6 +31,11 @@
             "mappings": [
                 {"@": "mapImageMapping"},
                 {"@": "tileMapping"}
+            ],
+            "childServices": [
+                {"@": "arcGisLMapImageService"},
+                {"@": "wmsMapImageService"},
+                {"@": "wmtsMapImageService"}
             ]
         }
     }

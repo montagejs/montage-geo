@@ -2,8 +2,7 @@
     "root": {
         "prototype": "logic/service/arc-gis-layer-service",
         "values": {
-            "name": "LayerService",
-            "protocolId": "ArcGIS Server REST"
+            "name": "ArcGisLayerService"
         }
     }
 }

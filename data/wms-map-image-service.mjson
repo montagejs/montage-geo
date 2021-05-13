@@ -1,0 +1,8 @@
+{
+    "root": {
+        "prototype": "logic/service/wms-map-image-service",
+        "values": {
+            "name": "WmsMapImageService"
+        }
+    }
+}
