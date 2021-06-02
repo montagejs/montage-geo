@@ -914,6 +914,7 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
      */
     _initialize: {
         value: function () {
+            this._loadLeafletCSS();
             this._initializeMap();
         }
     },
@@ -982,6 +983,29 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
             this._map.addEventListener("zoom", this._handleZoom.bind(this));
             this._map.addEventListener("zoomstart", this._handleZoomStart.bind(this));
             this._map.addEventListener("zoomend", this._handleZoomEnd.bind(this));
+        }
+    },
+
+    _getLeafletPackageLocation: {
+        value: function () {
+            var descriptor = require.getModuleDescriptor("leaflet"),
+                mainRequire = descriptor.require,
+                mappingRequire = descriptor.mappingRequire;
+
+            return mappingRequire ? mappingRequire.location :
+                                    mainRequire.config.packagesDirectory + descriptor.id
+        }
+    },
+
+    _loadLeafletCSS: {
+        value: function () {
+            var packageLocation = this._getLeafletPackageLocation(),
+                cssLocation = packageLocation + "dist/leaflet.css",
+                linkEl = document.createElement("link");
+
+            linkEl.setAttribute("rel", "stylesheet");
+            linkEl.setAttribute("href", cssLocation);
+            document.querySelector("head").appendChild(linkEl);
         }
     },
 
