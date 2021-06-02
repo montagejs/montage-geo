@@ -296,17 +296,17 @@ exports.FeatureCollectionOverlay = Overlay.specialize(/** @lends FeatureCollecti
      * Feature Drawing
      */
 
-    // /**
-    //  * The set of features that were sent to be drawn by the map engine.
-    //  */
-    // _drawnFeatures: {
-    //     get: function () {
-    //         if (!this.__drawnFeatures) {
-    //             this.__drawnFeatures = new Set();
-    //         }
-    //         return this.__drawnFeatures;
-    //     }
-    // },
+    /**
+     * The set of features that were sent to be drawn by the map engine.
+     */
+    _drawnFeatures: {
+        get: function () {
+            if (!this.__drawnFeatures) {
+                this.__drawnFeatures = new Set();
+            }
+            return this.__drawnFeatures;
+        }
+    },
 
     /**
      * Removes all drawn features from the map.

@@ -9,7 +9,8 @@ exports.Overlay = Component.specialize(/** @lends Overlay */ {
 
     constructor: {
         value: function Overlay() {
-            this.defineBinding("_isEnabled", {"<-": "_isInDocument && _isRegistered && map", source: this});
+            // Note 'pane == 4' in the binding. That should read 'pane == MapPane.NONE'
+            this.defineBinding("_isEnabled", {"<-": "(pane == 4 || _isInDocument) && _isRegistered && map", source: this});
             this.addOwnPropertyChangeListener("_isEnabled", this.handleIsEnableDidChange.bind(this));
         }
     },
