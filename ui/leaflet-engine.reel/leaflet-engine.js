@@ -477,7 +477,8 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
                 pane = component.pane || MapPane.Overlay,
                 container = this.elementForPane(pane),
                 element = component.element;
-            if (element) {
+
+            if (container && element) {
                 container.appendChild(component.element);
             }
             component.didAdd(this);
@@ -494,7 +495,11 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
             var component = queuedItem.overlay,
                 pane = component.pane || MapPane.Overlay,
                 container = this.elementForPane(pane);
-            container.removeChild(component.element);
+
+
+            if (container) {
+                container.removeChild(component.element);
+            }
             component.didRemove();
         }
     },
