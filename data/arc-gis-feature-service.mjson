@@ -1,0 +1,8 @@
+{
+    "root": {
+        "prototype": "logic/service/arc-gis-feature-service",
+        "values": {
+            "name": "ArcGisFeatureService"
+        }
+    }
+}

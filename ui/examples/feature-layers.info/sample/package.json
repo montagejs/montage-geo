@@ -1,0 +1,11 @@
+{
+    "name": "Feature Collection Overlay Test",
+    "version": "0.1.0",
+    "description": "",
+    "mappings": {
+        "montage": "../../../../node_modules/montage",
+        "montage-geo": "../../../../"
+    },
+    "manifest": true
+}
+

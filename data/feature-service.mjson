@@ -1,0 +1,26 @@
+{
+    "arcGisFeatureService": {
+        "object": "data/arc-gis-feature-service.mjson"
+    },
+    "feature": {
+        "object": "data/descriptor/feature.mjson"
+    },
+    "featureMapping": {
+        "object": "data/mapping/feature-mapping.mjson"
+    },
+    "root": {
+        "prototype": "logic/service/map-image-service",
+        "values": {
+            "name": "MapImageService",
+            "types": [
+                {"@": "feature"}
+            ],
+            "mappings": [
+                {"@": "featureMapping"}
+            ],
+            "childServices": [
+                {"@": "arcGisFeatureService"}
+            ]
+        }
+    }
+}
