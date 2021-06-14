@@ -3,9 +3,14 @@ var ProtocolRoutedService = require("logic/service/protocol-routed-service").Pro
 
 /**
  *
- * @type {function|*}
+ * Returns MapImages and Tiles from services in various formats.
+ * @type {MapImageService}
  */
 exports.MapImageService = ProtocolRoutedService.specialize(/** @lends MapImageService.prototype */ {
+
+    /**************************************************************************
+     * Fetching
+     */
 
     fetchRawData: {
         value: function (stream) {
@@ -69,9 +74,9 @@ exports.MapImageService = ProtocolRoutedService.specialize(/** @lends MapImageSe
     /**
      * Child Services must override this method to provide the Url to use for
      * map image request.
+     * @method
      * @param {Layer}
      * @param {MapImage}
-     * @type {function}
      * @returns {string}
      */
     makeUrlWithLayerAndMapImage: {
@@ -107,21 +112,21 @@ exports.MapImageService = ProtocolRoutedService.specialize(/** @lends MapImageSe
         value: function (mapImage, layer, dataUrl) {
             var rawData = {};
             if (mapImage instanceof Tile) {
-                rawData["x"] = mapImage.x;
-                rawData["y"] = mapImage.y;
-                rawData["z"] = mapImage.z;
+                rawData.x = mapImage.x;
+                rawData.y = mapImage.y;
+                rawData.z = mapImage.z;
             } else {
-                rawData["id"] = mapImage.bounds.bbox.join(":");
+                rawData.id = mapImage.bounds.bbox.join(":");
             }
-            rawData["layerId"] = layer.id;
-            rawData["dataUrl"] = dataUrl;
+            rawData.layerId = layer.id;
+            rawData.dataUrl = dataUrl;
             if (mapImage.size) {
-                rawData["size"] = {
+                rawData.size = {
                     height: mapImage.size.height,
                     width: mapImage.size.width
                 };
             }
-            rawData["dpi"] = mapImage.dpi;
+            rawData.dpi = mapImage.dpi;
             return rawData;
         }
     }

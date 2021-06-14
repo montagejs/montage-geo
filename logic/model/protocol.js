@@ -119,6 +119,14 @@ exports.Protocol = Enumeration.specialize("id", "realID", "name", /** @lends Pro
             value: true
         },
 
+        /**
+         * Indicates whether the protocol supports fetching the data as features.
+         * @type {boolean}
+         */
+        supportsFeatureRequests: {
+            value: false
+        },
+
         supportsTileImageRequests: {
             value: true
         },

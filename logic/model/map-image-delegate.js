@@ -3,6 +3,7 @@ var Montage = require("montage/core/core").Montage,
     DataQuery = require("montage/data/model/data-query").DataQuery,
     DataService = require("montage/data/service/data-service").DataService,
     DataStream = require("montage/data/service/data-stream").DataStream,
+    MapImage = require("logic/model/map-image").MapImage,
     Promise = require("montage/core/promise").Promise,
     Tile = require("logic/model/tile").Tile,
     TransparentImage = require("logic/model/tile").TransparentImage;
@@ -33,7 +34,10 @@ var MapImageDelegate = exports.MapImageDelegate = Montage.specialize(/** @lends 
 
             var rootService = DataService.mainService;
 
-            if (!rootService || !rootService.childServiceForType(Tile)) {
+            if (!rootService || (
+                !rootService.childServiceForType(Tile) &&
+                !rootService.childServiceForType(MapImage)
+            )) {
                 return this.constructor._TransparentImagePromise;
             }
 

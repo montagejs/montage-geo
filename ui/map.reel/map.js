@@ -399,6 +399,12 @@ exports.Map = Component.specialize(/** @lends Map# */ {
         }
     },
 
+    _buildFeatureCollectionOverlay: {
+        value: function() {
+            // TODO - implement
+        }
+    },
+
     _buildTileOverlay: {
         value: function () {
             var mapImageOverlay = new MapImageOverlay();

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>
+        Contour Action Menu Sample
+    </title>
+    <link rel="stylesheet" href="main.css">
+    <script type="text/montage-serialization">
+    {
+        "owner": {
+            "properties": {
+                "element": {"#": "main"},
+                "_map": {"@": "map"}
+            }
+        },
+        "arcGisCheckbox": {
+            "prototype": "montage/ui/image.reel",
+            "values": {
+                "element": {"#": "arcGisCheckbox"},
+                "src": {"<-": "@arcGisLayers:iteration.selected ? 'images/default-checkbox-filled.svg' : 'images/default-checkbox-empty.svg'"}
+            }
+        },
+        "arcGisLayerName": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "arcGisLayerName"},
+                "value": {"<-": "@arcGisLayers:iteration.object.name"}
+            }
+        },
+        "arcGisLayers": {
+            "prototype": "montage/ui/repetition.reel",
+            "values": {
+                "element": {"#": "arcGisLayers"},
+                "content": {"<-": "@owner._arcGisLayers"},
+                "allowsSelection": true,
+                "allowsMultipleSelection": true
+            }
+        },
+        "arcGisHeader": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "arcGisHeader"}
+            },
+            "localizations": {
+                "value": {
+                    "default": "ARCGIS",
+                    "key": "ARCGIS"
+                }
+            }
+        },
+        "map": {
+            "prototype": "montage-geo/ui/map.reel",
+            "properties": {
+                "element": {"#": "map"},
+                "center": [-156.6825, 20.8783],
+                "zoom": 5
+            }
+        },
+        "menuHeader": {
+            "prototype": "montage/ui/text.reel",
+            "values": {
+                "element": {"#": "menuHeader"}
+            },
+            "localizations": {
+                "value": {
+                    "default": "Overlays",
+                    "key": "overlays"
+                }
+            }
+        }
+    }
+    </script>
+</head>
+<body>
+    <div data-montage-id="main" class="Main">
+        <div class="Main-layerSelector">
+            <div data-montage-id="menuHeader" class="Main-menuHeader"></div>
+            <div data-montage-id="arcGisHeader" class="Main-menuSubHeader"></div>
+            <div data-montage-id="arcGisLayers">
+                <div class="Main-layersListItem">
+                    <image data-montage-id="arcGisCheckbox" class="Main-checkbox"/>
+                    <div data-montage-id="arcGisLayerName"></div>
+                </div>
+            </div>
+        </div>
+        <div class="Main-map" data-montage-id="map"></div>
+    </div>
+</body>
+</html>

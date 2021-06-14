@@ -1,11 +1,16 @@
 var MapImageService = require("logic/service/map-image-service").MapImageService,
-    Protocol = require("logic/model/protocol").Protocol;
+    Protocol = require("logic/model/protocol").Protocol,
+    Tile = require("logic/model/tile").Tile;
 
 /**
  *
  * @type {function|*}
  */
 exports.WmsMapImageService = MapImageService.specialize(/** @lends WmsMapImageService.prototype */ {
+
+    defaultImageFormat: {
+        value: "image/png"
+    },
 
     makeUrlWithLayerAndMapImage: {
         value: function (layer, tile) {
