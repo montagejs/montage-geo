@@ -1,5 +1,6 @@
 var Component = require("montage/ui/component").Component,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
+    FeatureCollectionOverlay = require("ui/feature-collection-overlay.reel").FeatureCollectionOverlay,
     LeafletEngine = require("ui/leaflet-engine.reel").LeafletEngine,
     Map = require("montage/collections/map").Map,
     MapImageOverlay = require("ui/map-image-overlay.reel").MapImageOverlay,
@@ -322,6 +323,12 @@ exports.Map = Component.specialize(/** @lends Map# */ {
         }
     },
 
+    getCriteriaForLayer: {
+        value: function (layer) {
+            return this._layerCriteriaMap.get(layer);
+        }
+    },
+
     _layerCriteriaDidChange: {
         value: function (value, key) {
 
@@ -401,7 +408,13 @@ exports.Map = Component.specialize(/** @lends Map# */ {
 
     _buildFeatureCollectionOverlay: {
         value: function() {
-            // TODO - implement
+            //should feature collection overlay have a layer? Or Should there be a new class?
+            // overlay.
+            var overlay = new FeatureCollectionOverlay();
+            overlay.map = this;
+            overlay.featureDelegate = this.featureDelegate;
+            return overlay;
+
         }
     },
 

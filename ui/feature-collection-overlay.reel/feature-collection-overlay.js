@@ -4,14 +4,23 @@ var Overlay = require("ui/overlay").Overlay,
     MapPane = require("logic/model/map-pane").MapPane,
     MultiPoint = require("logic/model/multi-point").MultiPoint,
     Point = require("logic/model/point").Point,
-    Set = require("montage/collections/set");
+    Set = require("montage/collections/set"),
+    defaultFeatureDelegate = require("logic/model/feature-delegate").defaultFeatureDelegate;
+
 
 
 /**
  * @class FeatureCollectionOverlay
  * @extends Component
  */
-exports.FeatureCollectionOverlay = Overlay.specialize(/** @lends FeatureCollectionOverlay# */ {
+exports.FeatureCollectionOverlay = Overlay.specialize( /** @lends FeatureCollectionOverlay# */ {
+
+    constructor: {
+        value: function FeatureCollectionOverlay() {
+            this.addBeforeOwnPropertyChangeListener("layer", this);
+            this.addOwnPropertyChangeListener("layer", this);
+        }
+    },
 
     /***********************************************************************
      * Properties
@@ -28,7 +37,7 @@ exports.FeatureCollectionOverlay = Overlay.specialize(/** @lends FeatureCollecti
         set: function (value) {
             if (value !== this._collection) {
                 this._cancelCollectionListeners();
-                this._clearAll(true);  // TODO: Determine if can't be deferred?
+                this._clearAll(true); // TODO: Determine if can't be deferred?
                 this._collection = value;
                 if (value) {
                     this._addCollectionListeners();
@@ -38,9 +47,36 @@ exports.FeatureCollectionOverlay = Overlay.specialize(/** @lends FeatureCollecti
         }
     },
 
+    /**
+     * The delegate to use for fetching images for tiles.
+     * Set by owner
+     * @type {TileDelegate}
+     */
+    featureDelegate: {
+        get: function () {
+            if (!this._featureDelegate) {
+                this._featureDelegate = defaultFeatureDelegate;
+            }
+            return this._mapImageDelegate;
+        },
+        set: function (value) {
+            if (value) {
+                this._featureDelegate = value;
+            }
+        }
+    },
+
     // TODO: Maybe make FeatureCollectionOverlay a template-less component.
     hasTemplate: {
         value: true
+    },
+
+    /**
+     * The layer represents the data set to display in the overlay.
+     * @type {Layer}
+     */
+    layer: {
+        value: undefined
     },
 
     /**
@@ -120,7 +156,10 @@ exports.FeatureCollectionOverlay = Overlay.specialize(/** @lends FeatureCollecti
                 map.addEventListener("featureMouseout", this);
                 map.addEventListener("featureMouseover", this);
                 map.addEventListener("featureSelection", this);
-                this.defineBinding("_zoom", {"<-": "currentZoom", source: map});
+                this.defineBinding("_zoom", {
+                    "<-": "currentZoom",
+                    source: map
+                });
             }
         }
     },
@@ -152,6 +191,20 @@ exports.FeatureCollectionOverlay = Overlay.specialize(/** @lends FeatureCollecti
             } else {
                 this._clearAll(true);
                 this._cancelMapListeners();
+            }
+        }
+    },
+
+    handleLayerWillChange: {
+        value: function () {
+            // TODO remove image element srcs...
+        }
+    },
+
+    handleLayerChange: {
+        value: function (value) {
+            if (value) {
+                this._fetchFeatures();
             }
         }
     },
@@ -293,6 +346,55 @@ exports.FeatureCollectionOverlay = Overlay.specialize(/** @lends FeatureCollecti
     },
 
     /***********************************************************************
+     * Engine Delegate Methods
+     */
+
+    didAdd: {
+        value: function (engine) {
+            //Is this needed?
+        }
+    },
+
+    didMove: {
+        value: function (center) {
+            console.log("FeatureCollectionOverlay.didMove", center);
+        }
+    },
+
+    didRemove: {
+        value: function (engine) {
+            //Is this needed?
+        }
+    },
+
+    /**************************************************************************
+     * Feature Fetching
+     */
+
+    _fetchFeatures: {
+        value: function () {
+            if (!layer) {
+                console.warn("FeatureCollectionOverlay cannot fetch features without a layer");
+                return;
+            }
+            console.log("FeatureCollectionOverlay._fetchFeatures");
+            // this.__fetchFeatures();
+        }
+    },
+
+    __fetchFeatures: {
+        value: function () {
+            //TODO Convert to FeatureCriteria once FeatureCriteria extends Criteria
+            var criteria = new Criteria().initWithExpression("featureCriteria == $featureCriteria", {
+                featureCriteria: this.map.getCriteriaForLayer(this.layer)
+            });
+            this.fetchFeaturesWithCriteriaAndLayer(criteria, layer).then(function (features) {
+                console.log("FeatureCollectionOverlay.__fetchFeatures", features);
+            })
+        }
+    },
+
+    /***********************************************************************
      * Feature Drawing
      */
 
@@ -366,7 +468,8 @@ exports.FeatureCollectionOverlay = Overlay.specialize(/** @lends FeatureCollecti
     _removeFeatures: {
         value: function (features) {
             var geometryMap = this._featureGeometryMap,
-                map = this.map, feature, i, n;
+                map = this.map,
+                feature, i, n;
             for (i = 0, n = features.length; i < n; i += 1) {
                 feature = features[i];
                 if (geometryMap.has(feature)) {

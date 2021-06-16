@@ -9,8 +9,8 @@ var Overlay = require("ui/overlay").Overlay,
 exports.MapImageOverlay = Overlay.specialize(/** @lends MapImageOverlay.prototype */{
 
     constructor: {
-        value: function ImageTileOverlay() {
-            this.addOwnPropertyChangeListener("layer", this, this);
+        value: function MapImageOverlay() {
+            this.addBeforeOwnPropertyChangeListener("layer", this);
             this.addOwnPropertyChangeListener("layer", this);
         }
     },
