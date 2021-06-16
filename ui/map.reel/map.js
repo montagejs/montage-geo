@@ -24,13 +24,13 @@ exports.Map = Component.specialize(/** @lends Map# */ {
             this.defineBinding("_tileLayers", {
                 "<-":   "layers.filter{protocol.defined() && " +
                         "protocol.supportsTileImageRequests && " +
-                        "(!protocol.supportsFeatureRequests || featureMinZoom <= ^zoom)} ?? " +
+                        "(!protocol.supportsFeatureRequests || featureMinZoom > ^zoom)} ?? " +
                         "[]"
             });
             this.defineBinding("_featureLayers", {
                 "<-":   "layers.filter{protocol.defined() && " +
                         "(!protocol.supportsTileImageRequests || " +
-                        "(protocol.supportsFeatureRequests && featureMinZoom >= ^zoom))} ?? " +
+                        "(protocol.supportsFeatureRequests && featureMinZoom <= ^zoom))} ?? " +
                         "[]"
             });
             this.addRangeAtPathChangeListener("_featureLayers", this._handleFeatureLayersRangeChange.bind(this));

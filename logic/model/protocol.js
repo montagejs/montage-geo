@@ -124,7 +124,7 @@ exports.Protocol = Enumeration.specialize("id", "realID", "name", /** @lends Pro
          * @type {boolean}
          */
         supportsFeatureRequests: {
-            value: false
+            value: true
         },
 
         supportsTileImageRequests: {
