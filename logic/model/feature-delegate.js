@@ -45,14 +45,22 @@ var FeatureDelegate = exports.FeatureDelegate = Montage.specialize(/** @lends Fe
     _fetch: {
         value: function (criteria, layer) {
             var expression = this._extendCriteriaExpression(criteria.expression, layer),
-                parameters = Object.assign({}, criteria.parameters || {}),
-                query = DataQuery.withTypeAndCriteria(Feature, criteria);
+                parameters = Object.assign({
+                    layer: layer
+                }, criteria.parameters || {}),
+                innerCriteria = new Criteria().initWithExpression(expression, parameters),
+                query = DataQuery.withTypeAndCriteria(Feature, innerCriteria);
 
-            parameters.layer = layer;
-            return
-
+            return DataService.mainService.fetchData(query);
         }
-    }
+    },
+
+    _extendCriteriaExpression: {
+        value: function (expression) {
+            //TODO Implement
+            return expression;
+        }
+    },
 
 }, {
 
