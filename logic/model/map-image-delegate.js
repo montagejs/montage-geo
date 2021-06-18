@@ -10,7 +10,7 @@ var Montage = require("montage/core/core").Montage,
 
 /**
  *
- * The tile-overlay uses this delegate to fetch map images to display in its
+ * The map-image-overlay uses this delegate to fetch map images to display in its
  * mosaic.  This default implementation fetches map images using Montage Data.
  * Implement this delegate if you need an alternative way of supplying map
  * images.
