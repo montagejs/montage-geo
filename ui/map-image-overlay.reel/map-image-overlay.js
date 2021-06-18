@@ -10,6 +10,7 @@ exports.MapImageOverlay = Overlay.specialize(/** @lends MapImageOverlay.prototyp
 
     constructor: {
         value: function MapImageOverlay() {
+            Overlay.call(this);
             this.addBeforeOwnPropertyChangeListener("layer", this);
             this.addOwnPropertyChangeListener("layer", this);
         }
@@ -97,6 +98,13 @@ exports.MapImageOverlay = Overlay.specialize(/** @lends MapImageOverlay.prototyp
         }
     },
 
+    didMove: {
+        value: function (center) {
+            //TODO Only fetch images that are new to the extent
+            this._fetchAllMapImages();
+        }
+    },
+
     didRemove: {
         value: function (engine) {
             engine.unregisterImageOverlay(this);
@@ -137,8 +145,9 @@ exports.MapImageOverlay = Overlay.specialize(/** @lends MapImageOverlay.prototyp
          value: function () {
              var iterator = this._mapImageElementMap.keys(),
                  tile;
+
              while ((tile = iterator.next().value)) {
-                this._fetchTile(tile);
+                this._fetchMapImage(tile);
              }
          }
     },
@@ -151,7 +160,7 @@ exports.MapImageOverlay = Overlay.specialize(/** @lends MapImageOverlay.prototyp
             promise.then(function (cookedTile) {
                 self._mapImageFetchMap.delete(tile);
                 self._updateTileAssociatedElementWithImage(tile, cookedTile.dataUrl);
-            }).catch(function () {
+            }).catch(function (e) {
                 self._mapImageFetchMap.delete(tile);
             });
          }
