@@ -7,6 +7,16 @@ var Montage = require("montage/core/core").Montage,
     FeatureCollection = require("logic/model/feature-collection").FeatureCollection,
     Promise = require("montage/core/promise").Promise;
 
+
+/**
+ *
+ * The feature-collection-overlay uses this delegate to fetch features to add
+ * to the map.  This default implementation fetches features using Montage Data.
+ * Implement this delegate if you need an alternative way of supplying features
+ *
+ * @class
+ * @extends external:Montage
+ */
 var FeatureDelegate = exports.FeatureDelegate = Montage.specialize(/** @lends FeatureDelegate.prototype */ {
 
 
@@ -44,4 +54,17 @@ var FeatureDelegate = exports.FeatureDelegate = Montage.specialize(/** @lends Fe
         }
     }
 
+}, {
+
+    Instance: {
+        get: function () {
+            if (!this._Instance) {
+                this._Instance = new this();
+            }
+            return this._Instance;
+        }
+    }
+
 });
+
+exports.defaultFeatureDelegate = FeatureDelegate.Instance;
