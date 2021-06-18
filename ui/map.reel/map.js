@@ -73,9 +73,9 @@ exports.Map = Component.specialize(/** @lends Map# */ {
 
     /**
      * The feature delegate used to query layer features.  If a delegate is not
-     * defined, the delegate defaults to the MapImageDelegate defined in this
+     * defined, the delegate defaults to the FeatureDelegate defined in this
      * project.
-     * @type {Featuredelegate}
+     * @type {FeatureDelegate}
      */
     featureDelegate: {
         value: undefined
