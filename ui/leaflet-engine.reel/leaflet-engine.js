@@ -331,7 +331,6 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
             this._symbols.forEach(function (featureSymbolMap) {
                 var symbol = featureSymbolMap.get(feature);
                 if (symbol) {
-                    console.log("Removing symbol (", symbol, ") for feature (", feature, ")");
                     self._removeSymbol(symbol);
                     featureSymbolMap.delete(feature);
                 }
