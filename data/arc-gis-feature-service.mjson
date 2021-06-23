@@ -1,8 +1,19 @@
 {
+    "arcGisFeatureMapping": {
+        "object": "data/mapping/arc-gis-feature-mapping.mjson"
+    },
+
+
     "root": {
         "prototype": "logic/service/arc-gis-feature-service",
         "values": {
-            "name": "ArcGisFeatureService"
+            "name": "ArcGisFeatureService",
+            "mappings": [
+
+            ],
+            "__types__": [
+                "Inherite these from parent"
+            ]
         }
     }
 }

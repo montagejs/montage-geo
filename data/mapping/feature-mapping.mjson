@@ -1,0 +1,28 @@
+{
+
+    "root": {
+        "prototype": "montage/data/service/expression-data-mapping",
+        "values": {
+            "rawDataPrimaryKeyExpressions": ["id"],
+            "objectDescriptor": {"@":"FeatureDescriptor"},
+            "objectMapping": {
+                "rules": {
+                    "id": {"<-": "id"},
+                    "geometry": {
+                        "<-": "geometry",
+                        "//": "Protocol-specific mappings should use a converter"
+                    },
+                    "properties": {"<-": "properties"},
+                    "style": {
+                        "<-": "style",
+                        "//": "Protocol-specific mappings should use a converter"
+                    }
+                }
+            }
+        }
+    },
+
+    "FeatureDescriptor": {
+        "object": "data/descriptor/feature.mjson"
+    }
+}
