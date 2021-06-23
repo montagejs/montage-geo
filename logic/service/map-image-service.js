@@ -30,6 +30,7 @@ exports.MapImageService = ProtocolRoutedService.specialize(/** @lends MapImageSe
                 );
                 return;
             }
+            debugger;
             childService.fetchMapImageData(stream);
         }
     },

@@ -19,20 +19,19 @@ var ArcGisFeatureService = exports.ArcGisFeatureService = FeatureService.special
     fetchLayerFeaturesMatchingCriteria: {
         value: function (layer, criteria) {
             var parameters = criteria.parameters,
-                geometry = parameters && parameters.geometry,
-                promise;
+                geometry = parameters.geometry;
 
             if (geometry && geometry instanceof BoundingBox) {
-
+                promise = this._fetchFeaturesForLayerCriteriaAndBoundingBox(layer, criteria, geometry);
             } else {
-
+                promise = this._fetchFeaturesForLayerAndCriteria(layer, criteria);
             }
 
-            this.fetchHttpRawData(url).then(function (response) {
-                return [response, {
+            return promise.then(function (features) {
+                return [features, {
                     layer: layer
                 }];
-            });
+            })
         }
     },
 
@@ -46,16 +45,28 @@ var ArcGisFeatureService = exports.ArcGisFeatureService = FeatureService.special
                 splitCriteria = new Criteria().initWithExpression(criteria.expression, splitParameters);
                 return self._fetchFeaturesForLayerAndCriteria(layer, splitCriteria);
             })).then(function (values) {
-                var merged = values.reduce(function (aggregator, value) {
-                    aggregator.set(self._)
-                }, new Map());
+                var added = new Set();
+
+                //[TJ] This was previously aggregating into a Map for an unknown reason
+                // May need to reevaluate if functionality was lost
+                return values.reduce(function (aggregator, value) {
+                        if (!added.has(value)) {
+                            added.add(value);
+                            aggregator.push(value)
+                        }
+                        return aggregator;
+                }, []);
             });
         }
     },
 
     _fetchFeaturesForLayerAndCriteria: {
         value: function (layer, criteria) {
-
+            var url = this._urlForLayerAndCriteria(layer, criteria);
+            console.log("_fetchFeaturesForLayerAndCriteria", url);
+            return this.fetchHttpRawData(url.toString()).then(function (response) {
+                return response && response.features;
+            });
         }
     },
 

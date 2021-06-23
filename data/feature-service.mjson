@@ -9,9 +9,9 @@
         "object": "data/mapping/feature-mapping.mjson"
     },
     "root": {
-        "prototype": "logic/service/map-image-service",
+        "prototype": "logic/service/feature-service",
         "values": {
-            "name": "MapImageService",
+            "name": "FeatureService",
             "types": [
                 {"@": "feature"}
             ],

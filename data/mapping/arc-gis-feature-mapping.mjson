@@ -1,0 +1,40 @@
+{
+
+    "root": {
+        "prototype": "montage/data/service/expression-data-mapping",
+        "values": {
+            "rawDataPrimaryKeyExpressions": ["id"],
+            "objectDescriptor": {"@":"FeatureDescriptor"},
+            "objectMapping": {
+                "rules": {
+                    "id": {"<-": "id"},
+                    "geometry": {
+                        "<-": "geometry",
+                        "converter": {"@": "esriGeometryConverter"}
+                    },
+                    "properties": {"<-": "properties"},
+                    "style": {
+                        "<-": "properties",
+                        "converter": {"@": "symbolStyleConverter"}
+                    }
+                }
+            }
+        }
+    },
+
+    "FeatureDescriptor": {
+        "object": "data/descriptor/feature.mjson"
+    },
+
+    "esriGeometryConverter": {
+        "prototype": "logic/converter/esri-json-to-geometry-converter"
+    },
+
+    "geojsonGeometryConverter": {
+        "prototype": "logic/converter/geo-json-to-geometry-converter"
+    },
+
+    "symbolStyleConverter": {
+        "prototype": "logic/converter/esri-symbol-to-style-converter"
+    }
+}

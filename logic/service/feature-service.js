@@ -15,6 +15,8 @@ var FeatureService = exports.FeatureService = ProtocolRoutedService.specialize(/
             var protocol = this.protocolForStream(stream),
                 childService = protocol && this.childServiceForProtocol(protocol);
 
+            console.log("FeatureService.fetchRawData", protocol, childService);
+
             if (!protocol) {
                 // TODO: Implement Auto-discovery of protocol
                 stream.dataError(
@@ -46,10 +48,12 @@ var FeatureService = exports.FeatureService = ProtocolRoutedService.specialize(/
             var criteria = stream.query.criteria,
                 parameters = criteria.parameters,
                 layer = parameters.layer,
-                additionalCriteria = Object.assign({}, criteria),
+                additionalCriteria = criteria.criteriaWithParameters(Object.assign({}, criteria.parameters)), //clone criteria
                 self = this;
 
-            additionalCriteria.delete("layer");
+
+            // additionalCriteria.delete("layer");
+            delete additionalCriteria.parameters.layer;
 
             this.fetchLayerFeaturesMatchingCriteria(layer, additionalCriteria).then(function (result) {
                 self.addRawData(stream, result[0], result.length > 1 ? result[1] : null);
