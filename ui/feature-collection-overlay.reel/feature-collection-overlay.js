@@ -406,7 +406,8 @@ exports.FeatureCollectionOverlay = Overlay.specialize( /** @lends FeatureCollect
             var self = this,
                 layer = this.layer,
                 criteria = new Criteria().initWithExpression("featureCriteria == $featureCriteria", {
-                    featureCriteria: this.map.getCriteriaForLayer(layer)
+                    featureCriteria: this.map.getCriteriaForLayer(layer),
+                    geometry: this.map.bounds
                 });
             this.featureDelegate.fetchFeaturesWithCriteriaAndLayer(criteria, layer).then(function (features) {
                 self.collection.features.splice.apply(self.collection.features, [0, Infinity].concat(features));

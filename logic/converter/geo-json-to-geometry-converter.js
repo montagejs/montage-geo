@@ -64,7 +64,7 @@ exports.GeoJsonToGeometryConverter = Converter.specialize( /** @lends GeoJsonToG
      */
     revert: {
         value: function (value) {
-            var type = MONTAGE_CONSTRUCTOR_TYPE_MAP.get(value.constructor),
+            var type = value && MONTAGE_CONSTRUCTOR_TYPE_MAP.get(value.constructor),
                 result = null;
 
             if (type) {

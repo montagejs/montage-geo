@@ -15,8 +15,6 @@ var FeatureService = exports.FeatureService = ProtocolRoutedService.specialize(/
             var protocol = this.protocolForStream(stream),
                 childService = protocol && this.childServiceForProtocol(protocol);
 
-            console.log("FeatureService.fetchRawData", protocol, childService);
-
             if (!protocol) {
                 // TODO: Implement Auto-discovery of protocol
                 stream.dataError(
@@ -26,7 +24,7 @@ var FeatureService = exports.FeatureService = ProtocolRoutedService.specialize(/
                 return;
             } else if (!childService) {
                 stream.dataError(
-                    "The supplied protocol (" + protocol.id + ") is not supported"
+                    "The supplied protocol (" + protocol.id + ") is not supported by FeatureService"
                 );
                 return;
             }
@@ -59,6 +57,8 @@ var FeatureService = exports.FeatureService = ProtocolRoutedService.specialize(/
                 self.addRawData(stream, result[0], result.length > 1 ? result[1] : null);
                 self.rawDataDone(stream);
                 return null;
+            }).catch(function (error) {
+                stream.dataError(error);
             });
         }
     },
@@ -78,6 +78,37 @@ var FeatureService = exports.FeatureService = ProtocolRoutedService.specialize(/
         value: function (layer, criteria) {
             console.error("Only a subclass should call this method.");
         }
-    }
+    },
+
+
+    /****
+     * Override MontageData API.
+     */
+
+    /**
+     * DataService._addMappingToChild overwrites mapping.objectDescriptor to
+     * ensure the objectDescriptor is present in service.types. This implementation
+     * keeps mapping.objectDescriptor AS-IS if the objectDescriptor is not present
+     * in service.types
+     */
+    _addMappingToChild: {
+        value: function (mapping, child) {
+            var service = this;
+            return Promise.all([
+                mapping.objectDescriptor,
+                mapping.schemaDescriptor
+            ]).spread(function (objectDescriptor, schemaDescriptor) {
+                // TODO -- remove looking up by string to unique.
+                var type = [objectDescriptor.module.id, objectDescriptor.name].join("/");
+                // objectDescriptor = service._moduleIdToObjectDescriptorMap[type] || objectDescriptor;
+                objectDescriptor = service._moduleIdToObjectDescriptorMap[type] || objectDescriptor;
+                mapping.objectDescriptor = objectDescriptor;
+                mapping.schemaDescriptor = schemaDescriptor;
+                mapping.service = child;
+                child.addMappingForType(mapping, objectDescriptor);
+                return null;
+            });
+        }
+    },
 
 });

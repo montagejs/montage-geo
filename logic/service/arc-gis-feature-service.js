@@ -37,7 +37,8 @@ var ArcGisFeatureService = exports.ArcGisFeatureService = FeatureService.special
 
     _fetchFeaturesForLayerCriteriaAndBoundingBox: {
         value: function (layer, criteria, geometry) {
-            var self = this;
+            var self = this,
+                parameters = criteria.parameters;
             return Promise.all(geometry.splitAlongAntimeridian().map(function (bounds) {
                 var splitParameters = Object.assign({}, parameters),
                     splitCriteria;
@@ -46,13 +47,19 @@ var ArcGisFeatureService = exports.ArcGisFeatureService = FeatureService.special
                 return self._fetchFeaturesForLayerAndCriteria(layer, splitCriteria);
             })).then(function (values) {
                 var added = new Set();
-
+                console.log("_fetchFeaturesForLayerCriteriaAndBoundingBox", values);
                 //[TJ] This was previously aggregating into a Map for an unknown reason
                 // May need to reevaluate if functionality was lost
                 return values.reduce(function (aggregator, value) {
-                        if (!added.has(value)) {
-                            added.add(value);
-                            aggregator.push(value)
+                        if (Array.isArray(value)) {
+                            value.forEach(function (item) {
+                                if (!added.has(item)) {
+                                    added.add(item);
+                                    aggregator.push(item);
+                                }
+                            });
+                        } else {
+                            console.warn("ArcGisFeatureService expected results as an array, but received", value);
                         }
                         return aggregator;
                 }, []);
@@ -63,10 +70,22 @@ var ArcGisFeatureService = exports.ArcGisFeatureService = FeatureService.special
     _fetchFeaturesForLayerAndCriteria: {
         value: function (layer, criteria) {
             var url = this._urlForLayerAndCriteria(layer, criteria);
-            console.log("_fetchFeaturesForLayerAndCriteria", url);
+            console.log("_fetchFeaturesForLayerAndCriteria", criteria);
             return this.fetchHttpRawData(url.toString()).then(function (response) {
+                if (response.error) {
+                    throw new Error("Failed to fetch ArcGISFeatures with URL");
+                }
                 return response && response.features;
             });
+        }
+    },
+
+    mapRawDataToObject: {
+        value: function (record, object, context) {
+            var renderer = context.layer && context.layer.renderer;
+            if (renderer) {
+                object.style = renderer.convert(record);
+            }
         }
     },
 
@@ -77,9 +96,10 @@ var ArcGisFeatureService = exports.ArcGisFeatureService = FeatureService.special
 
     _urlForLayerAndCriteria: {
         value: function (layer, criteria) {
-            var url = new URL(layer.url + "/query"),
+            var url = new URL(layer.url + "/" + layer.mapServiceLayerIndex + "/query"),
                 parameters = criteria.parameters,
-                geometry = parameters.geometry;
+                geometry = parameters.geometry,
+                projected;
                 // filters = parameters.filters; TODO: Move Filters to Project
 
             url.searchParams.append("f", "json");
@@ -87,16 +107,12 @@ var ArcGisFeatureService = exports.ArcGisFeatureService = FeatureService.special
             url.searchParams.append("returnGeometry", "true");
             url.searchParams.append("outFields", "*");
             if (geometry && geometry instanceof BoundingBox) {
+                console.log("_urlForLayerAndCriteria", layer);
                 url.searchParams.append("geometryType", "esriGeometryEnvelope");
-                url.searchParams.append("geometry", {
-                    "xmin": geometry.xMin,
-                    "ymin": geometry.yMin,
-                    "xmax": geometry.xMax,
-                    "ymax": geometry.yMax,
-                    "spatialReference": {
-                        "wkid": 4326
-                    }
-                });
+                projected = layer.projection.projectBounds(geometry);
+                url.searchParams.append("geometry", this._makeBoundsCriteria(projected, layer.projection.srid));
+            } else if (geometry) {
+                //TODO Implement polygon filtering
             }
 
             if (parameters.hasOwnProperty("returnCountOnly") && parameters.returnCountOnly) {
@@ -112,6 +128,50 @@ var ArcGisFeatureService = exports.ArcGisFeatureService = FeatureService.special
         }
     },
 
+
+
+    _makeGeometryCriteria: {
+        value: function (geometry, srid) {
+            var criteria = "{\"rings\":[";
+            geometry.rings.forEach(function (ring) {
+                criteria += "[";
+                ring.forEach(function (coordinate, index) {
+                    if (index > 0) {
+                        criteria += ","
+                    }
+                    criteria += "[";
+                    criteria += coordinate[0];
+                    criteria += ",";
+                    criteria += coordinate[1];
+                    criteria += "]";
+                });
+                criteria += "]";
+            });
+            criteria += "],\"spatialReference\":{\"wkid\":";
+            criteria += srid;
+            criteria += "}}";
+            return encodeURIComponent(criteria);
+        }
+    },
+
+    _makeBoundsCriteria: {
+        value: function (bounds, srid) {
+            var criteria = "{\"xmin\":";
+            criteria += bounds.xMin;
+            criteria += ",\"ymin\":";
+            criteria += bounds.yMin;
+            criteria += ",\"xmax\":";
+            criteria += bounds.xMax;
+            criteria += ",\"ymax\":";
+            criteria += bounds.yMax;
+            criteria += ",\"spatialReference\":{\"wkid\":";
+            criteria += srid;
+            criteria += "}}";
+            return encodeURIComponent(criteria);
+        }
+    },
+
+    //Not used
     _makeBody: {
         value: function (parameters, whereClause) {
             var mapService = parameters.layer.mapService,
@@ -167,47 +227,6 @@ var ArcGisFeatureService = exports.ArcGisFeatureService = FeatureService.special
             }
 
             return body;
-        }
-    },
-
-    _makeGeometryCriteria: {
-        value: function (geometry, srid) {
-            var criteria = "{\"rings\":[";
-            geometry.rings.forEach(function (ring) {
-                criteria += "[";
-                ring.forEach(function (coordinate, index) {
-                    if (index > 0) {
-                        criteria += ","
-                    }
-                    criteria += "[";
-                    criteria += coordinate[0];
-                    criteria += ",";
-                    criteria += coordinate[1];
-                    criteria += "]";
-                });
-                criteria += "]";
-            });
-            criteria += "],\"spatialReference\":{\"wkid\":";
-            criteria += srid;
-            criteria += "}}";
-            return encodeURIComponent(criteria);
-        }
-    },
-
-    _makeBoundsCriteria: {
-        value: function (bounds, srid) {
-            var criteria = "{\"xmin\":";
-            criteria += bounds.xMin;
-            criteria += ",\"ymin\":";
-            criteria += bounds.yMin;
-            criteria += ",\"xmax\":";
-            criteria += bounds.xMax;
-            criteria += ",\"ymax\":";
-            criteria += bounds.yMax;
-            criteria += ",\"spatialReference\":{\"wkid\":";
-            criteria += srid;
-            criteria += "}}";
-            return encodeURIComponent(criteria);
         }
     },
 
