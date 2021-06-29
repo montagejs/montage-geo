@@ -289,6 +289,7 @@ exports.Map = Component.specialize(/** @lends Map# */ {
 
     _removeEngineEventListeners: {
         value: function (engine) {
+            engine.removeEventListener("press", this);
             engine.removeEventListener("featureMouseout", this);
             engine.removeEventListener("featureMouseover", this);
             engine.removeEventListener("featureSelection", this);
@@ -302,6 +303,7 @@ exports.Map = Component.specialize(/** @lends Map# */ {
 
     _addEngineEventListeners: {
         value: function (engine) {
+            engine.addEventListener("press", this);
             engine.addEventListener("featureMouseout", this);
             engine.addEventListener("featureMouseover", this);
             engine.addEventListener("featureSelection", this);
@@ -424,6 +426,13 @@ exports.Map = Component.specialize(/** @lends Map# */ {
             mapImageOverlay.map = this;
             mapImageOverlay.mapImageDelegate = this.mapImageDelegate;
             return mapImageOverlay;
+        }
+    },
+
+    handlePress: {
+        value: function (event) {
+            event.stopPropagation();
+            this.dispatchEventNamed("press", true, true, event.detail);
         }
     },
 

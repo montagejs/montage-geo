@@ -991,6 +991,7 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
      */
     _initializeEvents: {
         value: function () {
+            this._map.addEventListener("click", this._handleMapClick.bind(this));
             this._map.addEventListener("move", this._handleMapMove.bind(this));
             this._map.addEventListener("moveend", this._handleMapDidMove.bind(this));
             this._map.addEventListener("resize", this._handleResize.bind(this));
@@ -1022,6 +1023,20 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
             linkEl.setAttribute("rel", "stylesheet");
             linkEl.setAttribute("href", cssLocation);
             document.querySelector("head").appendChild(linkEl);
+        }
+    },
+
+    _handleMapClick: {
+        value: function (event) {
+            var latlng = event.latlng,
+                containerPoint = event.containerPoint,
+                point = Point.withCoordinates([latlng.lng, latlng.lat]),
+                point2d = Point2D.withCoordinates(containerPoint.x, containerPoint.y);
+
+            this.dispatchEventNamed("press", this, this, {
+                point: point,
+                containerPoint: point2d
+            });
         }
     },
 
