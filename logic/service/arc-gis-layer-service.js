@@ -33,27 +33,32 @@ exports.ArcGisLayerService = ProtocolRoutedService.specialize(/** @lends ArcGisL
     _fetchLayersFromArcGisServiceWithUrl: {
         value: function (stream, serviceUrl) {
             var self = this,
-                url = new URL(serviceUrl);
-            url.searchParams.append("f", "json")
-            this.fetchHttpRawData(url.toString()).then(function (response) {
-                var protocolId = self.protocol.id;
-                self.addRawData(stream, response.layers.map(function (layer) {
-                    var url = serviceUrl + "/" + layer.id;
-                    return {
-                        id: url,
-                        name: layer.name,
-                        description: layer.description,
-                        depth: 3,
-                        mapServiceLayerId: layer.name,
-                        mapServiceLayerIndex: layer.id,
-                        projectionId: response.spatialReference.wkid,
-                        protocolId: protocolId,
-                        protocolVersion: response.currentVersion,
-                        refreshInterval: 500,
-                        url: serviceUrl
-                    };
-                }));
-                self.rawDataDone(stream);
+                metadataUrl = new URL(serviceUrl);
+            metadataUrl.searchParams.append("f", "json")
+            this.fetchHttpRawData(metadataUrl.toString()).then(function (response) {
+                if (response.error) {
+                    stream.dataError(new Error("Failed to load ArcGIS layers from url (" + serviceUrl + ")"));
+                } else {
+                    var protocolId = self.protocol.id;
+                    self.addRawData(stream, response.layers.map(function (layer) {
+                        var url = serviceUrl + "/" + layer.id;
+                        return {
+                            id: url,
+                            name: layer.name,
+                            description: layer.description,
+                            depth: 3,
+                            mapServiceLayerId: layer.name,
+                            mapServiceLayerIndex: layer.id,
+                            projectionId: response.spatialReference.wkid,
+                            protocolId: protocolId,
+                            protocolVersion: response.currentVersion,
+                            refreshInterval: 500,
+                            url: serviceUrl
+                        };
+                    }));
+                    self.rawDataDone(stream);
+                }
+
             });
         }
     }

@@ -37,6 +37,9 @@ exports.Main = Component.specialize(/** @lends Main.prototype */ {
 
             return Service.fetchData(query).then(function (layers) {
                 self._arcGisLayers = layers;
+                layers.forEach(function (layer) {
+                    layer.featureMinZoom = Infinity;
+                });
                 return null;
             });
         }

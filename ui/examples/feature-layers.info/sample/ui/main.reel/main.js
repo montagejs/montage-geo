@@ -29,7 +29,8 @@ exports.Main = Component.specialize(/** @lends Main.prototype */ {
             var self = this,
                 parameters = {
                     protocol: Protocol.ARCGIS,
-                    serviceUrl: "https://org-disasteralert.pdc.org/disasteralert/spoe/SPOEID018/LiveFeeds/USGS_Seismic_Data/MapServer"
+                    // serviceUrl: "https://org-disasteralert.pdc.org/disasteralert/spoe/SPOEID018/LiveFeeds/USGS_Seismic_Data/MapServer"
+                    serviceUrl: "https://testapps.pdc.org/msf/rest/services/global/pdc_active_hazards/MapServer"
                 },
                 expression = "$protocol == protocol && $serviceUrl == serviceUrl",
                 criteria = new Criteria().initWithExpression(expression, parameters),
