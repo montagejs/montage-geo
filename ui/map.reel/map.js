@@ -429,6 +429,16 @@ exports.Map = Component.specialize(/** @lends Map# */ {
         }
     },
 
+    /**
+     * Proxies 'press' events dispatched by the engine.
+     * Event.detail will be a JSON object with the following structure
+     * {
+     *   point: {Point}
+     *   containerPoint: {Point2d}
+     * }
+     * @function handlePress
+     * @argument {Event}
+     */
     handlePress: {
         value: function (event) {
             event.stopPropagation();
