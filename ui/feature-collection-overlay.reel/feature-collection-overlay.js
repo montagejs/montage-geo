@@ -24,6 +24,8 @@ exports.FeatureCollectionOverlay = Overlay.specialize( /** @lends FeatureCollect
             this.addOwnPropertyChangeListener("collection", this);
             this.addBeforeOwnPropertyChangeListener("layer", this);
             this.addOwnPropertyChangeListener("layer", this);
+            this.addBeforeOwnPropertyChangeListener("map", this);
+            this.addOwnPropertyChangeListener("map", this);
         }
     },
 
@@ -222,6 +224,22 @@ exports.FeatureCollectionOverlay = Overlay.specialize( /** @lends FeatureCollect
                     this.collection = new FeatureCollection();
                 }
                 this._fetchFeatures();
+            }
+        }
+    },
+
+    handleMapWillChange: {
+        value: function () {
+            if (this.map) {
+                this._clearAll(true);
+            }
+        }
+    },
+
+    handleMapChange: {
+        value: function (value) {
+            if (value) {
+                this._drawAll();
             }
         }
     },
@@ -474,7 +492,9 @@ exports.FeatureCollectionOverlay = Overlay.specialize( /** @lends FeatureCollect
                 map = this.map;
             features.forEach(function (feature) {
                 geometryMap.set(feature, feature.geometry);
-                map.drawFeature(feature);
+                if (map) {
+                    map.drawFeature(feature);
+                }
             });
         }
     },
@@ -496,7 +516,9 @@ exports.FeatureCollectionOverlay = Overlay.specialize( /** @lends FeatureCollect
                 if (geometryMap.has(feature)) {
                     geometryMap.delete(feature);
                 }
-                map.eraseFeature(feature);
+                if (map) {
+                    map.eraseFeature(feature);
+                }
             }
         }
     },
