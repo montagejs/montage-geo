@@ -238,7 +238,7 @@ exports.FeatureCollectionOverlay = Overlay.specialize( /** @lends FeatureCollect
 
     handleMapChange: {
         value: function (value) {
-            if (value) {
+            if (value && this.collection) {
                 this._drawAll();
             }
         }
