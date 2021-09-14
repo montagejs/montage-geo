@@ -387,6 +387,7 @@ exports.FeatureCollectionOverlay = Overlay.specialize( /** @lends FeatureCollect
     didAdd: {
         value: function (engine) {
             //Is this needed?
+            this._drawAll();
         }
     },
 
@@ -544,7 +545,9 @@ exports.FeatureCollectionOverlay = Overlay.specialize( /** @lends FeatureCollect
      */
     _redrawFeature: {
         value: function (feature) {
-            this.map.redrawFeature(feature);
+            if (this.map) {
+                this.map.redrawFeature(feature);
+            }
         }
     },
 
