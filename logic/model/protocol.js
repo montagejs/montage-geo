@@ -95,6 +95,45 @@ exports.Protocol = Enumeration.specialize("id", "realID", "name", /** @lends Pro
             }
             return this.__fileProtocols;
         }
+    },
+
+    createAndRegister: {
+        value: function (id, realID, name,
+            supportsFeatureRequests,
+            supportsGenericMapImageRequests,
+            supportsTileImageRequests,
+            supportedImageFormats) {
+            var valueName = realID.toUpperCase(),
+                protocol;
+            if (this._instances.id[id]) {
+                console.warn("A Protocol is already defined with id '" + id + "'");
+                return;
+            }
+            if (this[valueName]) {
+                console.warn("A Protocol is already defined as `Protocol." + valueName + "'");
+                return;
+            }
+
+            protocol = new exports.Protocol();
+            protocol.id = id;
+            protocol.realID = realID;
+            protocol.name = name;
+            this._assignIf(protocol, "__supportedImageFormats", supportedImageFormats);
+            this._assignIf(protocol, "supportsFeatureRequests", supportsFeatureRequests);
+            this._assignIf(protocol, "supportsGenericMapImageRequests", supportsGenericMapImageRequests);
+            this._assignIf(protocol, "supportsTileImageRequests", supportsTileImageRequests);
+            this._instances.id[id] = protocol;
+            this[valueName] = protocol;
+            return protocol;
+        }
+    },
+
+    _assignIf: {
+        value: function (object, propertyName, value) {
+            if (value !== undefined) {
+                object[propertyName] = value;
+            }
+        }
     }
 
 }, /** @lends Protocol */ {
