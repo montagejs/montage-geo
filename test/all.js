@@ -40,6 +40,7 @@ module.exports = require("montage-testing").run(require, [
     "spec/point-2d",
     "spec/polygon",
     "spec/position",
+    "spec/protocol",
     "spec/rect",
     "spec/renderer",
     "spec/size",
