@@ -118,7 +118,7 @@ exports.Protocol = Enumeration.specialize("id", "realID", "name", /** @lends Pro
             protocol.id = id;
             protocol.realID = realID;
             protocol.name = name;
-            this._assignIf(protocol, "__supportedImageFormats", supportedImageFormats);
+            this._addAllToSet(protocol._supportedImageFormats, supportedImageFormats);
             this._assignIf(protocol, "supportsFeatureRequests", supportsFeatureRequests);
             this._assignIf(protocol, "supportsGenericMapImageRequests", supportsGenericMapImageRequests);
             this._assignIf(protocol, "supportsTileImageRequests", supportsTileImageRequests);
@@ -132,6 +132,16 @@ exports.Protocol = Enumeration.specialize("id", "realID", "name", /** @lends Pro
         value: function (object, propertyName, value) {
             if (value !== undefined) {
                 object[propertyName] = value;
+            }
+        }
+    },
+
+    _addAllToSet: {
+        value: function (target, source) {
+            if (source) {
+                source.forEach(function (item) {
+                    target.add(item);
+                });
             }
         }
     }
