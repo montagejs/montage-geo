@@ -4,7 +4,7 @@ var Component = require("montage/ui/component").Component,
     Enumeration = require("montage/data/model/enumeration").Enumeration,
     L = require("leaflet"),
     LineString = require("logic/model/line-string").LineString,
-    Map = require("montage/collections/map").Map,
+    Map = require("montage/collections/map"),
     MapPane = require("logic/model/map-pane").MapPane,
     MultiLineString = require("logic/model/multi-line-string").MultiLineString,
     MultiPoint = require("logic/model/multi-point").MultiPoint,
@@ -15,6 +15,8 @@ var Component = require("montage/ui/component").Component,
     Position = require("logic/model/position").Position,
     Set = require("montage/collections/set"),
     Size = require("logic/model/size").Size,
+    Tile = require("logic/model/tile").Tile,
+    WeakMap = require("montage/collections/weak-map"),
     DEFAULT_ZOOM = 4;
 
 var DRAW_QUEUE_COMMANDS = new Enum().initWithMembers("DRAW", "ERASE", "REDRAW");
@@ -198,6 +200,24 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
     },
 
     /**
+     * Returns the geographic coordinate associated with this pixel location.
+     * If a position is passed as the second argument it will be used instead
+     * of creating a new position.
+     * @param {Point2D}
+     * @returns {Position}
+     */
+    pointToPosition: {
+        value: function (point, position) {
+            var coordinate = this._map.layerPointToLatLng([point.x, point.y]);
+            coordinate.lng = this._normalizedLongitude(coordinate.lng);
+            position = position || new Position();
+            position.longitude = coordinate.lng;
+            position.latitude = coordinate.lat;
+            return position;
+        }
+    },
+
+    /**
      * Return's the pixel location of the provided position relative to the
      * map's origin pixel.
      *
@@ -311,7 +331,6 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
             this._symbols.forEach(function (featureSymbolMap) {
                 var symbol = featureSymbolMap.get(feature);
                 if (symbol) {
-                    console.log("Removing symbol (", symbol, ") for feature (", feature, ")");
                     self._removeSymbol(symbol);
                     featureSymbolMap.delete(feature);
                 }
@@ -477,8 +496,7 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
                 pane = component.pane || MapPane.Overlay,
                 container = this.elementForPane(pane),
                 element = component.element;
-
-            if (container && element) {
+            if (element && container) {
                 container.appendChild(component.element);
             }
             component.didAdd(this);
@@ -495,12 +513,10 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
             var component = queuedItem.overlay,
                 pane = component.pane || MapPane.Overlay,
                 container = this.elementForPane(pane);
-
-
             if (container) {
                 container.removeChild(component.element);
             }
-            component.didRemove();
+            component.didRemove(this);
         }
     },
 
@@ -975,6 +991,7 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
      */
     _initializeEvents: {
         value: function () {
+            this._map.addEventListener("click", this._handleMapClick.bind(this));
             this._map.addEventListener("move", this._handleMapMove.bind(this));
             this._map.addEventListener("moveend", this._handleMapDidMove.bind(this));
             this._map.addEventListener("resize", this._handleResize.bind(this));
@@ -1006,6 +1023,20 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
             linkEl.setAttribute("rel", "stylesheet");
             linkEl.setAttribute("href", cssLocation);
             document.querySelector("head").appendChild(linkEl);
+        }
+    },
+
+    _handleMapClick: {
+        value: function (event) {
+            var latlng = event.latlng,
+                containerPoint = event.containerPoint,
+                point = Point.withCoordinates([latlng.lng, latlng.lat]),
+                point2d = Point2D.withCoordinates(containerPoint.x, containerPoint.y);
+
+            this.dispatchEventNamed("press", this, this, {
+                point: point,
+                containerPoint: point2d
+            });
         }
     },
 
@@ -1046,53 +1077,8 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
 
     _handleMapMove: {
         value: function () {
-            // var center = this._map.getCenter(),
-            //     newPosition = Position.withCoordinates([center.lng, center.lat]);
             this._updateWorlds();
-            // this._overlays.forEach(function (overlay) {
-            //     overlay.move(newPosition);
-            // });
-            // this.dispatchEventNamed("didMove", true, false, {center: this._map.getCenter()});
         }
-    },
-
-    // _positionOverlays: {
-    //     value: function () {
-    //         var overlays = this._overlays,
-    //             self = this;
-    //         this._positionableOverlays.forEach(function (overlayId) {
-    //             overlays[overlayId].forEach(function (component) {
-    //                 self._positionOverlay(component);
-    //             });
-    //         });
-    //     }
-    // },
-
-    _positionOverlay: {
-        value: function (component) {
-            var map = this._map,
-                size = map.getSize(),
-                width = size.x,
-                height = size.y,
-                pixelCenter = map.latLngToLayerPoint(map.getCenter()),
-                offset = {
-                    left: pixelCenter.x - width / 2,
-                    top: pixelCenter.y - height / 2
-                },
-                element = component.element;
-
-            element.style.transform = "translate3d(" + offset.left + "px, " + offset.top + "px, 0)";
-        }
-    },
-
-    _positionableOverlays: {
-        writable: false,
-        value: ["raster", "drawing", "overlay"]
-    },
-
-    _resizableOverlays: {
-        writable: false,
-        value: ["raster", "overlay"]
     },
 
     _updateWorlds: {
@@ -1152,37 +1138,6 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
         }
     },
 
-    // _resizeOverlays: {
-    //     value: function () {
-    //         var self = this,
-    //             overlays = this._overlays;
-    //         this._resizableOverlays.forEach(function (overlayId) {
-    //             overlays[overlayId].forEach(function (component) {
-    //                 // TODO Make this a delegate method on the overlay component
-    //                 //  itself e.g. resize
-    //                 self._resizeOverlay(component);
-    //             });
-    //         })
-    //     }
-    // },
-
-    // _resizeOverlay: {
-    //     value: function (component) {
-    //         var size = this._map.getSize(),
-    //             width = size.x,
-    //             height = size.y,
-    //             element = component.element,
-    //             isSVG = element.tagName.toUpperCase() === "SVG";
-    //         if (isSVG) {
-    //             element.setAttributeNS(null, "width", width);
-    //             element.setAttributeNS(null, "height", height);
-    //         } else {
-    //             element.setAttribute("width", width + "px");
-    //             element.setAttribute("height", height + "px");
-    //         }
-    //     }
-    // },
-
     _updateMinZoomLevelIfNecessary: {
         value: function () {
             var map = this._map,
@@ -1199,29 +1154,19 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
 
     _handleViewReset: {
         value: function () {
-            // var map = this._map,
-            //     center = map.getCenter(),
-            //     newPosition = Position.withCoordinates([center.lng, center.lat]),
-            //     // pixelOrigin = map.getPixelOrigin(),
-            //     zoom = map.getZoom();
-            //     // point = map.unproject(pixelOrigin),
-            //     // origin = map.project(point, zoom).round();
-            //
-            // this._overlays.forEach(function (overlay) {
-            //     overlay.reset(newPosition, zoom);
-            // });
-            // this.pixelOrigin = Point2D.withCoordinates(origin.x, origin.y);
-            // Not clear why this is needed.
-            // this.needsDraw = true;
+            var map = this._map,
+                center = map.getCenter(),
+                newPosition = Position.withCoordinates([center.lng, center.lat]),
+                zoom = map.getZoom();
+            this.center = newPosition;
+            this.zoom = zoom;
             this._resetOverlays();
+            console.log("View did reset");
         }
     },
 
     _handleZoom: {
         value: function (event) {
-            // this.dispatchEventNamed("zoom", true, false, {zoom: this._map.getZoom()});
-            // TODO: Implement some delegate method on each of the overlays e.g.
-            // TODO (cont'd): viewReset
             this._resetOverlays();
         }
     },
@@ -1249,7 +1194,7 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
             // this.dispatchOwnPropertyChange("center", this.center);
             // TODO: Implement some delegate method on each of the overlays e.g.
             // TODO (cont'd): viewReset
-            this._resetOverlays();
+            // this._resetOverlays();
         }
     },
 
@@ -1260,9 +1205,8 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
             this.dispatchOwnPropertyChange("zoom", this.zoom);
             this._overlays.forEach(function (overlay) {
                 overlay.didReset();
-            });
+            }, this);
 
-            // this.dispatchEventNamed("didZoom", true, false, {zoom: this._map.getZoom()});
             // TODO: Implement some delegate method on each of the overlays e.g.
             // TODO (cont'd): viewDidChange
         }
@@ -1270,11 +1214,12 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
 
     _handleZoomStart: {
         value: function (event) {
+            // console.log("Handle zoom start (", event, ") current zoom (", this._map.getZoom(), ")");
+            this.zoom = this._map.getZoom();
             this._overlays.forEach(function (overlay) {
                 overlay.willReset();
-            });
+            }, this);
 
-            // console.log("Handle zoom start (", event, ") current zoom (", this._map.getZoom(), ")");
             // TODO: Implement some delegate method on each of the overlays e.g.
             // TODO (cont'd): viewWillReset
         }
@@ -1412,6 +1357,37 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
     },
 
     /*****************************************************
+     * Image Overlays
+     */
+
+    registerImageOverlay: {
+        value: function (component) {
+            var mapImageLayer = new L.TileLayer.MontageGeoMapImageLayer(component);
+            this.componentMapImageLayerMap.set(component, mapImageLayer);
+            mapImageLayer.addTo(this._map);
+        }
+    },
+
+    unregisterImageOverlay: {
+        value: function (component) {
+            var map = this.componentMapImageLayerMap;
+            if (map.has(component)) {
+                map.get(component).removeFrom(this._map);
+                map.delete(component);
+            }
+        }
+    },
+
+    componentMapImageLayerMap: {
+        get: function () {
+            if (!this._componentMapImageLayerMap) {
+                this._componentMapImageLayerMap = new WeakMap();
+            }
+            return this._componentMapImageLayerMap;
+        }
+    },
+
+    /*****************************************************
      * Background Layers
      */
 
@@ -1446,6 +1422,31 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
     //         });
     //     }
     // },
+
+    /*****************************************************
+     * Base Maps
+     */
+
+    _createBackgroundOverlayWithLayer: {
+        value: function (layer) {
+            var self = this,
+                service = this.application.delegate.service;
+            return new L.TileLayer.Functional(function (view) {
+                var tile = self._baseMapTileWithId([view.tile.column, view.tile.row, view.zoom].join(":")),
+                    expression = "$tile == tile && $layer == layer",
+                    criteria = new Criteria().initWithExpression(expression, {
+                        tile: tile,
+                        layer: layer
+                    }),
+                    query = DataQuery.withTypeAndCriteria(Tile, criteria);
+
+                return service.fetchData(query);
+            }, {
+                minZoom: layer && layer.minZoom !== undefined ? layer.minZoom : 0,
+                maxZoom: layer && layer.maxZoom !== undefined ? layer.maxZoom : 18
+            });
+        }
+    },
 
     /*****************************************************
      * Logging
@@ -1878,6 +1879,95 @@ L.TileLayer.Functional = L.TileLayer.extend({
 L.tileLayer.functional = function (tileFunction, options) {
     return new L.TileLayer.Functional(tileFunction, options);
 };
+
+L.TileLayer.MontageGeoMapImageLayer = L.TileLayer.extend({
+
+    component: undefined,
+
+    _tileCache: function () {
+        if (!this.__tileCache) {
+            this.__tileCache = {};
+        }
+        return this.__tileCache;
+    },
+
+
+    initialize: function (component, options) {
+        this.component = component;
+        L.TileLayer.prototype.initialize.call(this, null, options);
+    },
+
+    getTileUrl: function (coords) {
+        return void 0;
+        // In the end this must return a URL for a promise.
+    },
+
+    _onTileRemove: function (e) {
+        var coords = e.coords,
+            tile = this._tileWithIdentifier(coords.x, coords.y, coords.z);
+        this.component.releaseTile(tile);
+        this._releaseTileFromCache(coords);
+        L.TileLayer.prototype._onTileRemove.call(this, e);
+    },
+
+    createTile: function (coords, done) {
+        var tile = this._tileWithIdentifier(coords.x, coords.y, coords.z),
+            element = this.component.elementForTile(tile),
+            size = this.getTileSize();
+
+        L.DomEvent.on(element, 'load', L.bind(this._tileOnLoad, this, done, element));
+        L.DomEvent.on(element, 'error', L.bind(this._tileOnError, this, done, element));
+
+        if (this.options.crossOrigin) {
+            element.crossOrigin = '';
+        }
+
+        /*
+         Alt tag is set to empty string to keep screen readers from reading URL and for compliance reasons
+         http://www.w3.org/TR/WCAG20-TECHS/H67
+        */
+        element.alt = '';
+
+        /*
+         Set role="presentation" to force screen readers to ignore this
+         https://www.w3.org/TR/wai-aria/roles#textalternativecomputation
+        */
+        element.setAttribute('role', 'presentation');
+        element.style.width = size.width + "px";
+        element.style.height = size.height + "px";
+        return element;
+    },
+
+    _tileWithIdentifier: function (x, y, z) {
+        var cache = this._tileCache();
+        return cache[x] && cache[x][y] && cache[x][y][z] || this._buildTile(x, y, z);
+    },
+
+    _buildTile: function (x, y, z) {
+        var tile = Tile.withIdentifier(x, y, z);
+        this._cacheTile(tile);
+        return tile;
+    },
+
+    _releaseTileFromCache: function (tile) {
+        var cache = this._tileCache(),
+            x = tile.x,
+            y = tile.y,
+            z = tile.z;
+        if (cache[x] && cache[x][y] && cache[x][y][z]) {
+            delete cache[x][y][z];
+        }
+    },
+
+    _cacheTile: function (tile) {
+        var cache = this._tileCache();
+        cache[tile.x] = cache[tile.x] || {};
+        cache[tile.x][tile.y] = cache[tile.x][tile.y] || {};
+        cache[tile.x][tile.y][tile.z] = tile;
+    }
+
+});
+
 
 L.BingLayer = L.TileLayer.extend({
 

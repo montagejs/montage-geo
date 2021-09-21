@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>
+        Action Bar Example Description
+    </title>
+    <link rel="stylesheet" href="description.css">
+    <script type="text/montage-serialization">
+    {
+        "owner": {
+            "properties": {"element": {"#": "description"}}
+        },
+
+        "nameText": {
+            "prototype": "montage/ui/text.reel",
+            "properties": {"element": {"#": "nameText"}},
+            "bindings": {"value": {"<-": "@owner.name"}}
+        },
+
+        "actionText": {
+            "prototype": "montage/ui/text.reel",
+            "properties": {"element": {"#": "actionText"}},
+            "bindings": {"value": {"<-": "@owner.actionName"}}
+        }
+    }
+    </script>
+</head>
+<body>
+    <div data-montage-id="description" class="Description">
+        <h3> <span data-montage-id="nameText"></span></h3>
+        <div>
+            <p>Actions:<span data-montage-id="actionText" class="Description-actionText"></span></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,42 @@
+{
+
+    "root": {
+        "prototype": "montage/data/service/expression-data-mapping",
+        "properties": {
+            "rawDataPrimaryKeyExpressions": ["id"],
+            "objectDescriptor": {"@":"FeatureDescriptor"},
+            "objectMapping": {
+                "rules": {
+                    "id": {"<-": "id"},
+                    "geometry": {
+                        "<-": "geometry",
+                        "converter": {"@": "esriGeometryConverter"}
+                    },
+                    "properties": {"<-": "properties"},
+                    "style": {
+                        "<-": "style",
+                        "//": [
+                            "This requires a reference to layer.renderer so it ",
+                            "is done imperatively in the service"
+                        ]
+                    }
+                }
+            },
+            "requisitePropertyNames": [
+                "id", "geometry", "properties"
+            ]
+        }
+    },
+
+    "FeatureDescriptor": {
+        "object": "data/descriptor/feature.mjson"
+    },
+
+    "esriGeometryConverter": {
+        "prototype": "logic/converter/esri-json-to-geometry-converter"
+    },
+
+    "geojsonGeometryConverter": {
+        "prototype": "logic/converter/geo-json-to-geometry-converter"
+    }
+}

@@ -2,14 +2,12 @@ console.log('montage-testing', 'Start');
 
 var Promise = require("montage/core/promise").Promise;
 
-
 //Remove once the issue that causes unminified bluebird to be bootstrapped is resolved.
 //Suppress Bluebird unhandled rejection error
 Promise.onPossiblyUnhandledRejection(function(e, promise) {
     console.warn("[Bluebird] Unhandled Rejection: " + e.message);
     // console.warn(e);
 });
-
 
 Promise.config({
     // Enable warnings
@@ -42,6 +40,7 @@ module.exports = require("montage-testing").run(require, [
     "spec/point-2d",
     "spec/polygon",
     "spec/position",
+    "spec/protocol",
     "spec/rect",
     "spec/renderer",
     "spec/size",

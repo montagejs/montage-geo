@@ -46,7 +46,6 @@ exports.Projection = Enumeration.specialize("", /** @lends Projection.prototype 
         }
     },
 
-
     inverseProjectPoint: {
         value: function (point) {
             var degrees = this.units === Units.DECIMAL_DEGREES;

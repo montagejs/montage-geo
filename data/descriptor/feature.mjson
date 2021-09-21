@@ -1,0 +1,52 @@
+{
+    "root": {
+        "prototype": "montage/core/meta/module-object-descriptor",
+        "values": {
+            "name": "Feature",
+            "exportName": "Feature",
+            "module": {
+                "%": "logic/model/feature"
+            },
+            "propertyDescriptors": [
+                {"@": "id"},
+                {"@": "geometry"},
+                {"@": "properties"},
+                {"@": "style"}
+            ]
+        }
+    },
+
+    "id": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "values": {
+            "name": "id",
+            "valueType": "string"
+        }
+    },
+
+    "geometry": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "values": {
+            "name": "geometry",
+            "valueType": "Geometry",
+            "//": "Should this use a valueDescriptor?"
+        }
+    },
+
+    "properties": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "values": {
+            "name": "properties",
+            "valueType": "string"
+        }
+    },
+
+    "style": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "values": {
+            "name": "style",
+            "valueType": "Style",
+            "//": "Should this use a valueDescriptor?"
+        }
+    }
+}

@@ -1,0 +1,28 @@
+{
+    "root": {
+        "prototype": "montage/data/service/data-service",
+        "properties": {
+            "name": "DataService",
+            "childServices": [
+                {
+                    "@": "featureService"
+                },
+                {
+                    "@": "layerService"
+                },
+                {
+                    "@": "mapImageService"
+                }
+            ]
+        }
+    },
+    "featureService": {
+        "object": "montage-geo/data/feature-service.mjson"
+    },
+    "layerService": {
+        "object": "montage-geo/data/layer-service.mjson"
+    },
+    "mapImageService": {
+        "object": "montage-geo/data/map-image-service.mjson"
+    }
+}

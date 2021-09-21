@@ -1,0 +1,26 @@
+{
+    "arcGisLayerService": {
+        "object": "data/arc-gis-layer-service.mjson"
+    },
+    "layer": {
+        "object": "data/descriptor/layer.mjson"
+    },
+    "layerMapping": {
+        "object": "data/mapping/layer-mapping.mjson"
+    },
+    "root": {
+        "prototype": "logic/service/layer-service",
+        "values": {
+            "name": "LayerService",
+            "types": [
+                {"@": "layer"}
+            ],
+            "mappings": [
+                {"@": "layerMapping"}
+            ],
+            "childServices": [
+                {"@": "arcGisLayerService"}
+            ]
+        }
+    }
+}

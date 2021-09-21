@@ -111,7 +111,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
     xMid: {
         configurable: false,
         get: function () {
-            return !isNaN(this.xMin) && !isNaN(this.width) && (this.xMin + this.width / 2);
+            return this.origin && !isNaN(this.width) && (this.xMin + this.width / 2);
         }
     },
 
@@ -122,7 +122,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
     xMax: {
         configurable: false,
         get: function () {
-            return !isNaN(this.xMin) && !isNaN(this.width) && (this.xMin + this.width);
+            return this.origin && !isNaN(this.width) && (this.xMin + this.width);
         }
     },
 
@@ -133,7 +133,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
     yMin: {
         configurable: false,
         get: function () {
-            return !isNaN(this.yMax) && !isNaN(this.height) && (this.yMax - this.height);
+            return this.origin && this.origin.y;
         }
     },
 
@@ -144,7 +144,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
     yMid: {
         configurable: false,
         get: function () {
-            return !isNaN(this.yMax) && !isNaN(this.height) && (this.yMax - this.height / 2);
+            return this.origin && !isNaN(this.height) && (this.yMin + this.height / 2);
         }
     },
 
@@ -155,7 +155,7 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
     yMax: {
         configurable: false,
         get: function () {
-            return this.origin && this.origin.y;
+            return this.origin && !isNaN(this.height) && (this.yMin + this.height);
         }
     },
 
@@ -183,6 +183,17 @@ exports.Rect.prototype = Object.create({}, /** @lends Rect.prototype */ {
     equals: {
         value: function (other) {
             return this.origin.equals(other.origin) && this.size.equals(other.size);
+        }
+    },
+
+    /**
+     * Tests whether the specified point lies within the bounds of this rect.
+     * @param {Point2D} - the point to test.
+     * @returns {boolean}
+     */
+    contains: {
+        value: function (point) {
+            return point.x >= this.xMin && point.x <= this.xMax && point.y >= this.yMin && point.y <= this.yMax;
         }
     },
 
