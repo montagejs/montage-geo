@@ -47,7 +47,9 @@ exports.MapImageOverlay = Overlay.specialize(/** @lends MapImageOverlay.prototyp
         get: function () {
             if (!this.__mapImageElementMap) {
                 this.__mapImageElementMap = new Map();
-                this.__mapImageElementMap.addMapChangeListener(this._mapImageElementMapChangeListener.bind(this));
+                this.__mapImageElementMap.addMapChangeListener(
+                    this._mapImageElementMapChangeListener.bind(this)
+                );
             }
             return this.__mapImageElementMap;
         }
@@ -95,13 +97,6 @@ exports.MapImageOverlay = Overlay.specialize(/** @lends MapImageOverlay.prototyp
     didAdd: {
         value: function (engine) {
             engine.registerImageOverlay(this);
-        }
-    },
-
-    didMove: {
-        value: function (center) {
-            //TODO Only fetch images that are new to the extent
-            this._fetchAllMapImages();
         }
     },
 
