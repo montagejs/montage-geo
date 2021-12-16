@@ -103,9 +103,9 @@ describe("Point 2D", function () {
             max = Point2D.withPosition(Point.withCoordinates(180, 90).coordinates);
         expect(center.x).toBe(128);
         expect(center.y).toBe(128);
-        expect(min.x).toBe(0);
-        expect(min.y).toBe(256);
-        expect(max.x).toBe(256);
-        expect(max.y).toBe(0);
+        expect(Math.round(min.x)).toBe(0);
+        expect(Math.round(min.y)).toBe(256);
+        expect(Math.round(max.x)).toBe(256);
+        expect(Math.round(max.y)).toBe(0);
     });
 });
