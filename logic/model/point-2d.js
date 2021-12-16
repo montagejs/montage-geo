@@ -286,8 +286,8 @@ Object.defineProperties(exports.Point2D, /** @lends Point2D */ {
                 x = (longitude + 180) / 360,
                 sinLatitude = Math.sin(latitude * Math.PI / 180),
                 y = 0.5 - Math.log((1 + sinLatitude) / (1 - sinLatitude)) / (4 * Math.PI),
-                pixelX = clip(Math.round(x * mapSize), 0, mapSize),
-                pixelY = clip(Math.round(y * mapSize), 0, mapSize);
+                pixelX = clip(x * mapSize, 0, mapSize),
+                pixelY = clip(y * mapSize, 0, mapSize);
             return exports.Point2D.withCoordinates(pixelX, pixelY);
         }
     },
