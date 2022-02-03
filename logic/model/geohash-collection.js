@@ -76,14 +76,9 @@ exports.GeohashCollection = Montage.specialize(/** @lends GeohashCollection.prot
      * Observers
      */
 
-    boundsDidChange: {
-        value: function () {
-
+    _calculateHashes: {
+        value: function (xMin, yMin, xMax, yMax) {
             var currentSet = new Set(),
-                xMin = this.bounds.xMin,
-                yMin = this.bounds.yMin,
-                xMax = this.bounds.xMax,
-                yMax = this.bounds.yMax,
                 precision = this.precision,
                 southWest = Geohash.withCoordinatesAndPrecision(xMin, yMin, precision),
                 northWest = Geohash.withCoordinatesAndPrecision(xMin, yMax, precision),
@@ -126,7 +121,21 @@ exports.GeohashCollection = Montage.specialize(/** @lends GeohashCollection.prot
                     self.hashes.add(hash);
                 }
             });
+        }
+    },
 
+    boundsDidChange: {
+        value: function () {
+            var xMin = this.bounds.xMin,
+                yMin = this.bounds.yMin,
+                xMax = this.bounds.xMax,
+                yMax = this.bounds.yMax;
+
+            if (xMin === xMax || yMin === yMax) {
+                this.hashes.clear();
+                return;
+            }
+            this._calculateHashes(xMin, yMin, xMax, yMax);
         }
     }
 
