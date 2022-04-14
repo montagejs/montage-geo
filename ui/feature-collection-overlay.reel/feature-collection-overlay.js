@@ -430,7 +430,7 @@ exports.FeatureCollectionOverlay = Overlay.specialize( /** @lends FeatureCollect
                 });
             this.featureDelegate.fetchFeaturesWithCriteriaAndLayer(criteria, layer).then(function (features) {
                 self.collection.features.splice.apply(self.collection.features, [0, Infinity].concat(features));
-            })
+            });
         }
     },
 
