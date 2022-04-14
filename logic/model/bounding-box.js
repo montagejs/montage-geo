@@ -260,8 +260,8 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
     containsFeature: {
         value: function (feature) {
             var geometry = feature.geometry;
-            return this.splitAlongAntimeridian().some(function (bounds) {
-                return geometry.intersects(bounds)
+            return !!geometry && this.splitAlongAntimeridian().some(function (bounds) {
+                return geometry.intersects(bounds);
             });
         }
     },
@@ -337,6 +337,19 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
                 area += height * width;
             });
             return area;
+        }
+    },
+
+    width: {
+        get: function () {
+            var Position = exports.BoundingBox.Position,
+                spheres = this._divideIfWiderThan180Degrees();
+
+            return spheres.reduce(function (width, bbox) {
+                var southWest = Position.withCoordinates(bbox[0], bbox[1]),
+                    southEast = Position.withCoordinates(bbox[2], bbox[1]);
+                return width + southWest.distance(southEast);
+            }, 0);
         }
     },
 

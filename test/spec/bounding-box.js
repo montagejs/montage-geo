@@ -1,5 +1,6 @@
 var BoundingBox = require("montage-geo/logic/model/bounding-box").BoundingBox,
     Deserializer = require("montage/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
+    Feature = require("montage-geo/logic/model/feature").Feature,
     Point = require("montage-geo/logic/model/point").Point,
     LineString = require("montage-geo/logic/model/line-string").LineString,
     MultiLineString = require("montage-geo/logic/model/multi-line-string").MultiLineString,
@@ -78,6 +79,19 @@ describe("A BoundingBox", function () {
 
         expect(inBoundsPoint.intersects(bounds)).toBe(true);
         expect(outBoundsPoint.intersects(bounds)).toBe(false);
+    });
+
+    it("returns false for an intersection test of a feature with no geometry", function () {
+        var bounds = BoundingBox.withCoordinates(0, 0, 10, 10),
+            feature = Feature.withMembers(42, {}, null, null);
+        expect(bounds.containsFeature(feature)).toBe(false);
+    });
+
+    it("returns true if a feature is within a bounding box", function () {
+        var bounds = BoundingBox.withCoordinates(0, 0, 10, 10),
+            geometry = Point.withCoordinates([5, 5]),
+            feature = Feature.withMembers(42, {}, geometry, null);
+        expect(bounds.containsFeature(feature)).toBe(true);
     });
 
     it("can test if it contains or intersects line features", function () {
