@@ -692,13 +692,34 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
         value: function () {
             var size,
                 mapDimensions,
+                elementSize,
                 mapSize;
             if (this._map) {
+                elementSize = Size.withHeightAndWidth(this.element.offsetHeight, this.element.offsetWidth);
                 size = this.size;
                 mapDimensions = this._map.getSize();
                 mapSize = Size.withHeightAndWidth(mapDimensions.y, mapDimensions.x);
-                if (!size || !size.equals(mapSize)) {
+                if (elementSize && mapSize && !elementSize.equals(mapSize)) {
+                    this._map.invalidateSize();
+                    this.size = elementSize;
+                } else if (!size || !size.equals(mapSize)) {
                     this.size = mapSize;
+                }
+            }
+        }
+    },
+
+    didDraw: {
+        value: function () {
+            var mapDimensions,
+                elementSize,
+                mapSize;
+            if (this._map) {
+                elementSize = Size.withHeightAndWidth(this.element.offsetHeight, this.element.offsetWidth);
+                mapDimensions = this._map.getSize();
+                mapSize = Size.withHeightAndWidth(mapDimensions.y, mapDimensions.x);
+                if (elementSize && mapSize && !elementSize.equals(mapSize)) {
+                    this.needsDraw = true;
                 }
             }
         }
