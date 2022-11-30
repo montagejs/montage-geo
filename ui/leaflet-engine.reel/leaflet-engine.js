@@ -3,6 +3,7 @@ var Component = require("montage/ui/component").Component,
     Enum = require("montage/core/enum").Enum,
     Enumeration = require("montage/data/model/enumeration").Enumeration,
     L = require("leaflet"),
+    GeometryCollection = require("logic/model/geometry-collection").GeometryCollection,
     LineString = require("logic/model/line-string").LineString,
     Map = require("montage/collections/map"),
     MapPane = require("logic/model/map-pane").MapPane,
@@ -21,6 +22,7 @@ var Component = require("montage/ui/component").Component,
 
 var DRAW_QUEUE_COMMANDS = new Enum().initWithMembers("DRAW", "ERASE", "REDRAW");
 var GEOMETRY_CONSTRUCTOR_TYPE_MAP = new Map();
+GEOMETRY_CONSTRUCTOR_TYPE_MAP.set(GeometryCollection, "GeometryCollection");
 GEOMETRY_CONSTRUCTOR_TYPE_MAP.set(LineString, "LineString");
 GEOMETRY_CONSTRUCTOR_TYPE_MAP.set(MultiLineString, "MultiLineString");
 GEOMETRY_CONSTRUCTOR_TYPE_MAP.set(MultiPoint, "MultiPoint");
@@ -367,7 +369,7 @@ exports.LeafletEngine = Component.specialize(/** @lends LeafletEngine# */ {
         value: function (geometry) {
             var symbolId = GEOMETRY_CONSTRUCTOR_TYPE_MAP.get(geometry.constructor),
                 symbolizer = Symbolizer.forId(symbolId);
-            return symbolizer.project(geometry.coordinates);
+            return symbolizer.project(geometry.coordinates || geometry.geometries);
         }
     },
 
@@ -1786,6 +1788,36 @@ var Symbolizer = Enumeration.specialize(/** @lends Symbolizer */ "id", {
             value: function (polygons) {
                 return polygons.map(function (polygon) {
                     return Symbolizer.POLYGON.project(polygon.coordinates);
+                });
+            }
+        }
+
+    }],
+
+    GEOMETRY_COLLECTION: ["GeometryCollection", {
+
+        draw: {
+            value: function (geometries, offset, style) {
+                return geometries.map(function (geometry) {
+                    var symbolizer = Symbolizer.forId(geometry.type);
+                    return symbolizer.draw(geometry.coordinates, offset, style);
+                });
+            }
+        },
+
+        isMultiGeometry: {
+            value: true
+        },
+
+        project: {
+            value: function (geometries) {
+                return geometries.map(function (geometry) {
+                    var symbolId = GEOMETRY_CONSTRUCTOR_TYPE_MAP.get(geometry.constructor),
+                        symbolizer = Symbolizer.forId(symbolId);
+                    return {
+                        type: symbolId,
+                        coordinates: symbolizer.project(geometry.coordinates)
+                    }
                 });
             }
         }
