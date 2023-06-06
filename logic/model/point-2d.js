@@ -230,7 +230,7 @@ exports.Point2D.prototype = Object.create({}, /** @lends Point2D.prototype */ {
      * @public
      * @method
      * @param {number} zoom level
-     * @type {Point} point
+     * @returns {Point} point
      */
     toPoint: {
         value: function (zoom) {
