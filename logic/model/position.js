@@ -281,7 +281,6 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
                 c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
             return earthRadius * c;
-
         }
     },
 
