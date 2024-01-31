@@ -383,9 +383,22 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
         }
     },
 
+    toArray: {
+        value: function (latFirst) {
+            return !!latFirst ? [this.latitude, this.longitude, this.altitude] :
+                                [this.longitude, this.latitude, this.altitude];
+        }
+    },
+
     clone: {
         value: function () {
             return exports.Position.withCoordinates(this.longitude, this.latitude, this.altitude);
+        }
+    },
+
+    withAltitude: {
+        value: function (altitude) {
+            return exports.Position.withCoordinates(this.longitude, this.latitude, altitude);
         }
     },
 
