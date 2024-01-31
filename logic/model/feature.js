@@ -152,7 +152,9 @@ exports.Feature = Montage.specialize(/** @lends Feature.prototype */ {
     withMembers: {
         value: function (id, properties, geometry, style) {
             var self = new this();
-            if (id) self.id = id;
+            if (id) {
+                self.id = id;
+            }
             self.properties = properties || null;
             self.geometry = geometry || null;
             self.style = style || null;

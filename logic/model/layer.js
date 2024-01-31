@@ -1,4 +1,5 @@
  var Montage = require("montage/core/core").Montage,
+     Enumeration = require("montage/data/model/enumeration").Enumeration,
      Projection = require("logic/model/projection").Projection,
      Protocol = require("logic/model/protocol").Protocol;
 
@@ -190,6 +191,19 @@ exports.Layer = Montage.specialize(/** @lends Layer.prototype */ {
             this.renderer = deserializer.getProperty("renderer");
             this.url = deserializer.getProperty("url");
         }
+    }
+
+}, {
+
+    /**
+     * @class
+     */
+    Type: {
+        get: Enumeration.getterFor("_Type", "", "name", {
+            FEATURE: ["Feature"],
+            DENSITY_MAP: ["DensityMap"],
+            RASTER: ["Raster"]
+        })
     }
 
 });
