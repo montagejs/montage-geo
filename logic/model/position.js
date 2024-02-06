@@ -69,7 +69,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
         configurable: true,
         enumerable: true,
         writable: true,
-        value: undefined
+        value: 0
     },
 
     _latitude: {
