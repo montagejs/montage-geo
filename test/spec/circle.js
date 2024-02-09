@@ -28,14 +28,16 @@ describe("A Circle", function () {
         var c1 = Circle.withCoordinates([-156.6825, 20.8783], 10042),
             serializer = new Serializer().initWithRequire(require),
             serializedCircle = serializer.serializeObject(c1);
+
         new Deserializer().init(serializedCircle, require).deserializeObject().then(function (circle) {
             var coordinates = circle.coordinates;
             expect(coordinates.longitude).toBe(-156.6825);
             expect(coordinates.latitude).toBe(20.8783);
-            expect(coordinates.altitude).toBe(undefined);
+            expect(coordinates.altitude).toBe(0);
             expect(circle.radius).toBe(10042);
             done();
         });
+
     });
 
     it("can test for equality", function () {

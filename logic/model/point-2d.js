@@ -192,11 +192,47 @@ exports.Point2D.prototype = Object.create({}, /** @lends Point2D.prototype */ {
      * @type {Point2D} coordinate
      */
     divide: {
-        value: function (number){
+        value: function (number) {
             var point = this.clone();
             point.x /= number;
             point.y /= number;
             return point;
+        }
+    },
+
+    /**
+     * Returns a new point that rounds the x and y coordinates up
+     * @public
+     * @method
+     * @returns {Point2D}
+     */
+    ceil: {
+        value: function () {
+            return exports.Point2D.withCoordinates(Math.ceil(this.x), Math.ceil(this.y));
+        }
+    },
+
+    /**
+     * Returns a new point that rounds the x and y coordinates down
+     * @public
+     * @method
+     * @returns {Point2D}
+     */
+    floor: {
+        value: function () {
+            return exports.Point2D.withCoordinates(Math.floor(this.x), Math.floor(this.y));
+        }
+    },
+
+    /**
+     * Returns a new point that rounds the x and y coordinates
+     * @public
+     * @method
+     * @returns {Point2D}
+     */
+    round: {
+        value: function () {
+            return exports.Point2D.withCoordinates(Math.round(this.x), Math.round(this.y));
         }
     },
 

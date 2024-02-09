@@ -16,7 +16,7 @@ describe("A MultiPolygon", function () {
     it("can be created", function () {
         var multipolygon = MultiPolygon.withCoordinates([
             [[[0,0], [0,10], [10,10], [10,0], [0,0]]],
-            [[[0,0], [0,-10], [-10,-10], [-10,0], [0,0]]]
+            [[[-10,-10], [-10,0], [0,0], [0,-10], [-10,-10]]]
         ]);
         expect(multipolygon).toBeDefined();
         expect(multipolygon.coordinates.length).toBe(2);

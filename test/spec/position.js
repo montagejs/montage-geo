@@ -71,7 +71,7 @@ describe("A Position", function () {
             expect(position.constructor.name).toBe("Position");
             expect(position.longitude).toBe(-156.6825);
             expect(position.latitude).toBe(20.8783);
-            expect(position.altitude).toBe(undefined);
+            expect(position.altitude).toBe(0);
             done();
         });
     });
