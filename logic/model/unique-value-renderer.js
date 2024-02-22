@@ -13,6 +13,12 @@ var Renderer = require("logic/model/renderer").Renderer,
  */
 exports.UniqueValueRenderer = Renderer.specialize(/** @lends UniqueValueRenderer.prototype */ {
 
+    fieldDelimiter: {
+        get: function () {
+            return this._fieldDelimiter;
+        }
+    },
+
     _field1: {
         value: undefined
     },
@@ -56,7 +62,7 @@ exports.UniqueValueRenderer = Renderer.specialize(/** @lends UniqueValueRenderer
             if (defaultSymbol) {
                 stylePromises.push(converter.convert(defaultSymbol));
             }
-
+            renderer._fieldDelimiter = fieldDelimiter;
             renderer._field1 = field1;
             renderer._field2 = field2;
             renderer._field3 = field3;
