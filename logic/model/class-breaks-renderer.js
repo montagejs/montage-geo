@@ -48,8 +48,11 @@ exports.ClassBreaksRenderer = Renderer.specialize(/** @lends ClassBreaksRenderer
             return Promise.all(stylePromises).then(function (values) {
                 renderer.entries = values.map(function (style, index) {
                     var symbol = entries[index],
-                        expression = field + " <= " + symbol["classMaxValue"],
-                        criteria = new Criteria().initWithExpression(expression);
+                        expression = field + " <= " + symbol.classMaxValue,
+                        criteria = new Criteria().initWithExpression(expression, {
+                            classMinValue: symbol.classMinValue,
+                            classMaxValue: symbol.classMaxValue
+                        });
                     return StyleEntry.withLabelCriteriaAndStyle(symbol.label, criteria, style);
                 });
                 return renderer;

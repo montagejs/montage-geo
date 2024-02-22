@@ -19,6 +19,24 @@ exports.UniqueValueRenderer = Renderer.specialize(/** @lends UniqueValueRenderer
         }
     },
 
+    field1: {
+        get: function () {
+            return this._field1;
+        }
+    },
+
+    field2: {
+        get: function () {
+            return this._field2;
+        }
+    },
+
+    field3: {
+        get: function () {
+            return this._field3;
+        }
+    },
+
     _field1: {
         value: undefined
     },
@@ -72,14 +90,15 @@ exports.UniqueValueRenderer = Renderer.specialize(/** @lends UniqueValueRenderer
                         return field;
                     }),
                     count = entries.length;
+
                 renderer.entries = values.map(function (style, index) {
-                    var symbol = index === count ? {label: defaultLabel} : entries[index],
-                        expression = "",
+
+                    var isDefault = index === count,
+                        symbol = isDefault ? {label: defaultLabel} : entries[index],
+                        expression = isDefault ? "true" : undefined,
                         criteria, field, values, i, n;
 
-                    if (index === count) {
-                        expression = "true";
-                    } else {
+                    if (!expression) {
                         values = symbol.value.split(fieldDelimiter);
                         for (i = 0, n = fields.length; i < n; i += 1) {
                             field = fields[i];
@@ -93,7 +112,12 @@ exports.UniqueValueRenderer = Renderer.specialize(/** @lends UniqueValueRenderer
                             expression += "'";
                         }
                     }
-                    criteria = new Criteria().initWithExpression(expression);
+
+                    criteria = new Criteria().initWithExpression(expression, {
+                        isDefault: isDefault,
+                        value: symbol.value
+                    });
+
                     return StyleEntry.withLabelCriteriaAndStyle(symbol.label, criteria, style);
                 });
                 return renderer;
