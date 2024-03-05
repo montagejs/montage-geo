@@ -13,7 +13,6 @@ var StyleType = exports.StyleType = new Enum().initWithMembers("POINT", "LINE_ST
  * @class
  * @extends Object
  */
-
 var Style = exports.Style = function Style(type) {
     this._type = type;
 };
