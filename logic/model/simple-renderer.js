@@ -1,7 +1,6 @@
 var Renderer = require("logic/model/renderer").Renderer,
     Criteria = require("montage/core/criteria").Criteria,
     EsriSymbolToStyleConverter = require("logic/converter/esri-symbol-to-style-converter").EsriSymbolToStyleConverter,
-    Promise = require("montage/core/promise").Promise,
     StyleEntry = require("logic/model/style-entry").StyleEntry;
 
 /**

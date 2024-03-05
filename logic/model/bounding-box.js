@@ -107,6 +107,16 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
     },
 
     /********************************************
+     * Projection
+     */
+
+    project: {
+        value: function (projection) {
+            return projection.projectBounds(this);
+        }
+    },
+
+    /********************************************
      * Derived Properties
      */
 
@@ -250,8 +260,8 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
     },
 
     /**
-     * Determines whether or not the bounds intersects,
-     * contains or is within the passed in feature.
+     * Determines whether the bounds intersect, contains, or is within the
+     * passed in feature.
      *
      * @method
      * @param {Feature}

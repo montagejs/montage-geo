@@ -180,7 +180,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
     },
 
     _setPropertyWithDefaults: {
-        value:function (serializer, propertyName, value) {
+        value: function (serializer, propertyName, value) {
             if (value !== Defaults[propertyName]) {
                 serializer.setProperty(propertyName, value);
             }
@@ -188,7 +188,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
     },
 
     _getPropertyWithDefaults: {
-        value:function (deserializer, propertyName) {
+        value: function (deserializer, propertyName) {
             var value = deserializer.getProperty(propertyName);
             return value === 0 || value ? value : Defaults[propertyName];
         }

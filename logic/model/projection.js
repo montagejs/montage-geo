@@ -40,27 +40,28 @@ exports.Projection = Enumeration.specialize("", /** @lends Projection.prototype 
     projectPoint: {
         value: function (point) {
             var degrees = this.units === Units.DECIMAL_DEGREES;
-            return degrees     ? point :
-                this.isMGRS ? proj4.mgrs.forward(point, this._mgrsAccuracy) :
-                    proj4(this._proj4Reference, point);
+            return  degrees     ?   point :
+                    this.isMGRS ?   proj4.mgrs.forward(point, this._mgrsAccuracy) :
+                                    proj4(this._proj4Reference, point);
         }
     },
 
     inverseProjectPoint: {
         value: function (point) {
             var degrees = this.units === Units.DECIMAL_DEGREES;
-            return degrees ? point :
-                this.isMGRS     ? Position.withCoordinates(proj4.mgrs.toPoint(point)) :
-                    proj4(this._proj4Reference).inverse(point);
+            return  degrees ?       point :
+                    this.isMGRS ?   Position.withCoordinates(proj4.mgrs.toPoint(point)) :
+                                    proj4(this._proj4Reference).inverse(point);
         }
     },
 
     projectBounds: {
         value: function (bounds) {
             var yMax = Math.min(bounds.yMax, 85.06),
-                yMin = Math.max(bounds.yMin, -85.06);
-            var minimums = this.projectPoint([bounds.xMin, yMin]),
+                yMin = Math.max(bounds.yMin, -85.06),
+                minimums = this.projectPoint([bounds.xMin, yMin]),
                 maximums = this.projectPoint([bounds.xMax, yMax]);
+
             return BoundingBox.withCoordinates(minimums[0], minimums[1], maximums[0], maximums[1]);
         }
     },
