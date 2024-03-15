@@ -3,6 +3,7 @@ var ClassBreaksRenderer = require("montage-geo/logic/model/class-breaks-renderer
     Feature = require("montage-geo/logic/model/feature").Feature,
     SimpleRenderer = require("montage-geo/logic/model/simple-renderer").SimpleRenderer,
     Style = require("montage-geo/logic/model/style").Style,
+    TropicalCyclonePositionsRendererConfiguration = require("config/tropical-cyclone-positions-layer-renderer.json"),
     UniqueValueRenderer = require("montage-geo/logic/model/unique-value-renderer").UniqueValueRenderer;
 
 describe("Renderer", function() {
@@ -76,6 +77,20 @@ describe("Renderer", function() {
             expect(renderer.entries.every(function (entry) {
                 return entry.style instanceof Style;
             })).toBe(true);
+            done();
+        });
+    });
+    
+    it("should create the tropical cyclone positions layer renderer", function (done) {
+        var rawData = TropicalCyclonePositionsRendererConfiguration.renderer;
+        UniqueValueRenderer.withArguments(
+            rawData.field1, rawData.field2, rawData.field3,
+            rawData.fieldDelimiter, rawData.uniqueValueInfos,
+            rawData.defaultSymbol, rawData.defaultLabel
+        ).then(function (renderer) {
+            expect(renderer).toBeDefined();
+            expect(renderer.entries).toBeDefined();
+            expect(renderer.entries.length).toBe(12);
             done();
         });
     });
