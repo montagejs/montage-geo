@@ -33,6 +33,14 @@ exports.SimpleRenderer = Renderer.specialize(/** @lends SimpleRenderer.prototype
             }
             return this.__styleConverter;
         }
+    },
+
+    withEntries: {
+        value: function (entries) {
+            var renderer = new this();
+            renderer.entries = entries;
+            return renderer;
+        }
     }
 
 });
