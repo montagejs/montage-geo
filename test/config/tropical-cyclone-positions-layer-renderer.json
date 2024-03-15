@@ -1,0 +1,207 @@
+{
+    "renderer": {
+        "type": "uniqueValue",
+        "field1": "symbol_code",
+        "field2": null,
+        "field3": null,
+        "defaultSymbol": null,
+        "defaultLabel": null,
+        "uniqueValueInfos": [
+            {
+                "symbol": {
+                    "type": "esriPMS",
+                    "url": "c5e7f55dacbb9f4eaa4a16b1e81b5255",
+                    "imageData": "iVBORw0KGgoAAAANSUhEUgAAAA4AAAAXCAYAAAA7kX6CAAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAZ1JREFUOI2t1D+LE1EUh+FHCEocRYtbmNjZCRaysRNksdDCrPoJbFZXC60sRJtkLbbY1kKNILgKloJB8BOICAFZsLE3aa6I4EXtLGZmd0xmg6gHLgNn5j33d/5Nw19a43+DbXSxVJw/AlfwcB0/8JEbz7g3F8yyrH84pd4jPMeD3H3GPDCE0Ikx9jbwModGWMVwrtQYY/8mDmCNiRxsFQFHtWDxsnsRm1iktczKIXyO0VPev+Icxr+BMcYOHMG3Qtu+SvQux+/y6XEIJ8rbG0VR2ikl+3EWu6ZkZbiN1zEOIp0tMKXUgd01UGkHcZ2FO0XOZXHG8B17dgDhaJ5WG6NS6iSlZBOn5oDN/NGqSh2gd0temLAD+MV2PbakZlm2+jal3gWsYQF78RUfcAzv0Gw2h1VQSqmfZZk3KfUWp266jPU84CRV21GFQwjDoq9L8tK3ruEFUmX8ZrajaHA5Yt0n+IllJiGEQYyxHsQwo3sFp4scT+b+fnVmZ8AMl+QVPJ+7ardkBkyM729vx7iQV78dU3a1OGXONZ/8w8/qF7r8oA7CBmHrAAAAAElFTkSuQmCC",
+                    "contentType": "image/png",
+                    "width": 10,
+                    "height": 17,
+                    "angle": 0,
+                    "xoffset": 0,
+                    "yoffset": 0
+                },
+                "value": "FST",
+                "label": "Forecast Hurricane/Typhoon > 150 mph",
+                "description": ""
+            },
+            {
+                "symbol": {
+                    "type": "esriPMS",
+                    "url": "9c2e64adaf4c55056b09d27bb6c4a7ce",
+                    "imageData": "iVBORw0KGgoAAAANSUhEUgAAAA4AAAAXCAYAAAA7kX6CAAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAfBJREFUOI2tlD9oFEEUh7/Axcs6/kkxRe4UhBSCmCJkBQtBDiGG4EZTWAmmiUZFrSwkCu4l4BWxtDA5QTAJhGChuAiCEAsheMKBHNikSSy8bZ5I4MZ42ljc7mXPXQ9RH0w18837ze+9Nyn+MlL/G8wCDjASrD8CJ4C5mXPwrQ5rPtcXV7nfFlRK5fdZxn14FZbewOwKACehDai1tkXEnZ+E5yWYXaEMTAFeW6kikr8xDHsVFDx8oAxkggvLiWCw6YwehcoG5A6SGR9koqcbPteEhde8f1HhFFBtAUXEBujtgVodvNuwy9q+3bHpn17m06OSPhJmTwWmZI0x7O6CoX7o6GiVpbpg8iy8LElRwG6CxhgbYEdnHAqjW8G1UQZuPWu8OTSnCrD1HdKdySDAof0gIlmgHEr1jTFUNuD44d+DVhqATFRqEXBvzjeM0XuSwS+1bT+aUpVSU2/XjXvmLhTOw0Av7EzD5hZ8+Ah9B+DdGliW5UVBjDF5pRSr68bNTbdmupCDmTEoPME3RMoRhbXWXlDXERrWZy4PwdMSmEj7xaYjKHDYYs7jK1D/AeNz+Frroogkg4CnwLk4DCf6YPMrHLsDQD7aszFQAWODDQdP34Mge2xKYqCB6oNXzemoBvKSp+OXuBSs8M0JR/7hs/oJWwK/JTmMV/gAAAAASUVORK5CYII=",
+                    "contentType": "image/png",
+                    "width": 10,
+                    "height": 17,
+                    "angle": 0,
+                    "xoffset": 0,
+                    "yoffset": 0
+                },
+                "value": "FTY",
+                "label": "Forecast Hurricane/Typhoon > 74 mph",
+                "description": ""
+            },
+            {
+                "symbol": {
+                    "type": "esriPMS",
+                    "url": "d6e2c037d79fe572347bce04b86988da",
+                    "imageData": "iVBORw0KGgoAAAANSUhEUgAAAA4AAAAXCAYAAAA7kX6CAAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAZVJREFUOI2t07GLE1EQx/GPEPHCglhsYYIgWNhocRjB1uaUwxxYWAlanoj4B4hgcoKVpdWltBMbIaVwFgdCioBY2pwWJs0r8xS1sdi3cc3thSAOvOrxnfnNb2Ya/jEa/xtso4ut9FYCt7HrNn5g6qH3XiwFsyzrx2bseYB97IFrLAHzPO+EEHoeYYQ9Y+xguFRqCKFvExmGphijlRKOa8H02XUFn3Fey4ZtpwizwDsffHQDk7/AEEIHnE6GPEazkr5j3Stf81F+uazeSKa0Y4ysYR3HFnSt4RZhFAbozMEYY1HxeA1URoabLuVvip5LcwrtPxN8VJwhhNDGuJQ6jTEWxlxYAp4ArarUAXpeKow5eQQ4++PHXGqWZTvxIPY8wx2cSxW+4wvO4hPNZnNYBcUY+1mWiQex5+lCpau4i9emQWUcVTjP82Ga65bC+pbrijWsrN+h60gDLles6z5+Ydc0z/NBCKEeTFm7NnER3/AE9Ks7W3/IG5jhOan6oSupAyfezq9jkuTVX8dC3EsPlD2tAq4UvwGO7pygv91AHQAAAABJRU5ErkJggg==",
+                    "contentType": "image/png",
+                    "width": 10,
+                    "height": 17,
+                    "angle": 0,
+                    "xoffset": 0,
+                    "yoffset": 0
+                },
+                "value": "FTS",
+                "label": "Forecast Tropical Storm",
+                "description": ""
+            },
+            {
+                "symbol": {
+                    "type": "esriPMS",
+                    "url": "4c4652cb96f5b28f5e7a2a052c62c87b",
+                    "imageData": "iVBORw0KGgoAAAANSUhEUgAAAA4AAAAXCAYAAAA7kX6CAAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAjZJREFUOI2tlEtIVFEYx3/C+LhzLKe4i2YKIqFAiB7eXIQgImGUoyWRm6QWPnKRGBlFD5gxxNDatbg6gZEGRbMIukwUWERKRDEgA7mwBxU0szlhg550XLW5d5ppRonqg291zu/7/ud7HBd/aa7/DfoAP9Bo+x+BncBIx+khllNLfP4y2/08cufGqqAQIujxbAyc7b/JxKO7RMLDAPXAyqCu64aUMjA4MsbUs4dEwsNRoA+wVpUqpQweae1FlJZxb3QgAUQBrx0wmhe0D/01+w7zcTbGjt213oajbZ3r9Q0kv3/jiTU+/WYy0gDEs0AppQHg3VTO4o8FrpoWmrs0HX1vjX/XmHnl69PI6B4nu8suik8phdu9hqrq/RQUFGTJ0tyCYx0XmHrxOISdxAWglDIACouKciDHStd6aGk9VTluXjSklFGnOHGA1NIihUXFeUGAzeUVSCl9QNSRmlBK8eFdjJ1GzYpgSYkG4M2UGgIC5rXzDJoWZev0vOD8/Fy6HmmpQoi+2ZlXgUvdh2jvGWBbRSXFmhu1kOTT+7ds2bqdmdhrNE2zMkGUUkEhBDOxl4EzbbVZmQ40t9PVO8T9WwMJpdSvdmTCuq5bdl8bAQPwNrV0MTnxAKVUevxytsNusDNi/nP9t1leTnE92JbQdT0kpcwPApYQwl/f3IFRVYdSSXpOVAMEM2c2BxRCUHfwOAvJOS73NGFnz9mSHFApFbfCprMdcVte/u34zU7a7rw5z5V/+Kx+Apo75L5PrdTgAAAAAElFTkSuQmCC",
+                    "contentType": "image/png",
+                    "width": 10,
+                    "height": 17,
+                    "angle": 0,
+                    "xoffset": 0,
+                    "yoffset": 0
+                },
+                "value": "FTD",
+                "label": "Forecast Tropical Depression",
+                "description": ""
+            },
+            {
+                "symbol": {
+                    "type": "esriPMS",
+                    "url": "af26fbb3816150579848e86403da8fea",
+                    "imageData": "iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAXRJREFUOI211L9qwlAUx/FvoCg2itZGcHFxEASH2lUQ6dJF0HfwD46Cg3R16OATCOLQLo6FtpujIOJSEOLgA3SzIjSog7TDxapUk3htf1PIST5c7rn3nPFPOVs/fBnGGx8f7yeLfr9HUdXkD8x47CcevzoZ1nUdtlZsmXodFgvodKDbtfzcGo5EoNmEdhsaDdvrsIYfH+H5+SjUGq5UwOuF+/ujUGs4m4XhEFIpyOUgGITJBFotsdfScDgMn5/w8gJu9+Z9Og21mmioFOzxwO0tKMrue1WFuzt4fYXRSAJ2OH6j6/h8UC5DsSgBz+fgdB6uR6MHS+bwcAjJ5OG6yyUJV6uicZq2vz6dSsL9PmQy4hxfX8P5OcxmoOsQi8FgIAkD9HriHG8nnxdHzeTi2B9C2ymV4OkJDOMP4YcHWC7FTTSJPVhVoVCAmxuxx4mE5S8bOBTy7Z2ziiKatlqJeXxxYT6PA4HLHVjRNK+t1duMXPNs5Bvc8VwJrK0l1gAAAABJRU5ErkJggg==",
+                    "contentType": "image/png",
+                    "width": 16,
+                    "height": 16,
+                    "angle": 0,
+                    "xoffset": 0,
+                    "yoffset": 0
+                },
+                "value": "CST",
+                "label": "Current Hurricane/Typhoon > 150 mph",
+                "description": ""
+            },
+            {
+                "symbol": {
+                    "type": "esriPMS",
+                    "url": "03a9cfa6ab8a769c4166d803b98b3dea",
+                    "imageData": "iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAYpJREFUOI211M8rw3Ecx/HnV/P9tu93y3yRRaglP0KZKEVruXBQ/A9DjspBrg477C9QcuDiqMxB7UiSRNQoyW4YbVpZY7a4YFv23fe773idPr3f78+jd337fiz8Uyzfh4908oxk/K5iUVbtgqR4fmAer1UO3f0Vw6PhMORtrJumAGRfIR6C933dcX24qgPca3CzBYlVw3vow0ObcLtTFqoPq4sg1cCTvyxUH3ZNQ/QCRC+0+UBxQioGkXVIhyqAVRe8vcBEECRbrt41CQcrEAuYhCU7dI6DIBTWRQWGl2FvF7KXJmCL+Bv9juyA1gWIzJmA0ymwSNp9tRsiGjuVhB8uwOXR7otWzVZp+HwJGoOg1Bfvp55NwpkjCE1Bnx+aB0CUIZWAaBicvRA9NgkDvB/CqRdO82r2GXAG4F77xzH+COWnZx6utoHkH8LtG5B5g1tfyTGDsAK1s9A0BukEnIzo3sjBjhYHg8XeWQGqZfjIQuYVrLUUn/uKvaGuABZs9TXGtjcWcx/PQD4BEipbs4pDoVsAAAAASUVORK5CYII=",
+                    "contentType": "image/png",
+                    "width": 16,
+                    "height": 16,
+                    "angle": 0,
+                    "xoffset": 0,
+                    "yoffset": 0
+                },
+                "value": "CTY",
+                "label": "Current Hurricane/Typhoon > 74 mph",
+                "description": ""
+            },
+            {
+                "symbol": {
+                    "type": "esriPMS",
+                    "url": "c76fc69781eff0c3822cf0575ebd6dda",
+                    "imageData": "iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAdFJREFUOI211MFL22AYx/FvRpfQpKFtVllxuEEZbjIHq2wwcJTixR0E/R+q4lHwIF495JC/QBAPevEoWA+DHDuKyHCsEAcy7G1bN1oJGNLWlu3UTrFt0up+p5fned4PD4S8Af5TAq2DU3c+V5zK99uCmqypiqSk2vDpr1MtmU++ui1svbMsuLKxV4xhg2qzilkxyV3mPOc94dF7o2wmN9n9tsuGveF3D294580O+2f7faGe8Iq2QlgKo//W+0I94bnEHIVSgbSYJvMkQ1yJU3bLbBW3MOvm4HBCS3BRuyD7PktICrXrM89nWP+4jlE2BoNVSWX62TSCIFyrK6LC2ts1Dj4ccNI86R8WA+INtJWIHGH58TKLxcX+YbfuIgWkrv0xbQyKnXs94cLPAqlEqms/KAa79nrCq19WyT7MElNiHfvn7vlg8GHjkFlzFv2lzsSjCWRRxnZtrJLFeHyco9LRYDBA/jJP+jgNx/9q8+o8RtxA/9H9x/H9CF3N0osl9r7u4eDcHbz9dJtao0bmLNNzzhesoLAQXWBqeAq7bjP5adLzThseiYxEcq9vvrMCAvJ9meafJtVGlWgwSqe5VobUoQfX4FgoFvazvd8M9PH85C85uYZlwKCdrgAAAABJRU5ErkJggg==",
+                    "contentType": "image/png",
+                    "width": 16,
+                    "height": 16,
+                    "angle": 0,
+                    "xoffset": 0,
+                    "yoffset": 0
+                },
+                "value": "CTS",
+                "label": "Current Tropical Storm",
+                "description": ""
+            },
+            {
+                "symbol": {
+                    "type": "esriPMS",
+                    "url": "758f9868c40611c8d89640246d18c23f",
+                    "imageData": "iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAU9JREFUOI211d9LwlAUwPHv2u6mo7XU0lgPC6IfEEGPPfX/Rw9B4INRIESaD2q2Suac6+GiGLnfdGAw7jl8OGf3wDT+KbTly2we3fszemVBQ2DpQrlZwWOPevuFq7LwpUsb1jpOi8Y2LCLwpjBfpNenwooCJwfwOoSvWdY2MsDnDvTG+dBU2KqCLmDynQ9NhZ0ajDzQVGjZUNXBD+DtHYKwBLxjQjCH61MQa5VuEx668DEtCOsauK2/50KDCxduO3JTcsOqGp+rCGja8rPkhoMQ1K34vG0WhIcTONyLzydNlAg/D6BuQdXYnPcTdjsRDhdw9wTHLdi35aX5AQw9aFgw/iwIL/HHvnyWYeoSHn2VgDfFURO6g+Sa3LBTk1P0Y7YhN2xV5PhBCJ0Mv4MVbJnsnjkxRSpEkezUEBBXB2AaNH7BpqHYWbvPEoUuL0v8AIWKWzMKpyUWAAAAAElFTkSuQmCC",
+                    "contentType": "image/png",
+                    "width": 16,
+                    "height": 16,
+                    "angle": 0,
+                    "xoffset": 0,
+                    "yoffset": 0
+                },
+                "value": "CTD",
+                "label": "Current Tropical Depression",
+                "description": ""
+            },
+            {
+                "symbol": {
+                    "type": "esriPMS",
+                    "url": "8e14a37d20eeee24e42dfb6c9254e493",
+                    "imageData": "iVBORw0KGgoAAAANSUhEUgAAAA4AAAAXCAYAAAA7kX6CAAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAcNJREFUOI2t1D1oFEEUwPFfEYQwiBYrmNgpFoJFcG3EJljYeIk2dmITEy1iZSHY3F2hRRoLCzURxQ+wFHIIAcVGEBEPNKVgI3jXjIiYQdNZ7G6yMUcQ9cEU+/b9533PkL+Uof8NjqKBifL8ETiD23P4iQ9cfMSNLcEQQmtPSs0FPMatQn3cVmCWZXmMsfkAiwXURRudLUONMbYuYQeu0VeAI+WF3YFg+bNxCssYZ2SKmd34EqOHvHvKCfQ2gDHGHPZiBffwAs8xhjuMXefz3Sw7XHkfKosymlKyHUdwGs9qYU3jKpZinI/ka2BKKYdteFlAXUyWob1dIJ/FLIeulDlXxenBD3wvvtu1fNpYXMGB9bS6Vaj9lJJlHCyMG1UbQgj5zpTsx6daWlWo82heLq2XmDlDHrEvpXwBu/B+QB97IYT265SaJ4s+WiZfLfP+iK94g+Hh4c6ax9JrK4TgVUrNcRvlHOaKC/up3o46nGVZpyzAhKL0IxfwBKk2fpu2o2xwNWKN+1jFFP0sy+ZjjINBdAKNaRzDNxwt9K36zG4CA86WxZgsVAO3ZBOY6N1c345eGd7g7fhNzpenynmAyT88Vr8Ac7W4fP5k3kgAAAAASUVORK5CYII=",
+                    "contentType": "image/png",
+                    "width": 10,
+                    "height": 17,
+                    "angle": 0,
+                    "xoffset": 0,
+                    "yoffset": 0
+                },
+                "value": "PST",
+                "label": "Previous Hurricane/Typhoon > 150 mph",
+                "description": ""
+            },
+            {
+                "symbol": {
+                    "type": "esriPMS",
+                    "url": "c73e4d1baa3e509a04f675d2de9e0adf",
+                    "imageData": "iVBORw0KGgoAAAANSUhEUgAAAA4AAAAXCAYAAAA7kX6CAAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAiFJREFUOI2tlD1oU1EUx39DLIaLmuEJTRQRxYLQofgEEZcgVKmmtYuLH11q41fs4iBWMInQDC0o4mCbiGIVHBzUPoRCJAqFYsSARshQkBTB9waviJjbJnZxyH1pakIQ9cKd7v3d8z//c8718JfL87/BABACevX+IzAMTI4dg3IF5h0uPJzjVktQCBHb5FXR1Hl4NAsTGQAOQAvQMAxTShmdugzTWZjIkAPigNVSqpQydrEHNghIWDhADvDrB3NNQX0Y6t8D+QUIduAf7Cbc7oOvJcmDl7x7nucwYK8CpZQmwLZ2KFXg3jBkPsCLPHRthTsRum484/PdrLHbje7RpgSUUqxbC3s74Og4pAsrsoaCMHocZrIyKcGsgUopE6BtDcwWIF0gB/RpaW9TrzAjhyDSz66Rp9WcXXNsgKWf8KMM2k03nzgwXSrDzs21tHKuVEcpRX4BOrcA1a6x9JnpQ7EjAJ++rKTlSk0C0UtTYF2BmRHCJ25iSgXbfcpMnYON6+F9sbGOthAi/rqookdGIXES8tcxK8vQ5oGPDnwrwZt58Hq9Vi2ijhoTQjBXVNHgtdXFPhWEsQFIPMZR1JWjHjYMw9IG9FK13n/mIDzJgqprv4bp0AV2Wyx0/yxUlmFwEscwjKSUsjkIWAJCQz2wvxO+L8K+qwDE6nu2ARTAQHfVjL5x0NEbpqQBVGDfTtemw9bymk/Hb+u03m7OTa78w2f1C8834mFHWKXNAAAAAElFTkSuQmCC",
+                    "contentType": "image/png",
+                    "width": 10,
+                    "height": 17,
+                    "angle": 0,
+                    "xoffset": 0,
+                    "yoffset": 0
+                },
+                "value": "PTY",
+                "label": "Previous Hurricane/Typhoon > 74 mph",
+                "description": ""
+            },
+            {
+                "symbol": {
+                    "type": "esriPMS",
+                    "url": "fc7526e8b630e00f4b5eb43d360555be",
+                    "imageData": "iVBORw0KGgoAAAANSUhEUgAAAA4AAAAXCAYAAAA7kX6CAAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAbVJREFUOI2t0z9oU1EUx/HPEMHwQDq8wRQRp04O4hNcu1SppuKs6Fjx766CSQSngiBO7ejqYs0oVEEQCgakQgeXupgM3rFXql0c3n0xNaEU8cCd7v3e8zu/c07NP0btf4PTaGIhnQOBi1h2BT8xcNcHz/cFsyxrx3psuY33WAPn2AfM87wIIbTcxzrW9NBBd1+pIYS2eWToGqCHRvqwNxFMl01n8RUzGuYsmiJsB976ZMNF9PeAIYQCHE2G3MNnbOAE7jhl1bd8PT9TZa8lU6ZjjBzGDJawOaJrFlcJ62EFxRCMMZYZDyVgUw+XkrSP3ilcwGWn81dlzZU5pfZf2CG5WdXTwWs7ODYsq1dJHcQYS2OOo5yabroroljO0vc/ZVVSV9DyAg/xwKJnCpE4FQu3cARb433sZ1nWiVux5Qmu4anCbnoxwDa+UK/Xu8OMKWs7yzJxK7Y8tjdmcR0vDYKRdozCeZ53kwELyfqG88oxHBm/se1IDa5GrOkmdrFskOf5SghhMph+bZrHSfzAI9AendnJizyXzFgiZR/bkklg35vhdvSTvMnb8VfcSAdUNR0EPFD8BrtotRgjge5BAAAAAElFTkSuQmCC",
+                    "contentType": "image/png",
+                    "width": 10,
+                    "height": 17,
+                    "angle": 0,
+                    "xoffset": 0,
+                    "yoffset": 0
+                },
+                "value": "PTS",
+                "label": "Previous Tropical Storm",
+                "description": ""
+            },
+            {
+                "symbol": {
+                    "type": "esriPMS",
+                    "url": "23f1e504e12a7b95fa3b93f974f31882",
+                    "imageData": "iVBORw0KGgoAAAANSUhEUgAAAA4AAAAXCAYAAAA7kX6CAAAAAXNSR0IB2cksfwAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAm9JREFUOI2tlF9IU1Ecxz8PU5i30OIWTaPCjIiirFsPEYRICOa0RuhDSD3ozAdlkZJR0bawgRb00MP8E5oZFO1B8LIyNImUsnJaexCyDDLaCG6Y6VG3Xnro3qFtRVQHztM5n/P9/v4dE3+5TP8bTAesQKG+/wisAJrtJxuJRhZ4Pzle/ch/69pvQUmSXGlpGc7a+lb67t3G72sCyAN+DcqyrGia5mxovslgfzd+X1MAcAPqb61qmuY6UlqDtCyVO22eMBAALPqDgYSgfmjdf+Aw78aDbN+ZYykoLqtYKa9h+stnHqidL18M+AuA0BJQ0zQFwLI2k/m5Wc542hl51s/w0z6yNmdT576e7eu4+vGhv223oW7Sk5IuhCAlZTlbd+zlQk0xo0O9MVv5Njt2xyUGH/e0oIuYAIQQCkBScjLBkQFGh3oDQJFubfh+V6tiO1pFSWnVrk7vWUXTtICRnBBAZGEeIWbQs2nE4wa65+dmWZ+5xQgrYFgNCyGYeBMkM2sb/OgaVT9TzOY01m3YxKfQZCwsw2oL4PRerqPBq9Lg7am4WFuqCKGxOmOjUutsJXXFKt6+fhVXx5AkSe7xsSHnuepDlDs83OgOKt+iEUxJyYQ+TDDzdYqx4HPMZrMaU9RVXZIkMRZ84jxVlrOk2Pm2ciprGrnb7gkLIQKLFWOwLMuqnoBCQAEsRSWVDPR1IYSItV/cdOgFNlrMerq+g2g0whVXWViW5RZN0xKDgCpJkjXPZkfZk4sQ0ziO7wNwLe7ZOFCSJHIPHmN2eorzjiJ09bgpiQOFECHV5zWmI6TbSzwdP60T+jZiTnDlHz6r73ZDEtqhw3S6AAAAAElFTkSuQmCC",
+                    "contentType": "image/png",
+                    "width": 10,
+                    "height": 17,
+                    "angle": 0,
+                    "xoffset": 0,
+                    "yoffset": 0
+                },
+                "value": "PTD",
+                "label": "Previous Tropical Depression",
+                "description": ""
+            }
+        ],
+        "fieldDelimiter": ","
+    },
+    "transparency": 0,
+    "labelingInfo": null
+}

@@ -95,7 +95,7 @@ exports.UniqueValueRenderer = Renderer.specialize(/** @lends UniqueValueRenderer
 
                     var isDefault = index === count,
                         symbol = isDefault ? {label: defaultLabel} : entries[index],
-                        expression = isDefault ? "true" : undefined,
+                        expression = isDefault ? "true" : "",
                         criteria, field, values, i, n;
 
                     if (!expression) {
