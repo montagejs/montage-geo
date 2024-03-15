@@ -72,6 +72,12 @@ var Renderer = exports.Renderer = Converter.specialize( /** @lends Renderer.prot
 
 }, {
 
-
+    withEntries: {
+        value: function (entries) {
+            var renderer = new this();
+            renderer.entries = entries;
+            return renderer;
+        }
+    }
 
 });
