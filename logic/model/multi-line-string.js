@@ -27,7 +27,7 @@ var MultiLineString = exports.MultiLineString = Geometry.specialize(/** @lends M
             return this.coordinates.map(function (lineString) {
                 return lineString.bounds();
             }).reduce(function (bounds, childBounds) {
-                bounds.extend(childBounds)
+                bounds.extend(childBounds);
                 return bounds;
             }, BoundingBox.withCoordinates(Infinity, Infinity, -Infinity, -Infinity));
         }

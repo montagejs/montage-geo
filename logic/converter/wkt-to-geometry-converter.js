@@ -7,7 +7,6 @@ var Position = require("../model/position").Position,
     MultiPolygon = require("../model/multi-polygon").MultiPolygon,
     GeometryCollection = require("../model/geometry-collection").GeometryCollection,
     Converter = require("montage/core/converter/converter").Converter,
-    Enumeration = require("montage/data/model/enumeration").Enumeration,
     Projection = require("logic/model/projection").Projection,
     WktParser,
     GeometryLayout;
