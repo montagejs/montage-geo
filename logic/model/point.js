@@ -343,7 +343,6 @@ var Point = exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
 
 }, {
 
-
     /**
      * Returns a newly initialized point with the specified coordinates.
      *

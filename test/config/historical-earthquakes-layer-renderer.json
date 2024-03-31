@@ -1,0 +1,192 @@
+{
+    "renderer": {
+        "type": "classBreaks",
+        "authoringInfo": {
+            "type": "classedColor",
+            "colorRamp": {
+                "type": "multipart",
+                "colorRamps": [
+                    {
+                        "type": "algorithmic",
+                        "algorithm": "esriCIELabAlgorithm",
+                        "fromColor": [
+                            247,
+                            40,
+                            12,
+                            255
+                        ],
+                        "toColor": [
+                            235,
+                            245,
+                            42,
+                            255
+                        ]
+                    },
+                    {
+                        "type": "algorithmic",
+                        "algorithm": "esriCIELabAlgorithm",
+                        "fromColor": [
+                            235,
+                            245,
+                            42,
+                            255
+                        ],
+                        "toColor": [
+                            0,
+                            242,
+                            32,
+                            255
+                        ]
+                    }
+                ]
+            },
+            "classificationMethod": "esriClassifyManual"
+        },
+        "field": "Magnitude",
+        "classificationMethod": "esriClassifyManual",
+        "minValue": -9999,
+        "classBreakInfos": [
+            {
+                "symbol": {
+                    "type": "esriSMS",
+                    "style": "esriSMSCircle",
+                    "color": [
+                        255,
+                        255,
+                        255,
+                        255
+                    ],
+                    "size": 4,
+                    "angle": 0,
+                    "xoffset": 0,
+                    "yoffset": 0,
+                    "outline": {
+                        "color": [
+                            0,
+                            0,
+                            0,
+                            255
+                        ],
+                        "width": 0.4
+                    }
+                },
+                "classMaxValue": 0,
+                "label": "Not Recorded"
+            },
+            {
+                "symbol": {
+                    "type": "esriSMS",
+                    "style": "esriSMSCircle",
+                    "color": [
+                        150,
+                        248,
+                        0,
+                        255
+                    ],
+                    "size": 3,
+                    "angle": 0,
+                    "xoffset": 0,
+                    "yoffset": 0,
+                    "outline": {
+                        "color": [
+                            0,
+                            0,
+                            0,
+                            255
+                        ],
+                        "width": 0.4
+                    }
+                },
+                "classMaxValue": 4,
+                "label": "Less than 4.0"
+            },
+            {
+                "symbol": {
+                    "type": "esriSMS",
+                    "style": "esriSMSCircle",
+                    "color": [
+                        255,
+                        255,
+                        0,
+                        255
+                    ],
+                    "size": 4,
+                    "angle": 0,
+                    "xoffset": 0,
+                    "yoffset": 0,
+                    "outline": {
+                        "color": [
+                            0,
+                            0,
+                            0,
+                            255
+                        ],
+                        "width": 0.4
+                    }
+                },
+                "classMaxValue": 4.5,
+                "label": "4.0 - 4.5"
+            },
+            {
+                "symbol": {
+                    "type": "esriSMS",
+                    "style": "esriSMSCircle",
+                    "color": [
+                        253,
+                        141,
+                        0,
+                        255
+                    ],
+                    "size": 5,
+                    "angle": 0,
+                    "xoffset": 0,
+                    "yoffset": 0,
+                    "outline": {
+                        "color": [
+                            0,
+                            0,
+                            0,
+                            255
+                        ],
+                        "width": 0.4
+                    }
+                },
+                "classMaxValue": 5,
+                "label": "4.5 - 5.0"
+            },
+            {
+                "symbol": {
+                    "type": "esriSMS",
+                    "style": "esriSMSCircle",
+                    "color": [
+                        245,
+                        0,
+                        0,
+                        255
+                    ],
+                    "size": 6,
+                    "angle": 0,
+                    "xoffset": 0,
+                    "yoffset": 0,
+                    "outline": {
+                        "color": [
+                            0,
+                            0,
+                            0,
+                            255
+                        ],
+                        "width": 0.4
+                    }
+                },
+                "classMaxValue": 9.5,
+                "label": "Greater than 5.0"
+            }
+        ],
+        "legendOptions": {
+            "order": "ascendingValues"
+        }
+    },
+    "scaleSymbols": true,
+    "transparency": 0,
+    "labelingInfo": null
+}

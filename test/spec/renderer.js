@@ -1,6 +1,7 @@
 var ClassBreaksRenderer = require("montage-geo/logic/model/class-breaks-renderer").ClassBreaksRenderer,
     EsriJsonToGeometryConverter = require("montage-geo/logic/converter/esri-json-to-geometry-converter").EsriJsonToGeometryConverter,
     Feature = require("montage-geo/logic/model/feature").Feature,
+    HistoricalEarthquakesRendererConfiguration = require("config/historical-earthquakes-layer-renderer.json"),
     SimpleRenderer = require("montage-geo/logic/model/simple-renderer").SimpleRenderer,
     Style = require("montage-geo/logic/model/style").Style,
     TropicalCyclonePositionsRendererConfiguration = require("config/tropical-cyclone-positions-layer-renderer.json"),
@@ -47,6 +48,23 @@ describe("Renderer", function() {
                 return entry.style instanceof Style;
             })).toBe(true);
             expect(renderer.minValue).toBe(-1);
+            expect(renderer._transparency).toBe(0);
+            done();
+        });
+    });
+
+    it ("can create a historical earthquakes class breaks renderer", function (done) {
+        var rawData = HistoricalEarthquakesRendererConfiguration.renderer;
+        ClassBreaksRenderer.withArguments(
+            rawData.field, rawData.minValue, rawData.classBreakInfos, CLASS_BREAKS_RENDERER.transparency
+        ).then(function (renderer) {
+            expect(renderer).toBeDefined();
+            expect(renderer.field).toBe("Magnitude");
+            expect(renderer.entries.length).toBe(5);
+            expect(renderer.entries.every(function (entry) {
+                return entry.style instanceof Style;
+            })).toBe(true);
+            expect(renderer.minValue).toBe(-9999);
             expect(renderer._transparency).toBe(0);
             done();
         });
