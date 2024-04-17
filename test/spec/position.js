@@ -57,6 +57,13 @@ describe("A Position", function () {
         expect(isNaN(dest5.longitude)).toBe(false);
     });
 
+    it("can buffer a position in meters", function () {
+        var p1 = Position.withCoordinates([12.967, 55.597]),
+            boundingBox = p1.buffer(1);
+
+        expect(boundingBox).not.toBeNull();
+    });
+
     it("can serialize", function () {
         var p1 = Position.withCoordinates([-156.6825, 20.8783]),
             serializer = new Serializer().initWithRequire(require),
@@ -121,8 +128,5 @@ describe("A Position", function () {
         expect(c.isImageFile).toBe(true);
 
     });
-
-
-
 
 });
