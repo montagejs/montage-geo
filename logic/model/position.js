@@ -1,4 +1,5 @@
 var HALF_PI = Math.PI / 180.0,
+    BoundingBox = require("logic/model/bounding-box").BoundingBox,
     Position,
     Uuid = require("montage/core/uuid").Uuid,
     DASH_REG_EX = /-/g,
@@ -217,6 +218,26 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
                 theta = Math.atan2(y, x);
 
             return (exports.Position.toDegrees(theta) + 360) % 360;
+        }
+    },
+
+    /**
+     * Returns a bounding box of this position buffered by the provided amount
+     * in meters.
+     * @method
+     * @param {Number}
+     * @returns {BoundingBox}
+     */
+    buffer: {
+        value: function (amount) {
+
+            var west = this.destination(amount, 270).longitude,
+                south = this.destination(amount, 180).latitude,
+                east = this.destination(amount, 90).longitude,
+                north = this.destination(amount, 0).latitude;
+
+            return BoundingBox.withCoordinates(west, south, east, north);
+
         }
     },
 
