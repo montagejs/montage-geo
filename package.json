@@ -2,7 +2,7 @@
   "name": "montage-geo",
   "version": "0.1.0",
   "author": "Montage Studio, inc. (http://montagestudio.com/)",
-  "description": "Montage resources to build geospatial applications",
+  "description": "Montage resources to build geospatial applications. Pinned for use by contour 8",
   "dependencies": {
     "collections": "~5.0.x",
     "d3-geo": "^1.6.3",
