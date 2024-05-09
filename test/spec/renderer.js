@@ -75,7 +75,7 @@ describe("Renderer", function() {
         ClassBreaksRenderer.withArguments(
             rawData.field, rawData.minValue, rawData.classBreakInfos, CLASS_BREAKS_RENDERER.transparency
         ).then(function (renderer) {
-            var style = renderer.render(earthquake);
+            var style = renderer.convert(earthquake);
             expect(style).toBeDefined();
             expect(style instanceof Style).toBe(true);
             done();
@@ -120,7 +120,7 @@ describe("Renderer", function() {
             rawData.fieldDelimiter, rawData.uniqueValueInfos,
             rawData.defaultSymbol, rawData.defaultLabel
         ).then(function (renderer) {
-            var style = renderer.render(stormZone);
+            var style = renderer.convert(stormZone);
             expect(style).toBeDefined();
             expect(style instanceof Style).toBe(true);
             done();
@@ -158,7 +158,7 @@ describe("Renderer", function() {
     it ("can match a feature to simple renderer entry", function (done) {
         var rawData = SIMPLE_RENDERER;
         SimpleRenderer.withArguments(rawData.symbol).then(function (renderer) {
-            var style = renderer.render(eoc);
+            var style = renderer.convert(eoc);
             expect(style).toBeDefined();
             expect(style instanceof Style).toBe(true);
             done();

@@ -2,6 +2,7 @@ var Geometry = require("./geometry").Geometry,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
     Circle = require("logic/model/circle").Circle,
     d3Geo = require("d3-geo"),
+    LineString = require("logic/model/line-string").LineString,
     Point = require("logic/model/point").Point,
     Position = require("./position").Position;
 
@@ -501,6 +502,32 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
                 isEqual = a[i].equals(b[i]);
             }
             return isEqual;
+        }
+    },
+
+
+    /**
+     * Returns the edges of the outer ring as LineStrings
+     * @return {Array<LineString>}
+     */
+    edges: {
+        value: function () {
+            var edges = [],
+                i, n, j, m, ring, ringEdges;
+
+            for (i = 0, n = this.coordinates.length; i < n; i++) {
+                ring = this.coordinates[i];
+                ringEdges = [];
+                edges.push(ringEdges);
+                for (j = 0, m = ring.length; j < m - 1; j++) {
+                    ringEdges.push(LineString.withCoordinates([
+                        [ring[j].longitude, ring[j].latitude],
+                        [ring[j+1].longitude, ring[j+1].latitude]
+                    ]));
+                }
+                
+            }
+            return edges;
         }
     }
 

@@ -183,6 +183,9 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
     _isWoundClockwise: {
         value: function (ring) {
             var sum = 0,
+                shift = ring.filter(function (coordinate) {
+                    return coordinate[0] < 0;
+                }).length > 0 ? 360 : 0,
                 i, j, n, p1, p2, lon1, lon2;
 
             for (i = 0, n = ring.length; i < n; i += 1) {
@@ -192,8 +195,8 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
                 }
                 p1 = ring[i];
                 p2 = ring[j];
-                lon1 = p1[0] + (p1[0] < 0 ? 360 : 0);
-                lon2 = p2[0] + (p2[0] < 0 ? 360 : 0);
+                lon1 = p1[0] + shift;
+                lon2 = p2[0] + shift;
                 sum += (lon2 - lon1) * (p2[1] + p1[1]);
             }
             return sum >= 0;

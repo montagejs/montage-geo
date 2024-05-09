@@ -44,8 +44,22 @@ describe("A Polygon", function () {
     it("can properly create its bounds.", function () {
         var p1 = Polygon.withCoordinates([
             [[0,0], [0,10], [10,10], [10,0], [0,0]]
+        ]),
+        //Wound counter-clockwise
+        p2 = Polygon.withCoordinates([
+            [[14.38477,11.64536],[25.54687,20.17313],[17.19727,32.87369],[7.78906,30.17705],[0.0625,20.00804],[4.38477,11.64536]]
         ]);
+        //Wound counter-clockwise & crosses prime meridian
+        p3 = Polygon.withCoordinates([
+            [[4.38477,11.64536],[15.54687,20.17313],[7.19727,32.87369],[-3.78906,30.17705],[-9.0625,20.00804],[4.38477,11.64536]]
+        ]),
+        
+        
+        
         expect(roundedBbox(p1.bounds().bbox).join(",")).toBe("0,0,10,10");
+        expect(roundedBbox(p2.bounds().bbox).join(",")).toBe("0,12,26,33");
+        expect(roundedBbox(p3.bounds().bbox).join(",")).toBe("-9,12,16,33");
+
     });
 
     it("can properly calculate its area", function () {
@@ -295,6 +309,33 @@ describe("A Polygon", function () {
 
         expect(a.equals(b)).toBe(true);
     });
+
+    it("can calculate its edges", function () {
+        var polygon = Polygon.withCoordinates([
+            [[0,0], [0,40], [40,40], [40,0], [0,0]]
+        ]),
+        edges = polygon.edges(),
+        ringEdge = edges[0];
+        expect(edges.length).toBe(1);
+        expect(ringEdge[0].coordinates[0].longitude).toBe(0);
+        expect(ringEdge[0].coordinates[0].latitude).toBe(0);
+        expect(ringEdge[0].coordinates[1].longitude).toBe(0);
+        expect(ringEdge[0].coordinates[1].latitude).toBe(40);
+        expect(ringEdge[1].coordinates[0].longitude).toBe(0);
+        expect(ringEdge[1].coordinates[0].latitude).toBe(40);
+        expect(ringEdge[1].coordinates[1].longitude).toBe(40);
+        expect(ringEdge[1].coordinates[1].latitude).toBe(40);
+        expect(ringEdge[2].coordinates[0].longitude).toBe(40);
+        expect(ringEdge[2].coordinates[0].latitude).toBe(40);
+        expect(ringEdge[2].coordinates[1].longitude).toBe(40);
+        expect(ringEdge[2].coordinates[1].latitude).toBe(0);
+        expect(ringEdge[3].coordinates[0].longitude).toBe(40);
+        expect(ringEdge[3].coordinates[0].latitude).toBe(0);
+        expect(ringEdge[3].coordinates[1].longitude).toBe(0);
+        expect(ringEdge[3].coordinates[1].latitude).toBe(0);
+    });
+
+    
 
     xit("can split along the anti-meridian", function () {
         // var polygon = Polygon.withCoordinates([
