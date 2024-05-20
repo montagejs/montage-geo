@@ -1,4 +1,5 @@
 var ClassBreaksRenderer = require("montage-geo/logic/model/class-breaks-renderer").ClassBreaksRenderer,
+    ExampleUniqueValueRendererConfiguration = require("config/example-unique-value-renderer-configuration.json"),
     EsriJsonToGeometryConverter = require("montage-geo/logic/converter/esri-json-to-geometry-converter").EsriJsonToGeometryConverter,
     Feature = require("montage-geo/logic/model/feature").Feature,
     HistoricalEarthquakesRendererConfiguration = require("config/historical-earthquakes-layer-renderer.json"),
@@ -98,7 +99,25 @@ describe("Renderer", function() {
             done();
         });
     });
-    
+
+    it("another example of creating a unique value renderer", function (done) {
+        var rawData = ExampleUniqueValueRendererConfiguration["drawingInfo"]["renderer"];
+        UniqueValueRenderer.withArguments(
+            rawData.field1, rawData.field2, rawData.field3,
+            rawData.fieldDelimiter, rawData.uniqueValueInfos,
+            rawData.defaultSymbol, rawData.defaultLabel
+        ).then(function (renderer) {
+            expect(renderer).toBeDefined();
+            expect(renderer.entries).toBeDefined();
+            expect(renderer.entries.length).toBe(5);
+            expect(renderer.entries.every(function (entry) {
+                return entry.style instanceof Style;
+            })).toBe(true);
+            done();
+        });
+    });
+
+
     it("should create the tropical cyclone positions layer renderer", function (done) {
         var rawData = TropicalCyclonePositionsRendererConfiguration.renderer;
         UniqueValueRenderer.withArguments(
