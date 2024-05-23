@@ -535,7 +535,7 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
 
     MultiPolygon: {
         get: function () {
-            return require("logic/model/multi-polygon").MultiPolygon
+            return require("logic/model/multi-polygon").MultiPolygon;
         }
     },
 
