@@ -1,0 +1,20 @@
+.map {
+    -webkit-align-content: stretch;
+    -webkit-flex-direction: row;
+    display: -webkit-flex;
+    align-content: stretch;
+    display:flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+.Main-controls {
+    position: absolute;
+    right: 0;
+    top: 0;
+    border: 1px solid black;
+}
+
+.Main-dprSelect {
+    width: 44px;
+}

@@ -1,7 +1,11 @@
 var Component = require("montage/ui/component").Component,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
+    FeatureCollectionOverlay = require("ui/feature-collection-overlay.reel").FeatureCollectionOverlay,
     LeafletEngine = require("ui/leaflet-engine.reel").LeafletEngine,
+    Map = require("montage/collections/map").Map,
+    MapImageOverlay = require("ui/map-image-overlay.reel").MapImageOverlay,
     Point = require("logic/model/point").Point,
+    Point2D = require("logic/model/point-2d").Point2D,
     Position = require("logic/model/position").Position,
     Promise = require("montage/core/promise").Promise;
 
@@ -18,6 +22,21 @@ exports.Map = Component.specialize(/** @lends Map# */ {
     constructor: {
         value: function Map() {
             this.addRangeAtPathChangeListener("overlays", this);
+            this.defineBinding("_tileLayers", {
+                "<-":   "layers.filter{protocol.defined() && " +
+                        "protocol.supportsTileImageRequests && " +
+                        "(!protocol.supportsFeatureRequests || featureMinZoom > ^zoom)} ?? " +
+                        "[]"
+            });
+            this.defineBinding("_featureLayers", {
+                "<-":   "layers.filter{protocol.defined() && " +
+                        "(!protocol.supportsTileImageRequests || " +
+                        "(protocol.supportsFeatureRequests && featureMinZoom <= ^zoom))} ?? " +
+                        "[]"
+            });
+            this.addRangeAtPathChangeListener("_featureLayers", this._handleFeatureLayersRangeChange.bind(this));
+            this.addRangeAtPathChangeListener("_tileLayers", this._handleTileLayersRangeChange.bind(this));
+            // this.addOwnPropertyChangeListener("bounds", this);
         }
     },
 
@@ -27,7 +46,6 @@ exports.Map = Component.specialize(/** @lends Map# */ {
 
     /**
      * The current bounds of the map.
-     *
      * @type {BoundingBox}
      */
     bounds: {
@@ -37,7 +55,6 @@ exports.Map = Component.specialize(/** @lends Map# */ {
     /**
      * The current center of the map.  Setting this value will update the map's
      * position.
-     *
      * @type {Position}
      */
     center: {
@@ -55,6 +72,36 @@ exports.Map = Component.specialize(/** @lends Map# */ {
     },
 
     /**
+     * The feature delegate used to query layer features.  If a delegate is not
+     * defined, the delegate defaults to the FeatureDelegate defined in this
+     * project.
+     * @type {FeatureDelegate}
+     */
+    featureDelegate: {
+        value: undefined
+    },
+
+    /**
+     * The layers to display as overlays in the map.
+     * @type {Layer[]}
+     */
+    layers: {
+        value: undefined
+    },
+
+    /**
+     * The Map Image delegate that is passed to map image overlays.
+     * If a delegate is not defined, the delegate defaults to the
+     * MapImageDelegate defined in this project.
+     * @type {MapImageDelegate}
+     */
+    mapImageDelegate: {
+        value: undefined
+    },
+
+    /**
+     * The are of the map the user is constrained to.  If not defined the user
+     * may navigate to the whole world.
      * @type {BoundingBox}
      */
     maxBounds: {
@@ -71,6 +118,10 @@ exports.Map = Component.specialize(/** @lends Map# */ {
         }
     },
 
+    /**
+     * The overlays to display on top of the map.
+     * @type {Overlay[]}
+     */
     overlays: {
         get: function () {
             if (!this._overlays) {
@@ -84,12 +135,17 @@ exports.Map = Component.specialize(/** @lends Map# */ {
     },
 
     /**
+     * Defines the dimensions of the map in pixel units.
      * @type {Size}
      */
     size: {
         value: undefined
     },
 
+    /**
+     * The current zoom level of the map.
+     * @type {number}
+     */
     zoom: {
         get: function () {
             return this._zoom;
@@ -122,6 +178,43 @@ exports.Map = Component.specialize(/** @lends Map# */ {
                 this.__engine = value;
                 this._startEngine(value);
             }
+        }
+    },
+
+    _featureLayerComponentMap: {
+        get: function () {
+            if (!this.__featureLayerComponentMap) {
+                this.__featureLayerComponentMap = new Map();
+            }
+            return this.__featureLayerComponentMap;
+        }
+    },
+
+    _layerCriteriaMap: {
+        get: function () {
+            if (!this.__layerCriteriaMap) {
+                this.__layerCriteriaMap = new Map();
+                this.__layerCriteriaMap.addMapChangeListener(this._layerCriteriaDidChange.bind(this));
+            }
+            return this.__layerCriteriaMap;
+        }
+    },
+
+    _layerFeatureCollectionMap: {
+        get: function () {
+            if (!this.__layerFeatureCollectionMap) {
+                this.__layerFeatureCollectionMap = new Map();
+            }
+            return this.__layerFeatureCollectionMap;
+        }
+    },
+
+    _tileLayerComponentMap: {
+        get: function () {
+            if (!this.__tileLayerComponentMap) {
+                this.__tileLayerComponentMap = new Map();
+            }
+            return this.__tileLayerComponentMap;
         }
     },
 
@@ -196,6 +289,7 @@ exports.Map = Component.specialize(/** @lends Map# */ {
 
     _removeEngineEventListeners: {
         value: function (engine) {
+            engine.removeEventListener("press", this);
             engine.removeEventListener("featureMouseout", this);
             engine.removeEventListener("featureMouseover", this);
             engine.removeEventListener("featureSelection", this);
@@ -209,6 +303,7 @@ exports.Map = Component.specialize(/** @lends Map# */ {
 
     _addEngineEventListeners: {
         value: function (engine) {
+            engine.addEventListener("press", this);
             engine.addEventListener("featureMouseout", this);
             engine.addEventListener("featureMouseover", this);
             engine.addEventListener("featureSelection", this);
@@ -216,8 +311,140 @@ exports.Map = Component.specialize(/** @lends Map# */ {
     },
 
     /**************************************************************************
+     * Managing Layer Features
+     */
+
+    /**
+     * @method
+     * @param {Criteria} - the criteria to apply to the layer
+     * @param {Layer} - the layer to assign the criteria
+     */
+    assignCriteriaToLayer: {
+        value: function (criteria, layer) {
+            this._layerCriteriaMap.set(layer, criteria);
+        }
+    },
+
+    getCriteriaForLayer: {
+        value: function (layer) {
+            return this._layerCriteriaMap.get(layer);
+        }
+    },
+
+    _layerCriteriaDidChange: {
+        value: function (value, key) {
+
+        }
+    },
+
+    /**************************************************************************
      * Event Handlers
      */
+
+    _handleFeatureLayersRangeChange: {
+        value: function (plus, minus) {
+            var layerComponentMap = this._featureLayerComponentMap,
+                engine = this._engine,
+                freeIterations = [],
+                component, i, n;
+
+            for (i = 0, n = minus.length; i < n; i += 1) {
+                freeIterations.push(layerComponentMap.get(minus[i]));
+            }
+
+            for (i = 0, n = plus.length; i < n; i += 1) {
+                if (freeIterations.length > 0) {
+                    component = freeIterations.pop();
+                } else {
+                    component = this._buildFeatureCollectionOverlay();
+                    engine.addOverlay(component);
+                }
+                component.layer = plus[i];
+                layerComponentMap.set(component.layer, component);
+            }
+
+            for (i = 0, n = freeIterations.length; i < n; i += 1) {
+                component = freeIterations[i];
+                engine.removeOverlay(component);
+                layerComponentMap.delete(component.layer);
+            }
+        }
+    },
+
+    _handleTileLayersRangeChange: {
+        value: function (plus, minus) {
+            var layerComponentMap = this._tileLayerComponentMap,
+                engine = this._engine,
+                freeIterations = [],
+                component, i, n;
+
+            for (i = 0, n = minus.length; i < n; i += 1) {
+                freeIterations.push(layerComponentMap.get(minus[i]));
+            }
+
+            for (i = 0, n = plus.length; i < n; i += 1) {
+                if (freeIterations.length > 0) {
+                    component = freeIterations.pop();
+                } else {
+                    component = this._buildTileOverlay();
+                    engine.addOverlay(component);
+                }
+                component.layer = plus[i];
+                layerComponentMap.set(component.layer, component);
+            }
+
+            for (i = 0, n = freeIterations.length; i < n; i += 1) {
+                component = freeIterations[i];
+                engine.removeOverlay(component);
+                layerComponentMap.delete(component.layer);
+            }
+
+        }
+    },
+
+    _handleLayerCriteriaMapChange: {
+        value: function (value, key) {
+            // TODO - update feature-collection for layer
+        }
+    },
+
+    _buildFeatureCollectionOverlay: {
+        value: function() {
+            //should feature collection overlay have a layer? Or Should there be a new class?
+            // overlay.
+            var overlay = new FeatureCollectionOverlay();
+            overlay.map = this;
+            overlay.featureDelegate = this.featureDelegate;
+            return overlay;
+
+        }
+    },
+
+    _buildTileOverlay: {
+        value: function () {
+            var mapImageOverlay = new MapImageOverlay();
+            mapImageOverlay.map = this;
+            mapImageOverlay.mapImageDelegate = this.mapImageDelegate;
+            return mapImageOverlay;
+        }
+    },
+
+    /**
+     * Proxies 'press' events dispatched by the engine.
+     * Event.detail will be a JSON object with the following structure
+     * {
+     *   point: {Point}
+     *   containerPoint: {Point2d}
+     * }
+     * @function handlePress
+     * @argument {Event}
+     */
+    handlePress: {
+        value: function (event) {
+            event.stopPropagation();
+            this.dispatchEventNamed("press", true, true, event.detail);
+        }
+    },
 
     handleRangeChange: {
         value: function (plus, minus) {
@@ -236,40 +463,7 @@ exports.Map = Component.specialize(/** @lends Map# */ {
     },
 
     /**
-     * Remove events in preference to delegate methods.  These functions should
-     * be called synchronously to make the changes as smooth as possible.
-     */
-
-    // handleDidMove: {
-    //     value: function (event) {
-    //         event.stopPropagation();
-    //         this.dispatchEventNamed("didMove", true, true, event.detail);
-    //     }
-    // },
-    //
-    // handleDidZoom: {
-    //     value: function (event) {
-    //         event.stopPropagation();
-    //         this.dispatchEventNamed("didZoom", true, true, event.detail);
-    //     }
-    // },
-    //
-    // handleZoom: {
-    //     value: function (event) {
-    //         event.stopPropagation();
-    //         this.dispatchEventNamed("zoom", true, true, event.detail);
-    //     }
-    // },
-    //
-    // handleWillZoom: {
-    //     value: function (event) {
-    //         event.stopPropagation();
-    //         this.dispatchEventNamed("willZoom", true, true, event.detail);
-    //     }
-    // },
-
-    /**
-     * These events may remain as is as components other than overlays may
+     * These events may remain as is as components other than overlays that
      * need to listen to these.
      */
     handleFeatureMouseout: {
@@ -329,6 +523,18 @@ exports.Map = Component.specialize(/** @lends Map# */ {
             if (index !== -1) {
                 this.overlays.splice(index, 1);
             }
+
+        }
+    },
+
+    /**
+     * Return's the geographic coordinate associated with this pixel location.
+     * @param {Point2D}
+     * @returns {Position}
+     */
+    pointToPosition: {
+        value: function (point) {
+            return this._engine && this._engine.pointToPosition(point);
         }
     },
 
@@ -424,7 +630,7 @@ exports.Map = Component.specialize(/** @lends Map# */ {
         value: function () {
             var newBounds;
             if (arguments.length === 1 && arguments[0] instanceof BoundingBox) {
-                newBounds = arguments[0]
+                newBounds = arguments[0];
             } else if (arguments.length === 4) {
                 newBounds = BoundingBox.withCoordinates(arguments[0], arguments[1], arguments[2], arguments[3]);
             }

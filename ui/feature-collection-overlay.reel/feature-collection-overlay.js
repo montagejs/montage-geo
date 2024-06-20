@@ -1,17 +1,33 @@
 var Overlay = require("ui/overlay").Overlay,
     ClusterOrganizer = require("logic/model/cluster-organizer").ClusterOrganizer,
+    Criteria = require("montage/core/criteria").Criteria,
+    FeatureCollection = require("logic/model/feature-collection").FeatureCollection,
     Map = require("montage/collections/map"),
     MapPane = require("logic/model/map-pane").MapPane,
     MultiPoint = require("logic/model/multi-point").MultiPoint,
     Point = require("logic/model/point").Point,
-    Set = require("montage/collections/set");
+    Set = require("montage/collections/set"),
+    defaultFeatureDelegate = require("logic/model/feature-delegate").defaultFeatureDelegate;
+
 
 
 /**
  * @class FeatureCollectionOverlay
  * @extends Component
  */
-exports.FeatureCollectionOverlay = Overlay.specialize(/** @lends FeatureCollectionOverlay# */ {
+exports.FeatureCollectionOverlay = Overlay.specialize( /** @lends FeatureCollectionOverlay# */ {
+
+    constructor: {
+        value: function FeatureCollectionOverlay() {
+            Overlay.call(this);
+            this.addBeforeOwnPropertyChangeListener("collection", this);
+            this.addOwnPropertyChangeListener("collection", this);
+            this.addBeforeOwnPropertyChangeListener("layer", this);
+            this.addOwnPropertyChangeListener("layer", this);
+            this.addBeforeOwnPropertyChangeListener("map", this);
+            this.addOwnPropertyChangeListener("map", this);
+        }
+    },
 
     /***********************************************************************
      * Properties
@@ -27,13 +43,26 @@ exports.FeatureCollectionOverlay = Overlay.specialize(/** @lends FeatureCollecti
         },
         set: function (value) {
             if (value !== this._collection) {
-                this._cancelCollectionListeners();
-                this._clearAll(true);  // TODO: Determine if can't be deferred?
                 this._collection = value;
-                if (value) {
-                    this._addCollectionListeners();
-                    this._addFeatures(value.features);
-                }
+            }
+        }
+    },
+
+    /**
+     * The delegate to use for fetching images for tiles.
+     * Set by owner
+     * @type {TileDelegate}
+     */
+    featureDelegate: {
+        get: function () {
+            if (!this._featureDelegate) {
+                this._featureDelegate = defaultFeatureDelegate;
+            }
+            return this._featureDelegate;
+        },
+        set: function (value) {
+            if (value) {
+                this._featureDelegate = value;
             }
         }
     },
@@ -41,6 +70,14 @@ exports.FeatureCollectionOverlay = Overlay.specialize(/** @lends FeatureCollecti
     // TODO: Maybe make FeatureCollectionOverlay a template-less component.
     hasTemplate: {
         value: true
+    },
+
+    /**
+     * The layer represents the data set to display in the overlay.
+     * @type {Layer}
+     */
+    layer: {
+        value: undefined
     },
 
     /**
@@ -99,8 +136,7 @@ exports.FeatureCollectionOverlay = Overlay.specialize(/** @lends FeatureCollecti
     },
 
     _addCollectionListeners: {
-        value: function () {
-            var collection = this.collection;
+        value: function (collection) {
             this._geometryChangeListener = collection.addContentPropertyChangeListener(
                 "geometry", this._handleFeatureGeometryChange.bind(this)
             );
@@ -120,7 +156,10 @@ exports.FeatureCollectionOverlay = Overlay.specialize(/** @lends FeatureCollecti
                 map.addEventListener("featureMouseout", this);
                 map.addEventListener("featureMouseover", this);
                 map.addEventListener("featureSelection", this);
-                this.defineBinding("_zoom", {"<-": "currentZoom", source: map});
+                this.defineBinding("_zoom", {
+                    "<-": "currentZoom",
+                    source: map
+                });
             }
         }
     },
@@ -152,6 +191,55 @@ exports.FeatureCollectionOverlay = Overlay.specialize(/** @lends FeatureCollecti
             } else {
                 this._clearAll(true);
                 this._cancelMapListeners();
+            }
+        }
+    },
+
+    handleCollectionWillChange: {
+        value: function () {
+            this._cancelCollectionListeners();
+            this._clearAll(true); // TODO: Determine if can't be deferred?
+        }
+    },
+
+    handleCollectionChange: {
+        value: function (value) {
+            if (value) {
+                this._addCollectionListeners(value);
+                this._addFeatures(value.features);
+            }
+        }
+    },
+
+    handleLayerWillChange: {
+        value: function () {
+            this._clearAll(true);
+        }
+    },
+
+    handleLayerChange: {
+        value: function (value) {
+            if (value) {
+                if (!this.collection) {
+                    this.collection = new FeatureCollection();
+                }
+                this._fetchFeatures();
+            }
+        }
+    },
+
+    handleMapWillChange: {
+        value: function () {
+            if (this.map) {
+                this._clearAll(true);
+            }
+        }
+    },
+
+    handleMapChange: {
+        value: function (value) {
+            if (value && this.collection) {
+                this._drawAll();
             }
         }
     },
@@ -293,6 +381,60 @@ exports.FeatureCollectionOverlay = Overlay.specialize(/** @lends FeatureCollecti
     },
 
     /***********************************************************************
+     * Engine Delegate Methods
+     */
+
+    didAdd: {
+        value: function (engine) {
+            //Is this needed?
+            this._drawAll();
+        }
+    },
+
+    didMove: {
+        value: function (center) {
+            // Account for visible features / global features. This should be controllable
+            // from the owner or delegate
+        }
+    },
+
+    didRemove: {
+        value: function (engine) {
+            //Is this needed?
+            this._clearAll(true);
+        }
+    },
+
+    /**************************************************************************
+     * Feature Fetching
+     */
+
+    _fetchFeatures: {
+        value: function () {
+            if (!this.layer) {
+                console.warn("FeatureCollectionOverlay cannot fetch features without a layer");
+                return;
+            }
+            this.__fetchFeatures();
+        }
+    },
+
+    __fetchFeatures: {
+        value: function () {
+            //TODO Convert to FeatureCriteria once FeatureCriteria extends Criteria
+            var self = this,
+                layer = this.layer,
+                criteria = new Criteria().initWithExpression("featureCriteria == $featureCriteria", {
+                    featureCriteria: this.map.getCriteriaForLayer(layer),
+                    geometry: this.map.bounds
+                });
+            this.featureDelegate.fetchFeaturesWithCriteriaAndLayer(criteria, layer).then(function (features) {
+                self.collection.features.splice.apply(self.collection.features, [0, Infinity].concat(features));
+            })
+        }
+    },
+
+    /***********************************************************************
      * Feature Drawing
      */
 
@@ -351,7 +493,9 @@ exports.FeatureCollectionOverlay = Overlay.specialize(/** @lends FeatureCollecti
                 map = this.map;
             features.forEach(function (feature) {
                 geometryMap.set(feature, feature.geometry);
-                map.drawFeature(feature);
+                if (map) {
+                    map.drawFeature(feature);
+                }
             });
         }
     },
@@ -366,13 +510,16 @@ exports.FeatureCollectionOverlay = Overlay.specialize(/** @lends FeatureCollecti
     _removeFeatures: {
         value: function (features) {
             var geometryMap = this._featureGeometryMap,
-                map = this.map, feature, i, n;
+                map = this.map,
+                feature, i, n;
             for (i = 0, n = features.length; i < n; i += 1) {
                 feature = features[i];
                 if (geometryMap.has(feature)) {
                     geometryMap.delete(feature);
                 }
-                map.eraseFeature(feature);
+                if (map) {
+                    map.eraseFeature(feature);
+                }
             }
         }
     },
@@ -398,7 +545,9 @@ exports.FeatureCollectionOverlay = Overlay.specialize(/** @lends FeatureCollecti
      */
     _redrawFeature: {
         value: function (feature) {
-            this.map.redrawFeature(feature);
+            if (this.map) {
+                this.map.redrawFeature(feature);
+            }
         }
     },
 

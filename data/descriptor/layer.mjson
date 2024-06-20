@@ -1,0 +1,150 @@
+{
+    "root": {
+        "prototype": "montage/core/meta/module-object-descriptor",
+        "properties": {
+            "name": "Layer",
+            "propertyDescriptors": [
+                {"@": "id"},
+                {"@": "name"},
+                {"@": "description"},
+                {"@": "depth"},
+                {"@": "imageFormat"},
+                {"@": "mapServiceLayerId"},
+                {"@": "mapServiceLayerIndex"},
+                {"@": "maxZoom"},
+                {"@": "minZoom"},
+                {"@": "projection"},
+                {"@": "protocol"},
+                {"@": "protocolVersion"},
+                {"@": "refreshInterval"},
+                {"@": "renderer"},
+                {"@": "url"}
+            ],
+            "exportName": "Layer",
+            "module": {
+                "%": "logic/model/layer"
+            }
+        }
+    },
+
+    "id": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "id",
+            "valueType": "string"
+        }
+    },
+
+    "name": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "name",
+            "valueType": "string"
+        }
+    },
+
+    "description": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "description",
+            "valueType": "string"
+        }
+    },
+
+    "depth": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "depth",
+            "valueType": "number"
+        }
+    },
+
+    "imageFormat": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "imageFormat",
+            "valueType": "string"
+        }
+    },
+
+    "mapServiceLayerId": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "mapServiceLayerId",
+            "valueType": "string"
+        }
+    },
+
+    "mapServiceLayerIndex": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "mapServiceLayerIndex",
+            "valueType": "number"
+        }
+    },
+
+    "maxZoom": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "maxZoom",
+            "valueType": "number"
+        }
+    },
+
+    "minZoom": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "minZoom",
+            "valueType": "number"
+        }
+    },
+
+    "projection": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "projection",
+            "valueType": "Projection"
+        }
+    },
+
+    "protocol": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "protocol",
+            "valueType": "Protocol"
+        }
+    },
+
+    "protocolVersion": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "protocolVersion",
+            "valueType": "string"
+        }
+    },
+
+    "refreshInterval": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "refreshInterval",
+            "valueType": "string"
+        }
+    },
+
+    "renderer": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "renderer",
+            "valueType": "Renderer"
+        }
+    },
+
+    "url": {
+        "prototype": "montage/core/meta/property-descriptor",
+        "properties": {
+            "name": "url",
+            "valueType": "string"
+        }
+    }
+
+}

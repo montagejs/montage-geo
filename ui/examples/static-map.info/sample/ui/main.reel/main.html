@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>
+        Contour Action Menu Sample
+    </title>
+    <link rel="stylesheet" href="main.css">
+    <script type="text/montage-serialization">
+    {
+        "owner": {
+            "values": {
+                "element": {"#": "main"},
+                "map": {"@": "map"},
+                "featureCollection": {"@": "featureCollection"}
+            }
+        },
+        "dprSelect": {
+            "prototype": "montage/ui/number-field.reel",
+            "values": {
+                "element": {"#": "dprSelect"},
+                "min": 1,
+                "step": 1,
+                "value": {"<->": "@owner.dpr"}
+            }
+        },
+        "map": {
+            "prototype": "montage-geo/ui/static-map.reel",
+            "values": {
+                "element": {"#": "map"},
+                "size": {"@": "size"},
+                "backgroundTileDelegate": {"@": "tileDelegate"},
+                "featureCollections": [{"@": "featureCollection"}],
+                "devicePixelRatio": {"<-": "@owner.dpr"}
+            }
+        },
+        "size": {
+            "prototype": "montage-geo/logic/model/size",
+            "values": {
+                "width": 1024,
+                "height": 1024
+            }
+        },
+        "tileDelegate": {
+            "prototype": "montage-geo/logic/arcgis-world-imagery-tile-delegate"
+        },
+        "featureCollection": {
+            "prototype": "montage-geo/logic/model/feature-collection"
+        }
+    }
+    </script>
+</head>
+<body>
+    <div data-montage-id="main" class="Main">
+        <div class="Main-controls">
+            DPR
+            <input type="number" data-montage-id="dprSelect" class="Main-dprSelect">
+        </div>
+        <div data-montage-id="map"></div>
+    </div>
+</body>
+</html>

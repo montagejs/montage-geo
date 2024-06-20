@@ -40,7 +40,7 @@ exports.EsriSymbolToStyleConverter = Converter.specialize( /** @lends EsriSymbol
 
 });
 
-var EsriPoint = new function EsriPoint() {};
+var EsriPoint = function EsriPoint() {};
 Object.defineProperties(EsriPoint, /** @lends EsriPoint */ {
 
     _coefficient: {

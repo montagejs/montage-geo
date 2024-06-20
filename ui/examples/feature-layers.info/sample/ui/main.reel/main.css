@@ -1,0 +1,60 @@
+.Main {
+    bottom: 0;
+    display: flex;
+    flex-direction: row;
+    left: 0;
+    right: 0;
+    position: absolute;
+    top: 0;
+}
+
+.Main-layerSelector {
+    background: #FFFFFF;
+    color: rgba(255, 255, 255, 0.87);
+    color: #121212;
+    display: flex;
+    flex: 0 0 320px;
+    flex-direction: column;
+    font-size: 16px;
+    overflow: auto;
+    padding: 20px;
+}
+
+.Main-layersListItem {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    height: 44px;
+    justify-content: flex-start;
+}
+
+.Main-checkbox {
+    color: rgba(255, 255, 255, 0.87);
+    height: 16px;
+    flex-basis: 30px;
+    width: 16px;
+}
+
+.Main-menuHeader {
+    font-size: 24px;
+}
+
+.Main-menuSubHeader {
+    font-size: 18px;
+    padding: 10px;
+}
+
+.Main-map {
+    flex: 1 0 0;
+    position: relative;
+}
+
+.map {
+    -webkit-align-content: stretch;
+    -webkit-flex-direction: row;
+    display: -webkit-flex;
+    align-content: stretch;
+    display:flex;
+    flex-direction: row;
+    height: 100%;
+}

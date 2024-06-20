@@ -6,16 +6,14 @@
     <script type="text/montage-serialization">
     {
         "owner": {
-            "properties": {
+            "values": {
                 "element": {"#": "owner"}
             }
         },
         "engine": {
             "prototype": "montage/ui/slot.reel",
-            "properties": {
-                "element": {"#": "engine"}
-            },
-            "bindings": {
+            "values": {
+                "element": {"#": "engine"},
                 "content": {"<-": "@owner._engine"}
             }
         }

@@ -1,0 +1,62 @@
+{
+
+    "root": {
+        "prototype": "montage/data/service/expression-data-mapping",
+        "properties": {
+            "rawDataPrimaryKeys": ["id"],
+            "objectDescriptor": {"@":"LayerDescriptor"},
+            "objectMapping": {
+                "rules": {
+                    "id": {"<-": "id"},
+                    "name": {"<-": "name"},
+                    "description": {"<-": "description"},
+                    "depth": {"<-": "depth"},
+                    "imageFormat": {"<-": "imageFormat"},
+                    "mapServiceLayerId": {"<-": "mapServiceLayerId"},
+                    "mapServiceLayerIndex": {"<-": "mapServiceLayerIndex"},
+                    "maxZoom": {"<-": "maxZoom"},
+                    "minZoom": {"<-": "minZoom"},
+                    "projection": {
+                        "<-": "projectionId",
+                        "converter": {"@": "projectionEnumerationConverter"}
+                    },
+                    "protocol": {
+                        "<-": "protocolId",
+                        "converter": {"@": "protocolEnumerationConverter"}
+                    },
+                    "protocolVersion": {"<-": "protocolVersion"},
+                    "refreshInterval": {"<-": "refreshInterval"},
+                    "renderer": {"<-": "renderer"},
+                    "url": {"<-": "url"}
+                }
+            },
+            "requisitePropertyNames": [
+                "id", "name", "description", "depth", "imageFormat", "mapServiceLayerId",
+                "mapServiceLayerIndex", "maxZoom", "minZoom", "projection", "protocol",
+                "protocolVersion", "refreshInterval", "renderer", "url"
+            ]
+        }
+    },
+
+    "LayerDescriptor": {
+        "object": "data/descriptor/layer.mjson"
+    },
+
+    "projectionEnumerationConverter": {
+        "prototype": "logic/converter/raw-property-to-enumeration-converter",
+        "properties": {
+            "exportName": "Projection",
+            "module": "logic/model/projection",
+            "propertyName": "srid"
+        }
+    },
+
+    "protocolEnumerationConverter": {
+        "prototype": "logic/converter/raw-property-to-enumeration-converter",
+        "properties": {
+            "exportName": "Protocol",
+            "module": "logic/model/protocol"
+        }
+    }
+
+}

@@ -1,0 +1,31 @@
+{
+    "es": "Spanish",
+    "operating": "Operating ES",
+    "operation_done": "Operation Done ES",
+    "operation_failed": "Operation Failed ES",
+
+    "add_hazard": "Add Hazard ES",
+    "doing_something": "Doing Something ES",
+    "edit_hazard": "Edit Hazard ES",
+    "fail_to_launch": "Failure To Launch ES",
+    "fail_with_messages": "Fail With Messages ES",
+    "warning_message": "Warning: Blah Blah Blah ES",
+
+    "error_message": "Error Message ES",
+    "field_one": "Field 1 ES",
+    "field_two": "Field 2 ES",
+    "field_three": "Field 3 ES",
+    "field_four": "Field 4 ES",
+
+    "add": "Add ES",
+    "cancel": "Cancel ES",
+    "clear": "Clear ES",
+    "continue": "Continue ES",
+    "create": "Create ES",
+    "dismiss": "Dismiss ES",
+    "hide": "Hide ES",
+    "import": "Import ES",
+    "okay": "Okay ES",
+    "save": "Save ES",
+    "undo": "Undo ES"
+}

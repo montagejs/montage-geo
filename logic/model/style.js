@@ -108,6 +108,12 @@ exports.Style.prototype = Object.create({}, /** @lends Style.prototype */ {
         value: 1
     },
 
+    dataURL: {
+        enumerable: true,
+        writable: true,
+        value: undefined
+    },
+
     /**
      * The type of geometries that can be symbolized with this style.
      * @type {StyleType}
