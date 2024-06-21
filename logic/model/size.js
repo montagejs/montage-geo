@@ -110,6 +110,36 @@ exports.Size.prototype = Object.create({}, /** @lends Size.prototype */ {
     },
 
     /**
+     * Returns a new Size that subtracts the provided size from this size.
+     * @public
+     * @method
+     * @param {Size} other
+     */
+    subtract: {
+        value: function (other) {
+            var size = this.clone();
+            size.width -= other.width;
+            size.height -= other.height;
+            return size;
+        }
+    },
+
+    /**
+     * Returns a new Size that adds the provided size to this size.
+     * @public
+     * @method
+     * @param {Size} other
+     */
+    add: {
+        value: function (other) {
+            var size = this.clone();
+            size.width += other.width;
+            size.height += other.height;
+            return size;
+        }
+    },
+
+    /**
      * Returns a copy of this size.
      * @returns {Size} - the cloned size.
      */
