@@ -67,4 +67,4 @@ describe("Protocol", function () {
         expect(protocol).not.toBeDefined();
     })
 
-})
+});
