@@ -260,6 +260,36 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
     },
 
     /**
+     * Returns a bounding box that is the intersecting portion of this
+     * bounding box and the passed in bounding box.
+     * @param {BoundingBox} bounds - the bounds to intersect with.
+     * @returns {BoundingBox}
+     */
+    clip: {
+        value: function (bounds) {
+
+            return this.splitAlongAntimeridian().
+                map(function (bbox) {
+
+                    var xMin = Math.max(bbox.xMin, bounds.xMin),
+                        yMin = Math.max(bbox.yMin, bounds.yMin),
+                        xMax = Math.min(bbox.xMax, bounds.xMax),
+                        yMax = Math.min(bbox.yMax, bounds.yMax);
+
+                    return exports.BoundingBox.withCoordinates(xMin, yMin, xMax, yMax);
+
+            }).reduce(function (aggregate, value) {
+
+                return aggregate ? exports.BoundingBox.withCoordinates(
+                    aggregate.xMin, aggregate.yMin, value.xMax, aggregate.yMax
+                ) : value;
+
+            });
+
+        }
+    },
+
+    /**
      * Determines whether the bounds intersect, contains, or is within the
      * passed in feature.
      *
@@ -273,6 +303,12 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
             return !!geometry && this.splitAlongAntimeridian().some(function (bounds) {
                 return geometry.intersects(bounds);
             });
+        }
+    },
+
+    crossesAntiMeridian: {
+        value: function () {
+            return this.xMax < this.xMin;
         }
     },
 
