@@ -33,6 +33,7 @@ module.exports = require("montage-testing").run(require, [
     "spec/kml-style-to-style-converter",
     "spec/leaflet-engine",
     "spec/line-string",
+    "spec/mgrs-grid-zone",
     "spec/multi-line-string",
     "spec/multi-point",
     "spec/multi-polygon",

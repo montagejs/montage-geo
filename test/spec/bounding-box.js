@@ -219,6 +219,30 @@ describe("A BoundingBox", function () {
 
     });
 
+    it ("can clip a bounding box", function () {
+        var bounds = BoundingBox.withCoordinates(0, 0, 15, 15),
+            clipBounds = BoundingBox.withCoordinates(10, 10, 20, 20),
+            clipped = bounds.clip(clipBounds);
+
+        expect(clipped.xMin).toBe(10);
+        expect(clipped.yMin).toBe(10);
+        expect(clipped.xMax).toBe(15);
+        expect(clipped.yMax).toBe(15);
+
+    });
+
+    it ("can clip a bounding box that spans the anti-meridian", function () {
+        var bounds = BoundingBox.withCoordinates(170, 0, -170, 15),
+            clipBounds = BoundingBox.withCoordinates(-179, 10, -175, 20),
+            clipped = bounds.clip(clipBounds);
+
+        expect(clipped.xMin).toBe(170);
+        expect(clipped.yMin).toBe(10);
+        expect(clipped.xMax).toBe(-175);
+        expect(clipped.yMax).toBe(15);
+
+    });
+
     it ("can be created with a rect", function () {
         var bounds = BoundingBox.withCoordinates(0, 0, 180, 85.05112877980659),
             rect = bounds.toRect(),
@@ -229,6 +253,15 @@ describe("A BoundingBox", function () {
         expect(reverted.xMax).toBe(-180);
         expect(reverted.yMin).toBe(0);
         expect(reverted.yMax).toBe(85.05113);
+
+    });
+
+    it ("can determine if a bounding box crosses the anti-meridian", function () {
+       var crosses = BoundingBox.withCoordinates(170, 0, -170, 15),
+           doesNotCross = BoundingBox.withCoordinates(0, 0, 180, 15);
+
+         expect(crosses.crossesAntiMeridian()).toBe(true);
+         expect(doesNotCross.crossesAntiMeridian()).toBe(false);
 
     });
 

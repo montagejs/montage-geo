@@ -314,6 +314,7 @@ Object.defineProperties(exports.Point2D, /** @lends Point2D */ {
      */
     withPosition: {
         value: function (position, zoom) {
+
             var clip = exports.Point2D.clip,
                 max = exports.Point2D.MAX_LATITUDE,
                 mapSize = 256 << (zoom || 0),
@@ -324,7 +325,9 @@ Object.defineProperties(exports.Point2D, /** @lends Point2D */ {
                 y = 0.5 - Math.log((1 + sinLatitude) / (1 - sinLatitude)) / (4 * Math.PI),
                 pixelX = clip(x * mapSize, 0, mapSize),
                 pixelY = clip(y * mapSize, 0, mapSize);
+
             return exports.Point2D.withCoordinates(pixelX, pixelY);
+
         }
     },
 
