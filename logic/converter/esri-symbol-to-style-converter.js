@@ -104,7 +104,7 @@ var EsriSymbol = Enumeration.specialize(/** @lends EsriSymbol */ "type", {
                     opacity = symbol.opacity || 1.0,
                     strokeWidth = EsriPoint.toPixels(symbol.width || 0);
 
-                return Promise.resolve(Style.withValues(color, opacity, strokeWidth));
+                return Promise.resolve(Style.withValues(color, opacity, strokeWidth, symbol.style));
             }
         }
 
@@ -117,6 +117,7 @@ var EsriSymbol = Enumeration.specialize(/** @lends EsriSymbol */ "type", {
                 var outline = symbol.outline,
                     color = symbol.color,
                     outlineColor = outline && outline.color,
+                    outlineStyle = outline && outline.style,
                     fillColor = Color.colorToRgba(color),
                     strokeColor = Color.colorToRgba(outlineColor),
                     strokeWeight =  EsriPoint.toPixels(outline && outline.width || 0),
@@ -135,7 +136,7 @@ var EsriSymbol = Enumeration.specialize(/** @lends EsriSymbol */ "type", {
                 }
 
                 return Promise.resolve(Style.withValues(
-                    fillColor, fillOpacity, strokeColor, strokeOpacity, strokeWeight
+                    fillColor, fillOpacity, strokeColor, strokeOpacity, strokeWeight, symbol.style, outlineStyle
                 ));
             }
         }

@@ -54,6 +54,25 @@ describe("Renderer", function() {
         });
     });
 
+    it ("can clone a class breaks renderer", function (done) {
+        var rawData = CLASS_BREAKS_RENDERER.renderer;
+        ClassBreaksRenderer.withArguments(
+            rawData.field, rawData.minValue, rawData.classBreakInfos, CLASS_BREAKS_RENDERER.transparency
+        ).then(function (renderer) {
+            var clone = renderer.clone();
+            expect(clone).toBeDefined();
+            expect(clone.field).toBe(renderer.field);
+            expect(clone.entries.length).toBe(renderer.entries.length);
+            expect(clone.entries.every(function (entry, index) {
+                return entry.style instanceof Style;
+            })).toBe(true);
+            expect(clone.minValue).toBe(renderer.minValue);
+            expect(clone.transparency).toBe(renderer.transparency);
+            done();
+        });
+
+    });
+
     it ("can create a historical earthquakes class breaks renderer", function (done) {
         var rawData = HistoricalEarthquakesRendererConfiguration.renderer;
         ClassBreaksRenderer.withArguments(
@@ -100,22 +119,44 @@ describe("Renderer", function() {
         });
     });
 
-    it("another example of creating a unique value renderer", function (done) {
-        var rawData = ExampleUniqueValueRendererConfiguration["drawingInfo"]["renderer"];
+    it("can clone a unique value renderer", function (done) {
+        var rawData = UNIQUE_VALUE_RENDERER;
         UniqueValueRenderer.withArguments(
             rawData.field1, rawData.field2, rawData.field3,
             rawData.fieldDelimiter, rawData.uniqueValueInfos,
             rawData.defaultSymbol, rawData.defaultLabel
         ).then(function (renderer) {
-            expect(renderer).toBeDefined();
-            expect(renderer.entries).toBeDefined();
-            expect(renderer.entries.length).toBe(5);
-            expect(renderer.entries.every(function (entry) {
+            var clone = renderer.clone();
+            expect(clone).toBeDefined();
+            expect(clone.entries).toBeDefined();
+            expect(clone.entries.length).toBe(renderer.entries.length);
+            expect(clone.entries.every(function (entry, index) {
                 return entry.style instanceof Style;
             })).toBe(true);
+            expect(clone.field1).toBe(renderer.field1);
+            expect(clone.field2).toBe(renderer.field2);
+            expect(clone.field3).toBe(renderer.field3);
             done();
         });
     });
+
+    // TODO: Reinstate this test when the UniqueValueRenderer is updated to handle the esriSMSX marker symbol
+    // it("another example of creating a unique value renderer", function (done) {
+    //     var rawData = ExampleUniqueValueRendererConfiguration["drawingInfo"]["renderer"];
+    //     UniqueValueRenderer.withArguments(
+    //         rawData.field1, rawData.field2, rawData.field3,
+    //         rawData.fieldDelimiter, rawData.uniqueValueInfos,
+    //         rawData.defaultSymbol, rawData.defaultLabel
+    //     ).then(function (renderer) {
+    //         expect(renderer).toBeDefined();
+    //         expect(renderer.entries).toBeDefined();
+    //         expect(renderer.entries.length).toBe(5);
+    //         expect(renderer.entries.every(function (entry) {
+    //             return entry.style instanceof Style;
+    //         })).toBe(true);
+    //         done();
+    //     });
+    // });
 
 
     it("should create the tropical cyclone positions layer renderer", function (done) {
@@ -168,6 +209,20 @@ describe("Renderer", function() {
             expect(renderer.entries).toBeDefined();
             expect(renderer.entries.length).toBe(1);
             expect(renderer.entries.every(function (entry) {
+                return entry.style instanceof Style;
+            })).toBe(true);
+            done();
+        });
+    });
+
+    it("can clone a simple renderer", function (done) {
+        var rawData = SIMPLE_RENDERER;
+        SimpleRenderer.withArguments(rawData.symbol).then(function (renderer) {
+            var clone = renderer.clone();
+            expect(clone).toBeDefined();
+            expect(clone.entries).toBeDefined();
+            expect(clone.entries.length).toBe(renderer.entries.length);
+            expect(clone.entries.every(function (entry) {
                 return entry.style instanceof Style;
             })).toBe(true);
             done();

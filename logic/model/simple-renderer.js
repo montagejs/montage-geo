@@ -12,6 +12,14 @@ var Renderer = require("logic/model/renderer").Renderer,
  */
 exports.SimpleRenderer = Renderer.specialize(/** @lends SimpleRenderer.prototype */ {
 
+    clone: {
+        value: function () {
+            var renderer = new this.constructor();
+            renderer.entries = this.entries;
+            return renderer;
+        }
+    }
+
 }, {
 
     withArguments: {
@@ -42,5 +50,6 @@ exports.SimpleRenderer = Renderer.specialize(/** @lends SimpleRenderer.prototype
             return renderer;
         }
     }
+
 
 });

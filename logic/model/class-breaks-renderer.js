@@ -29,6 +29,17 @@ exports.ClassBreaksRenderer = Renderer.specialize(/** @lends ClassBreaksRenderer
 
     transparency: {
         value: undefined
+    },
+
+    clone: {
+        value: function () {
+            var renderer = new this.constructor();
+            renderer.entries = this.entries;
+            renderer.field = this.field;
+            renderer.minValue = this.minValue;
+            renderer.transparency = this.transparency;
+            return renderer;
+        }
     }
 
 }, {
