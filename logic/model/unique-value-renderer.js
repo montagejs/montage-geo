@@ -37,6 +37,18 @@ exports.UniqueValueRenderer = Renderer.specialize(/** @lends UniqueValueRenderer
         }
     },
 
+    clone: {
+        value: function () {
+            var renderer = new this.constructor();
+            renderer.entries = this.entries;
+            renderer._fieldDelimiter = this._fieldDelimiter;
+            renderer._field1 = this._field1;
+            renderer._field2 = this._field2;
+            renderer._field3 = this._field3;
+            return renderer;
+        }
+    },
+
     _field1: {
         value: undefined
     },

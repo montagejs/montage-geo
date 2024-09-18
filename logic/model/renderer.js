@@ -68,6 +68,16 @@ var Renderer = exports.Renderer = Converter.specialize( /** @lends Renderer.prot
         value: function (properties) {
             return properties;
         }
+    },
+    
+    /**
+     * Returns a copy of the renderer.
+     * @returns {Renderer}
+     */
+    clone: {
+        value: function () {
+            console.warn("Clone should be implemented by subclasses.");
+        }
     }
 
 }, {
