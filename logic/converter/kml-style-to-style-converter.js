@@ -136,9 +136,10 @@ exports.KmlStyleToStyleConverter = Converter.specialize( /** @lends KmlStyleToSt
 
     _componentsToHex: {
         value: function (components, opacity) {
-            var opacity = isNaN(opacity) ? 1 : opacity,
-                hex = components.length === 4 ? this._componentToHex(components[3] * 255) : this._componentToHex(opacity * 255),
-                i;
+
+            var hex, i;
+            opacity = isNaN(opacity) ? 1 : opacity;
+            hex = components.length === 4 ? this._componentToHex(components[3] * 255) : this._componentToHex(opacity * 255);
             for (i = 2; i >= 0; i -= 1) {
                 hex += this._componentToHex(components[i]).toLowerCase();
             }
@@ -149,7 +150,7 @@ exports.KmlStyleToStyleConverter = Converter.specialize( /** @lends KmlStyleToSt
     _componentToHex: {
         value: function (component) {
             var hex = parseInt(component).toString(16);
-            return hex.length == 1 ? "0" + hex : hex;
+            return hex.length === 1 ? "0" + hex : hex;
         }
     },
 

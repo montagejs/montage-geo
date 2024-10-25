@@ -30,6 +30,7 @@ module.exports = require("montage-testing").run(require, [
     "spec/geometry",
     "spec/geometry-collection",
     "spec/icon",
+    "spec/kml-geometry-to-geometry-converter",
     "spec/kml-style-to-style-converter",
     "spec/leaflet-engine",
     "spec/line-string",
