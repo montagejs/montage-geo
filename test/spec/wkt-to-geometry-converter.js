@@ -1,13 +1,11 @@
-var Projection = require("montage-geo/logic/model/projection").Projection,
-    Position = require("montage-geo/logic/model/position").Position,
+var Position = require("montage-geo/logic/model/position").Position,
     Point = require("montage-geo/logic/model/point").Point,
     LineString = require("montage-geo/logic/model/line-string").LineString,
     Polygon = require("montage-geo/logic/model/polygon").Polygon,
-    MultiPoint = require("montage-geo/logic/model/multi-point").MultiPoint,
     MultiLineString = require("montage-geo/logic/model/multi-line-string").MultiLineString,
     MultiPolygon = require("montage-geo/logic/model/multi-polygon").MultiPolygon,
     GeometryCollection = require("montage-geo/logic/model/geometry-collection").GeometryCollection,
-   WktToGeometryConverter = require("montage-geo/logic/converter/wkt-to-geometry-converter").WktToGeometryConverter;
+    WktToGeometryConverter = require("montage-geo/logic/converter/wkt-to-geometry-converter").WktToGeometryConverter;
 
 describe('WktToGeometryConverter', function () {
   var converter = new WktToGeometryConverter();
