@@ -5,7 +5,7 @@
  * @class
  * @extends Object
  */
-var Color = exports.Color = new function Color() {};
+var Color = exports.Color = function Color() {};
 
 Object.defineProperties(Color, /** @lends Color */ {
 
@@ -50,6 +50,19 @@ Object.defineProperties(Color, /** @lends Color */ {
                 ("0" + parseInt(rgb[1], 10).toString(16)).slice(-2) +
                 ("0" + parseInt(rgb[2], 10).toString(16)).slice(-2) +
                 ("0" + parseInt(rgb[3], 10).toString(16)).slice(-2) : '';
+        }
+    },
+
+
+    randomRGBColor: {
+        value: function () {
+
+            var r = Math.floor(Math.random() * 256),
+                g = Math.floor(Math.random() * 256),
+                b = Math.floor(Math.random() * 256);
+
+            return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+
         }
     }
 
