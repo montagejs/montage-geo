@@ -18,6 +18,12 @@ var Geometry = require("./geometry").Geometry,
  */
 var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype */ {
 
+    constructor: {
+        value: function Polygon() {
+            this.super();
+        }
+    },
+
     /**
      * @type {array<array<Position>>
      */

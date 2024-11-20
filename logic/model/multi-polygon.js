@@ -12,6 +12,12 @@ var Geometry = require("./geometry").Geometry,
  */
 var MultiPolygon = exports.MultiPolygon = Geometry.specialize(/** @lends MultiPolygon.prototype */ {
 
+    constructor: {
+        value: function MultiPolygon() {
+            this.super();
+        }
+    },
+
     /**
      * @type {array<Polygon>>
      */
