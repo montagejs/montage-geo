@@ -1,5 +1,8 @@
 var IDENTIFIER_PREFIX = "I",
     DASH_REG_EX = /-/g,
+    Color = require("logic/model/color").Color,
+    Point2D = require("logic/model/point-2d").Point2D,
+    Size = require("logic/model/size").Size,
     Uuid = require("montage/core/uuid").Uuid;
 
 /**
@@ -179,6 +182,49 @@ Object.defineProperties(exports.Icon, /** @lends Icon **/ {
             icon.size = size;
             icon.scaledSize = scaledSize;
             return icon;
+        }
+    },
+
+    /**
+     * Creates a circle icon with the given options.
+     * @param {Object} options - The options for the circle icon.
+     * @param {string} options.color - The color of the circle.
+     * @param {string} options.strokeColor - The color of the circle's stroke.
+     * @param {number} options.radius - The radius of the circle.
+     * @param {number} options.strokeWidth - The width of the circle's stroke.
+     * @param {HTMLCanvasElement?} options.canvas - The canvas to draw the circle on.
+     * @returns {Icon} - The newly created circle icon.
+     */
+    circleIconWithOptions: {
+        value: function (options) {
+
+            var canvas = options.canvas || document.createElement("canvas"),
+                context = canvas.getContext("2d"),
+                color = options.color || Color.randomRGBColor(),
+                strokeColor = options.strokeColor || Color.randomRGBColor(),
+                radius = options.radius || 10,
+                strokeWidth = options.strokeWidth || 0,
+                diameter = radius * 2 + strokeWidth * 2,
+                size = Size.withHeightAndWidth(diameter, diameter),
+                anchor = Point2D.withCoordinates(size.width / 2, size.height / 2),
+                icon = new this();
+
+            canvas.width = diameter;
+            canvas.height = diameter;
+            context.fillStyle = color;
+            context.strokeStyle = strokeColor;
+            context.strokeWidth = strokeWidth || 1;
+            context.beginPath();
+            context.arc(radius, radius, radius, 0, 2 * Math.PI, false);
+            context.fill();
+            context.stroke();
+            canvas.toDataURL();
+            icon.symbol = canvas.toDataURL();
+            icon.anchor = anchor;
+            icon.size = size;
+            icon.scaledSize = size;
+            return icon;
+
         }
     }
 

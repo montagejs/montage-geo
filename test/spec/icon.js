@@ -52,6 +52,29 @@ describe("Icon", function () {
                 }
             );
     });
+
+    it ("can create a circle icon", function () {
+
+        var circleIcon = Icon.circleIconWithOptions({
+                color: "red",
+                radius: 10,
+                strokeColor: "black",
+                strokeWidth: 2
+            }),
+            size = circleIcon && circleIcon.size,
+            anchor = circleIcon && circleIcon.anchor,
+            symbol = circleIcon&& circleIcon.symbol,
+            scaledSize = circleIcon && circleIcon.scaledSize;
+
+        expect(circleIcon).toBeDefined();
+        expect(size.width).toBe(24);
+        expect(size.height).toBe(24);
+        expect(size).toEqual(scaledSize);
+        expect(anchor.x).toBe(12);
+        expect(anchor.y).toBe(12);
+        expect(symbol).toBeDefined();
+
+    });
     
     
 });
