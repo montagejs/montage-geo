@@ -251,7 +251,7 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
                 if (value.hasOwnProperty("id")) {
                     reverted.id = value.id;
                 }
-                if (value.hasOwnProperty("properties")) {
+                if (value.hasOwnProperty("properties") || value.hasOwnProperty("_properties")) {
                     reverted.properties = value.properties;
                 }
                 if (value.hasOwnProperty("style")) {
