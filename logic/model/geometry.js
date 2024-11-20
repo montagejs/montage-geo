@@ -100,14 +100,15 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
     toGeoJSON: {
         value: function () {}
     },
+
     forEach: {
         value: function (callback /*, thisp*/) {
 
-            var thisp = arguments[1]
+            var thisp = arguments[1],
                 coordinates = this.coordinates;
 
-            for(var i=0, countI = coordinates.length;(i < countI); i++) {
-                coordinates[i].forEach(callback,thisp);
+            for(var i=0, countI = coordinates.length; (i < countI); i++) {
+                coordinates[i].forEach(callback, thisp);
             }
         }
     }
