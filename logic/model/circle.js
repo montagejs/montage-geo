@@ -351,9 +351,20 @@ var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */
                 radius = this.radius,
                 position, angle, i;
 
+            if (center.longitude > 180) {
+                center.longitude -= 360;
+            } else if (center.longitude < -180) {
+                center.longitude += 360;
+            }
+
             for (i = 0; i < steps; i += 1) {
                 angle = theta + (stepSize * i);
                 position = center.vincentyDirect(radius, angle);
+                if (i > 0 && i < (steps / 2) && position.longitude < center.longitude) {
+                    position.longitude += 360;
+                } else if (i > (steps / 2) && position.longitude > center.longitude) {
+                    position.longitude -= 360;
+                }
                 ring.push([position.longitude, position.latitude]);
             }
 
