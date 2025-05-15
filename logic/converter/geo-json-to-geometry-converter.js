@@ -44,7 +44,7 @@ exports.GeoJsonToGeometryConverter = Converter.specialize( /** @lends GeoJsonToG
      * Converts the specified value to a Montage-Geo Object.
      * @function
      * @param {object} v The value to format.
-     * @returns {MontageGeo} The value converted to a set.
+     * @returns {MontageGeo:Geometry} The value converted to a set.
      */
     convert: {
         value: function (value) {
@@ -59,7 +59,7 @@ exports.GeoJsonToGeometryConverter = Converter.specialize( /** @lends GeoJsonToG
     /**
      * Reverts a Montage-Geo object to GeoJson notation.
      * @function
-     * @param {MontageGeo} v The value to revert.
+     * @param {MontageGeo:Geometry} v The value to revert.
      * @returns {object} v
      */
     revert: {
@@ -223,7 +223,7 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
                     "features": value.features.map(function (feature) {
                         return GeoJson.FEATURE.revert(feature);
                     })
-                }
+                };
             }
         }
 
@@ -333,7 +333,7 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
                 return {
                     "type": "LineString",
                     "coordinates": value.coordinates.map(this._revertPosition.bind(this))
-                }
+                };
             }
         }
     }],
@@ -351,7 +351,7 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
                     "coordinates": value.coordinates.map(function (lineString) {
                         return lineString.coordinates.map(this._revertPosition.bind(this));
                     }, this)
-                }
+                };
             }
         }
     }],
