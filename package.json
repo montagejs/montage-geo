@@ -9,7 +9,7 @@
     "frb": "~3.0.x",
     "leaflet": "~1.6.x",
     "mgrs": "1.0.0",
-    "montage": "montagejs/montage.git#17.2.4",
+    "montage": "https://github.com/montagejs/montage.git#17.2.4",
     "proj4": "~2.3.6",
     "topojson-client": "^3.0.0"
   },
@@ -24,8 +24,8 @@
     "karma-firefox-launcher": "^1.0.1",
     "karma-jasmine": "^1.1.0",
     "karma-phantomjs-launcher": "^1.0.2",
-    "montage-testing": "montagejs/montage-testing",
-    "mr": "montagejs/mr#master",
+    "montage-testing": "https://github.com/montagejs/montage-testing",
+    "mr": "https://github.com/montagejs/mr#master",
     "open": "0.0.5"
   },
   "scripts": {
