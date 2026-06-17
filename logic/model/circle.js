@@ -345,7 +345,7 @@ var Circle = exports.Circle = Geometry.specialize(/** @lends Circle.prototype */
             var ring = [],
                 arc = 360,
                 steps = stepCount || 72,
-                stepSize = arc / 72,
+                stepSize = arc / steps,
                 theta = 0,
                 center = this.coordinates,
                 radius = this.radius,

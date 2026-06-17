@@ -143,6 +143,20 @@ describe("A Circle", function () {
         expect(polygon.coordinates[0].length).toBe(72);
     });
 
+    it("can convert to polygon with a custom step count", function () {
+        var coordinates = [0, 20],
+            radius = 50000,
+            circle = Circle.withCoordinates(coordinates, radius),
+            polygon = circle.toPolygon(60);
+
+        expect(polygon.coordinates.length).toBe(1);
+        expect(polygon.coordinates[0].length).toBe(60);
+        polygon.coordinates[0].forEach(function (position) {
+            expect(position.longitude).toBeGreaterThan(-180);
+            expect(position.longitude).toBeLessThan(180);
+        });
+    });
+
     it("can convert to GeoJSON", function () {
         var coordinates = [-156.6825, 20.8783],
             radius = 10000,
