@@ -10,7 +10,6 @@ exports.MapImageOverlay = Overlay.specialize(/** @lends MapImageOverlay.prototyp
 
     constructor: {
         value: function MapImageOverlay() {
-            Overlay.call(this);
             this.addBeforeOwnPropertyChangeListener("layer", this);
             this.addOwnPropertyChangeListener("layer", this);
         }
