@@ -19,7 +19,6 @@ exports.FeatureCollectionOverlay = Overlay.specialize( /** @lends FeatureCollect
 
     constructor: {
         value: function FeatureCollectionOverlay() {
-            Overlay.call(this);
             this.addBeforeOwnPropertyChangeListener("collection", this);
             this.addOwnPropertyChangeListener("collection", this);
             this.addBeforeOwnPropertyChangeListener("layer", this);

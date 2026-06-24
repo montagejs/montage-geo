@@ -51,11 +51,11 @@
         },
         "map": {
             "prototype": "montage-geo/ui/map.reel",
-            "properties": {
+            "values": {
                 "element": {"#": "map"},
                 "center": [-156.6825, 20.8783],
                 "zoom": 5,
-                "layers": {"<-": "@arcGisLayers.selection"}
+                "layers": {"<-": "@arcGisLayers.selection.map{this}"}
             }
         },
         "menuHeader": {
