@@ -1,8 +1,8 @@
 var FeatureService = require("logic/service/feature-service").FeatureService,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
-    Criteria = require("montage/core/criteria").Criteria,
-    Map = require("montage/collections/map"),
-    Promise = require("montage/core/promise").Promise,
+    Criteria = require("mod/core/criteria").Criteria,
+    Map = require("mod/core/collections/map"),
+    Promise = require("mod/core/promise").Promise,
     Protocol = require("logic/model/protocol").Protocol;
 
 /**

@@ -1,4 +1,4 @@
-var Montage = require("montage/core/core").Montage,
+var Montage = require("mod/core/core").Montage,
     LineString = require("./line-string").LineString,
     MultiLineString = require("./multi-line-string").MultiLineString,
     MultiPolygon = require("./multi-polygon").MultiPolygon,

@@ -1,5 +1,5 @@
 var Renderer = require("logic/model/renderer").Renderer,
-    Criteria = require("montage/core/criteria").Criteria,
+    Criteria = require("mod/core/criteria").Criteria,
     EsriSymbolToStyleConverter = require("logic/converter/esri-symbol-to-style-converter").EsriSymbolToStyleConverter,
     StyleEntry = require("logic/model/style-entry").StyleEntry;
 

@@ -1,5 +1,5 @@
 var Feature = require("montage-geo/logic/model/feature").Feature,
-    DataObjectDescriptor = require("montage/data/model/data-object-descriptor").DataObjectDescriptor;
+    DataObjectDescriptor = require("mod/data/model/data-object-descriptor").DataObjectDescriptor;
 
 /**
  * Represents a country of the World.

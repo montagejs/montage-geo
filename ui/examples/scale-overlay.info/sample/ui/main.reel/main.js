@@ -1,5 +1,5 @@
-var Component = require("montage/ui/component").Component,
-    defaultLocalizer = require("montage/core/localizer").defaultLocalizer;
+var Component = require("mod/ui/component").Component,
+    defaultLocalizer = require("mod/core/localizer").defaultLocalizer;
 
 /**
  * @class Main

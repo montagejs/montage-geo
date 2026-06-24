@@ -1,12 +1,12 @@
 var Overlay = require("ui/overlay").Overlay,
     ClusterOrganizer = require("logic/model/cluster-organizer").ClusterOrganizer,
-    Criteria = require("montage/core/criteria").Criteria,
+    Criteria = require("mod/core/criteria").Criteria,
     FeatureCollection = require("logic/model/feature-collection").FeatureCollection,
-    Map = require("montage/collections/map"),
+    Map = require("mod/core/collections/map"),
     MapPane = require("logic/model/map-pane").MapPane,
     MultiPoint = require("logic/model/multi-point").MultiPoint,
     Point = require("logic/model/point").Point,
-    Set = require("montage/collections/set"),
+    Set = require("mod/core/collections/set"),
     defaultFeatureDelegate = require("logic/model/feature-delegate").defaultFeatureDelegate;
 
 

@@ -1,4 +1,4 @@
-var Component = require("montage/ui/component").Component,
+var Component = require("mod/ui/component").Component,
     DataService = require("data/montage-data.mjson").montageObject,
     Story = require("logic/model/story").Story;
 

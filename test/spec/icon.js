@@ -1,7 +1,7 @@
 var Icon = require("montage-geo/logic/model/icon").Icon,
-    Deserializer = require("montage/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
+    Deserializer = require("mod/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
     Point2D = require("montage-geo/logic/model/point-2d").Point2D,
-    Serializer = require("montage/core/serialization/serializer/montage-serializer").MontageSerializer,
+    Serializer = require("mod/core/serialization/serializer/montage-serializer").MontageSerializer,
     Size = require("montage-geo/logic/model/size").Size;
     
 

@@ -1,6 +1,6 @@
 {
     "root": {
-        "prototype": "montage/core/meta/module-object-descriptor",
+        "prototype": "mod/core/meta/module-object-descriptor",
         "properties": {
             "name": "MapImage",
             "propertyDescriptors": [
@@ -18,7 +18,7 @@
     },
 
     "id": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "id",
             "valueType": "string"
@@ -26,7 +26,7 @@
     },
 
     "bounds": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "bounds",
             "valueType": "BoundingBox"
@@ -34,7 +34,7 @@
     },
 
     "dataUrl": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "dataUrl",
             "valueType": "string"
@@ -42,7 +42,7 @@
     },
 
     "dpi": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "dpi",
             "valueType": "number"
@@ -50,7 +50,7 @@
     },
 
     "size": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "size",
             "valueType": "Size"

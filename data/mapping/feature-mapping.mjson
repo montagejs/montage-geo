@@ -1,7 +1,7 @@
 {
 
     "root": {
-        "prototype": "montage/data/service/expression-data-mapping",
+        "prototype": "mod/data/service/expression-data-mapping",
         "values": {
             "rawDataPrimaryKeyExpressions": ["id"],
             "objectDescriptor": {"@":"FeatureDescriptor"},

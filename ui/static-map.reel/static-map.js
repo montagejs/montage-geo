@@ -2,7 +2,7 @@
  * @module "ui/static-map.reel"
  */
 var BoundingBox = require("logic/model/bounding-box").BoundingBox,
-    Component = require("montage/ui/component").Component,
+    Component = require("mod/ui/component").Component,
     LineString = require("logic/model/line-string").LineString,
     MapImage = require("logic/model/map-image").MapImage,
     MultiLineString = require("logic/model/multi-line-string").MultiLineString,
@@ -10,7 +10,7 @@ var BoundingBox = require("logic/model/bounding-box").BoundingBox,
     Position = require("logic/model/position").Position,
     Point2D = require("logic/model/point-2d").Point2D,
     Polygon = require("logic/model/polygon").Polygon,
-    Promise = require("montage/core/promise").Promise,
+    Promise = require("mod/core/promise").Promise,
     Rect = require("logic/model/rect").Rect,
     Size = require("logic/model/size").Size,
     StyleType = require("logic/model/style").StyleType,

@@ -1,4 +1,4 @@
-var Component = require("montage/ui/component").Component,
+var Component = require("mod/ui/component").Component,
     MapPane = require("logic/model/map-pane").MapPane;
 /**
  * Overlays should subclass this class to inherit the delegate methods defined

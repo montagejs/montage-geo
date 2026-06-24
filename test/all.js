@@ -1,6 +1,6 @@
 console.log('montage-testing', 'Start');
 
-var Promise = require("montage/core/promise").Promise;
+var Promise = require("mod/core/promise").Promise;
 
 //Remove once the issue that causes unminified bluebird to be bootstrapped is resolved.
 //Suppress Bluebird unhandled rejection error
@@ -14,7 +14,7 @@ Promise.config({
     warnings: false
 });
 
-module.exports = require("montage-testing").run(require, [
+module.exports = require("mod/testing").run(require, [
     "spec/wkt-to-geometry-converter",
     "spec/bounding-box",
     "spec/circle",

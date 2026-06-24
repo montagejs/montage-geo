@@ -1,6 +1,6 @@
-var Montage = require("montage/core/core").Montage,
+var Montage = require("mod/core/core").Montage,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
-    Uuid = require("montage/core/uuid").Uuid,
+    Uuid = require("mod/core/uuid").Uuid,
     DASH_REG_EX = /-/g,
     IDENTIFIER_PREFIX = "G",
     HALF_PI = Math.PI / 180.0;

@@ -1,9 +1,9 @@
-var HttpService = require("montage/data/service/http-service").HttpService,
+var HttpService = require("mod/data/service/http-service").HttpService,
     Country = require("../model/country").Country,
     Feature = require("montage-geo/logic/model/feature").Feature,
-    DataSelector = require("montage/data/service/data-selector").DataSelector,
-    DataStream = require("montage/data/service/data-stream").DataStream,
-    Promise = require("montage/core/promise").Promise;
+    DataSelector = require("mod/data/service/data-selector").DataSelector,
+    DataStream = require("mod/data/service/data-stream").DataStream,
+    Promise = require("mod/core/promise").Promise;
 
 /**
  * Provide data about countries.

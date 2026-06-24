@@ -1,4 +1,4 @@
-var Enumeration = require("montage/data/model/enumeration").Enumeration;
+var Enumeration = require("mod/data/model/enumeration").Enumeration;
 
 /**
  * @class

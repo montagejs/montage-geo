@@ -1,13 +1,13 @@
-var Component = require("montage/ui/component").Component,
+var Component = require("mod/ui/component").Component,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
     FeatureCollectionOverlay = require("ui/feature-collection-overlay.reel").FeatureCollectionOverlay,
     LeafletEngine = require("ui/leaflet-engine.reel").LeafletEngine,
-    Map = require("montage/collections/map").Map,
+    Map = require("mod/core/collections/map").Map,
     MapImageOverlay = require("ui/map-image-overlay.reel").MapImageOverlay,
     Point = require("logic/model/point").Point,
     Point2D = require("logic/model/point-2d").Point2D,
     Position = require("logic/model/position").Position,
-    Promise = require("montage/core/promise").Promise;
+    Promise = require("mod/core/promise").Promise;
 
 var MAX_BOUNDS = BoundingBox.withCoordinates(
     -Infinity, -85.05112878, Infinity, 85.05112878

@@ -1,5 +1,5 @@
-var Converter = require("montage/core/converter/converter").Converter,
-    Enumeration = require("montage/data/model/enumeration").Enumeration,
+var Converter = require("mod/core/converter/converter").Converter,
+    Enumeration = require("mod/data/model/enumeration").Enumeration,
     GeometryCollection = require("logic/model/geometry-collection").GeometryCollection,
     LineString = require("logic/model/line-string").LineString,
     Point = require("logic/model/point").Point,

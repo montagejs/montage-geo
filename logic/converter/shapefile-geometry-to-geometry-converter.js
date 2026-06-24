@@ -1,5 +1,5 @@
-var Converter = require("montage/core/converter/converter").Converter,
-    Enumeration = require("montage/data/model/enumeration").Enumeration,
+var Converter = require("mod/core/converter/converter").Converter,
+    Enumeration = require("mod/data/model/enumeration").Enumeration,
     LineString = require("logic/model/line-string").LineString,
     MultiLineString = require("logic/model/multi-line-string").MultiLineString,
     MultiPoint = require("logic/model/multi-point").MultiPoint,

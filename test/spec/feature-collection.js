@@ -1,10 +1,10 @@
 var FeatureCollection = require("montage-geo/logic/model/feature-collection").FeatureCollection,
     Bindings = require("montage-geo/frb/bindings"),
     BoundingBox = require("montage-geo/logic/model/bounding-box").BoundingBox,
-    Deserializer = require("montage/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
+    Deserializer = require("mod/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
     Feature = require("montage-geo/logic/model/feature").Feature,
     Point = require("montage-geo/logic/model/point").Point,
-    Serializer = require("montage/core/serialization/serializer/montage-serializer").MontageSerializer;
+    Serializer = require("mod/core/serialization/serializer/montage-serializer").MontageSerializer;
 
 describe("A FeatureCollection", function () {
     var lahaina, kahului;
