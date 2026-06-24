@@ -1,26 +1,12 @@
 console.log('montage-testing', 'Start');
 
-var Promise = require("mod/core/promise").Promise;
-
-//Remove once the issue that causes unminified bluebird to be bootstrapped is resolved.
-//Suppress Bluebird unhandled rejection error
-Promise.onPossiblyUnhandledRejection(function(e, promise) {
-    console.warn("[Bluebird] Unhandled Rejection: " + e.message);
-    // console.warn(e);
-});
-
-Promise.config({
-    // Enable warnings
-    warnings: false
-});
-
 module.exports = require("mod/testing").run(require, [
     "spec/wkt-to-geometry-converter",
     "spec/bounding-box",
     "spec/circle",
     "spec/cluster-organizer",
     "spec/esri-json-to-geometry-converter",
-    "spec/esri-symbol-to-style-converter",
+    {name: "spec/esri-symbol-to-style-converter", node: false},
     "spec/feature",
     "spec/feature-cluster",
     "spec/feature-collection",
@@ -30,9 +16,9 @@ module.exports = require("mod/testing").run(require, [
     "spec/geometry",
     "spec/geometry-collection",
     "spec/icon",
-    "spec/kml-geometry-to-geometry-converter",
+    {name: "spec/kml-geometry-to-geometry-converter", node: false},
     "spec/kml-style-to-style-converter",
-    "spec/leaflet-engine",
+    {name: "spec/leaflet-engine", node: false},
     "spec/line-string",
     "spec/mgrs-grid-zone",
     "spec/multi-line-string",

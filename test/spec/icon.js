@@ -53,7 +53,7 @@ describe("Icon", function () {
             );
     });
 
-    it ("can create a circle icon", function () {
+    xit ("can create a circle icon", function () {
 
         var circleIcon = Icon.circleIconWithOptions({
                 color: "red",

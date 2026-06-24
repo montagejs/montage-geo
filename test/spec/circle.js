@@ -1,5 +1,5 @@
 var Circle = require("montage-geo/logic/model/circle").Circle,
-    Bindings = require("montage-geo/frb/bindings"),
+    Bindings = require("mod/core/frb/bindings"),
     Deserializer = require("mod/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
     Point = require("montage-geo/logic/model/point").Point,
     Position = require("montage-geo/logic/model/position").Position,

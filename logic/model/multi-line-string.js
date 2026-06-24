@@ -1,7 +1,7 @@
 var Geometry = require("./geometry").Geometry,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
     LineString = require("./line-string").LineString,
-    Map = require("collections/map");
+    Map = require("mod/core/collections/map");
 
 /**
  *
