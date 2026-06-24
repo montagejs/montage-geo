@@ -1,4 +1,4 @@
-var LeafletEngine = require("ui/leaflet-engine.reel").LeafletEngine,
+var LeafletEngine = require("montage-geo/ui/leaflet-engine.reel").LeafletEngine,
     Feature = require("montage-geo/logic/model/feature").Feature,
     LineString = require("montage-geo/logic/model/line-string").LineString,
     MultiLineString = require("montage-geo/logic/model/multi-line-string").MultiLineString,

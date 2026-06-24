@@ -1,6 +1,6 @@
 console.log('montage-testing', 'Start');
 
-module.exports = require("mod/testing").run(require, [
+module.exports = require("mod/testing/run").run(require, [
     "spec/wkt-to-geometry-converter",
     "spec/bounding-box",
     "spec/circle",
@@ -18,7 +18,7 @@ module.exports = require("mod/testing").run(require, [
     "spec/icon",
     {name: "spec/kml-geometry-to-geometry-converter", node: false},
     "spec/kml-style-to-style-converter",
-    {name: "spec/leaflet-engine", node: false},
+    {name: "spec/leaflet-engine", node: false, browser: false},
     "spec/line-string",
     "spec/mgrs-grid-zone",
     "spec/multi-line-string",

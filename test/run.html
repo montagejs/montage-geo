@@ -9,6 +9,17 @@
 	<script type="text/javascript" src="../node_modules/jasmine-core/lib/jasmine-core/jasmine.js"></script>
 	<script type="text/javascript" src="../node_modules/jasmine-core/lib/jasmine-core/jasmine-html.js"></script>
 	<script type="text/javascript" src="../test/run-browser.js" ></script>
-	<script type="text/javascript" src="../node_modules/mr/bootstrap.js" data-module="./all"></script>
+	<script type="text/javascript" src="../node_modules/mod/core/extras/string.js"></script>
+	<script type="text/javascript">
+		(function () {
+			var s = document.createElement("script");
+			s.type = "text/javascript";
+			s.setAttribute("data-module", "./all");
+			s.setAttribute("data-promise-location",
+				new URL("../node_modules/bluebird/js/browser/bluebird.min.js", document.location.href).href);
+			s.src = "../node_modules/mod/core/mr/bootstrap.js";
+			document.head.appendChild(s);
+		})();
+	</script>
 </body>
 </html>

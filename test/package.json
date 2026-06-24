@@ -18,6 +18,7 @@
         "postinstall": "npm link ./.."
     },
     "mappings": {
+        "mod": "../node_modules/mod",
         "montage": "../node_modules/montage",
         "montage-testing": "../node_modules/montage-testing",
         "montage-geo": "../"
