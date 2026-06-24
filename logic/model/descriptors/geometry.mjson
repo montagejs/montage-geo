@@ -1,6 +1,6 @@
 {
     "root": {
-        "prototype": "montage/core/meta/module-object-descriptor",
+        "prototype": "mod/core/meta/module-object-descriptor",
         "properties": {
             "name": "Geometry",
             "propertyDescriptors": [
@@ -15,7 +15,7 @@
     },
 
     "identifier": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "identifier",
             "valueType": "string"
@@ -23,7 +23,7 @@
     },
 
     "coordinates": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "coordinates",
             "valueType": "object"

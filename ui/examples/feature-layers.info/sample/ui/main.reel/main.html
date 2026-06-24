@@ -15,21 +15,21 @@
             }
         },
         "arcGisCheckbox": {
-            "prototype": "montage/ui/image.reel",
+            "prototype": "mod/ui/image.reel",
             "values": {
                 "element": {"#": "arcGisCheckbox"},
                 "src": {"<-": "@arcGisLayers:iteration.selected ? 'images/default-checkbox-filled.svg' : 'images/default-checkbox-empty.svg'"}
             }
         },
         "arcGisLayerName": {
-            "prototype": "montage/ui/text.reel",
+            "prototype": "mod/ui/text.reel",
             "values": {
                 "element": {"#": "arcGisLayerName"},
                 "value": {"<-": "@arcGisLayers:iteration.object.name"}
             }
         },
         "arcGisLayers": {
-            "prototype": "montage/ui/repetition.reel",
+            "prototype": "mod/ui/repetition.reel",
             "values": {
                 "element": {"#": "arcGisLayers"},
                 "content": {"<-": "@owner._arcGisLayers"},
@@ -38,7 +38,7 @@
             }
         },
         "arcGisHeader": {
-            "prototype": "montage/ui/text.reel",
+            "prototype": "mod/ui/text.reel",
             "values": {
                 "element": {"#": "arcGisHeader"}
             },
@@ -59,7 +59,7 @@
             }
         },
         "menuHeader": {
-            "prototype": "montage/ui/text.reel",
+            "prototype": "mod/ui/text.reel",
             "values": {
                 "element": {"#": "menuHeader"}
             },

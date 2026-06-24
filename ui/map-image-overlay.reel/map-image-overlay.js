@@ -1,5 +1,5 @@
 var Overlay = require("ui/overlay").Overlay,
-    Map = require("montage/collections/map"),
+    Map = require("mod/core/collections/map"),
     defaultMapImageDelegate = require("logic/model/map-image-delegate").defaultMapImageDelegate;
 
 /**

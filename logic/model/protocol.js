@@ -1,5 +1,5 @@
-var Enumeration = require("montage/data/model/enumeration").Enumeration,
-    Set = require("montage/collections/set"),
+var Enumeration = require("mod/data/model/enumeration").Enumeration,
+    Set = require("mod/core/collections/set"),
     Tile = require("logic/model/tile").Tile;
 
 /**

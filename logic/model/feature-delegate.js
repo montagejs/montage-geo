@@ -1,11 +1,11 @@
-var Montage = require("montage/core/core").Montage,
-    Criteria = require("montage/core/criteria").Criteria,
-    DataQuery = require("montage/data/model/data-query").DataQuery,
-    DataService = require("montage/data/service/data-service").DataService,
-    DataStream = require("montage/data/service/data-stream").DataStream,
+var Montage = require("mod/core/core").Montage,
+    Criteria = require("mod/core/criteria").Criteria,
+    DataQuery = require("mod/data/model/data-query").DataQuery,
+    DataService = require("mod/data/service/data-service").DataService,
+    DataStream = require("mod/data/service/data-stream").DataStream,
     Feature = require("logic/model/feature").Feature,
     FeatureCollection = require("logic/model/feature-collection").FeatureCollection,
-    Promise = require("montage/core/promise").Promise;
+    Promise = require("mod/core/promise").Promise;
 
 
 /**

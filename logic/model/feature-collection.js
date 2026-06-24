@@ -1,4 +1,4 @@
-var Montage = require("montage/core/core").Montage,
+var Montage = require("mod/core/core").Montage,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
     Map = require("collections/map"),
     Set = require("collections/set");

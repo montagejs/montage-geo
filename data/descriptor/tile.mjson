@@ -1,6 +1,6 @@
 {
     "root": {
-        "prototype": "montage/core/meta/module-object-descriptor",
+        "prototype": "mod/core/meta/module-object-descriptor",
         "properties": {
             "name": "Tile",
             "propertyDescriptors": [
@@ -21,7 +21,7 @@
     },
 
     "id": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "id",
             "valueType": "string"
@@ -29,7 +29,7 @@
     },
 
     "bounds": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "bounds",
             "readOnly": true,
@@ -38,7 +38,7 @@
     },
 
     "dataUrl": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "dataUrl",
             "valueType": "string"
@@ -46,7 +46,7 @@
     },
 
     "dpi": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "dpi",
             "valueType": "number"
@@ -54,7 +54,7 @@
     },
 
     "size": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "size",
             "valueType": "Size"
@@ -62,7 +62,7 @@
     },
 
     "x": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "x",
             "valueType": "string"
@@ -70,7 +70,7 @@
     },
 
     "y": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "y",
             "valueType": "string"
@@ -78,7 +78,7 @@
     },
 
     "z": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "z",
             "valueType": "string"

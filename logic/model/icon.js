@@ -3,7 +3,7 @@ var IDENTIFIER_PREFIX = "I",
     Color = require("logic/model/color").Color,
     Point2D = require("logic/model/point-2d").Point2D,
     Size = require("logic/model/size").Size,
-    Uuid = require("montage/core/uuid").Uuid;
+    Uuid = require("mod/core/uuid").Uuid;
 
 /**
  *

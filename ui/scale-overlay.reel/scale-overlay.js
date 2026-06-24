@@ -1,4 +1,4 @@
-var Component = require("montage/ui/component").Component,
+var Component = require("mod/ui/component").Component,
     Point = require("logic/model/point").Point,
     Position = require("logic/model/position").Position,
     METRIC_SYSTEM_SET = [0.25, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000],

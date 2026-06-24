@@ -1,4 +1,4 @@
-var Converter = require("montage/core/converter/converter").Converter,
+var Converter = require("mod/core/converter/converter").Converter,
     Size = require("logic/model/size").Size;
 
 /**

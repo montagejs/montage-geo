@@ -1,5 +1,5 @@
-var Converter = require("montage/core/converter/converter").Converter,
-    deprecate = require("montage/core/deprecate");
+var Converter = require("mod/core/converter/converter").Converter,
+    deprecate = require("mod/core/deprecate");
 
 /**
  * This super class contains logic and methods that are common to all renderers.

@@ -1,7 +1,7 @@
-var Component = require("montage/ui/component").Component,
-    Criteria = require("montage/core/criteria").Criteria,
-    DataQuery = require("montage/data/model/data-query").DataQuery,
-    defaultLocalizer = require("montage/core/localizer").defaultLocalizer,
+var Component = require("mod/ui/component").Component,
+    Criteria = require("mod/core/criteria").Criteria,
+    DataQuery = require("mod/data/model/data-query").DataQuery,
+    defaultLocalizer = require("mod/core/localizer").defaultLocalizer,
     Layer = require("montage-geo/logic/model/layer").Layer,
     Protocol = require("montage-geo/logic/model/protocol").Protocol,
     Service = require("data/montage-data.mjson").montageObject; // Keep.  Used to load the main service.

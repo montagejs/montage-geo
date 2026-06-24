@@ -1,6 +1,6 @@
-var Montage = require("montage/core/core").Montage,
+var Montage = require("mod/core/core").Montage,
     GeohashCollection = require("logic/model/geohash-collection").GeohashCollection,
-    Uuid = require("montage/core/uuid").Uuid,
+    Uuid = require("mod/core/uuid").Uuid,
     DASH_REG_EX = /-/g,
     IDENTIFIER_PREFIX = "B";
 

@@ -1,7 +1,7 @@
 var IDENTIFIER_PREFIX = "S",
     DASH_REG_EX = /-/g,
-    Enum = require("montage/core/enum").Enum,
-    Uuid = require("montage/core/uuid").Uuid;
+    Enum = require("mod/core/enum").Enum,
+    Uuid = require("mod/core/uuid").Uuid;
 
 var StyleType = exports.StyleType = new Enum().initWithMembers("POINT", "LINE_STRING", "POLYGON");
 

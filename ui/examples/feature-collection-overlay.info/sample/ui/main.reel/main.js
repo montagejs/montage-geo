@@ -1,8 +1,8 @@
-var Component = require("montage/ui/component").Component,
+var Component = require("mod/ui/component").Component,
     Country = require("../../logic/model/country").Country,
     CountryService = require("../../logic/service/country-service").CountryService,
-    DataSelector = require("montage/data/service/data-selector").DataSelector,
-    DataService = require("montage/data/service/data-service").DataService;
+    DataSelector = require("mod/data/service/data-selector").DataSelector,
+    DataService = require("mod/data/service/data-service").DataService;
 
 /**
  * @class Main

@@ -14,21 +14,21 @@
             }
         },
         "checkbox": {
-            "prototype": "montage/ui/image.reel",
+            "prototype": "mod/ui/image.reel",
             "values": {
                 "element": {"#": "checkbox"},
                 "src": {"<-": "@wmtsLayers:iteration.selected ? 'images/default-checkbox-filled.svg' : 'images/default-checkbox-empty.svg'"}
             }
         },
         "arcGisCheckbox": {
-            "prototype": "montage/ui/image.reel",
+            "prototype": "mod/ui/image.reel",
             "values": {
                 "element": {"#": "arcGisCheckbox"},
                 "src": {"<-": "@arcGisLayers:iteration.selected ? 'images/default-checkbox-filled.svg' : 'images/default-checkbox-empty.svg'"}
             }
         },
         "wmsCheckbox": {
-            "prototype": "montage/ui/image.reel",
+            "prototype": "mod/ui/image.reel",
             "values": {
                 "element": {"#": "wmsCheckbox"},
                 "src": {"<-": "@wmsLayers:iteration.selected ? 'images/default-checkbox-filled.svg' : 'images/default-checkbox-empty.svg'"}
@@ -69,28 +69,28 @@
             }
         },
         "layerName": {
-            "prototype": "montage/ui/text.reel",
+            "prototype": "mod/ui/text.reel",
             "values": {
                 "element": {"#": "layerName"},
                 "value": {"<-": "@wmtsLayers:iteration.object.name"}
             }
         },
         "arcGisLayerName": {
-            "prototype": "montage/ui/text.reel",
+            "prototype": "mod/ui/text.reel",
             "values": {
                 "element": {"#": "arcGisLayerName"},
                 "value": {"<-": "@arcGisLayers:iteration.object.name"}
             }
         },
         "wmsLayerName": {
-            "prototype": "montage/ui/text.reel",
+            "prototype": "mod/ui/text.reel",
             "values": {
                 "element": {"#": "wmsLayerName"},
                 "value": {"<-": "@wmsLayers:iteration.object.name"}
             }
         },
         "arcGisLayers": {
-            "prototype": "montage/ui/repetition.reel",
+            "prototype": "mod/ui/repetition.reel",
             "values": {
                 "element": {"#": "arcGisLayers"},
                 "content": {"<-": "@owner._arcGisLayers"},
@@ -99,7 +99,7 @@
             }
         },
         "wmsLayers": {
-            "prototype": "montage/ui/repetition.reel",
+            "prototype": "mod/ui/repetition.reel",
             "values": {
                 "element": {"#": "wmsLayers"},
                 "content": [
@@ -111,7 +111,7 @@
             }
         },
         "wmtsLayers": {
-            "prototype": "montage/ui/repetition.reel",
+            "prototype": "mod/ui/repetition.reel",
             "values": {
                 "element": {"#": "wmtsLayers"},
                 "content": [
@@ -132,7 +132,7 @@
             }
         },
         "menuHeader": {
-            "prototype": "montage/ui/text.reel",
+            "prototype": "mod/ui/text.reel",
             "values": {
                 "element": {"#": "menuHeader"}
             },
@@ -144,7 +144,7 @@
             }
         },
         "arcGisHeader": {
-            "prototype": "montage/ui/text.reel",
+            "prototype": "mod/ui/text.reel",
             "values": {
                 "element": {"#": "arcGisHeader"}
             },
@@ -156,7 +156,7 @@
             }
         },
         "wmsHeader": {
-            "prototype": "montage/ui/text.reel",
+            "prototype": "mod/ui/text.reel",
             "values": {
                 "element": {"#": "wmsHeader"}
             },
@@ -168,7 +168,7 @@
             }
         },
         "wmtsHeader": {
-            "prototype": "montage/ui/text.reel",
+            "prototype": "mod/ui/text.reel",
             "values": {
                 "element": {"#": "wmtsHeader"}
             },

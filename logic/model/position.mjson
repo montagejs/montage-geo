@@ -1,6 +1,6 @@
 {
     "root": {
-        "prototype": "montage/core/meta/module-object-descriptor",
+        "prototype": "mod/core/meta/module-object-descriptor",
         "values": {
             "name": "Position",
             "propertyDescriptors": [
@@ -45,7 +45,7 @@
     },
 
     "identifier": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "values": {
             "name": "identifier",
             "objectDescriptor": {
@@ -60,7 +60,7 @@
         }
     },
     "longitude": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "values": {
             "name": "longitude",
             "objectDescriptor": {
@@ -76,7 +76,7 @@
         }
     },
     "latitude": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "values": {
             "name": "latitude",
             "objectDescriptor": {
@@ -92,7 +92,7 @@
         }
     },
     "altitude": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "values": {
             "name": "altitude",
             "objectDescriptor": {
@@ -108,7 +108,7 @@
         }
     },
     "measure": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "values": {
             "name": "measure",
             "objectDescriptor": {

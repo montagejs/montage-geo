@@ -1,7 +1,7 @@
 {
 
     "root": {
-        "prototype": "montage/core/meta/module-object-descriptor",
+        "prototype": "mod/core/meta/module-object-descriptor",
         "properties": {
             "name": "Story",
             "propertyDescriptors": [
@@ -18,35 +18,35 @@
         }
     },
     "id": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "id",
             "valueType": "number"
         }
     },
     "body": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "body",
             "valueType": "string"
         }
     },
     "geometry": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "geometry",
             "valueType": "Geometry"
         }
     },
     "title": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "title",
             "valueType": "string"
         }
     },
     "url": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "url",
             "valueType": "string"

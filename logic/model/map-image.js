@@ -1,5 +1,5 @@
 var BoundingBox = require("logic/model/bounding-box").BoundingBox,
-    Uuid = require("montage/core/uuid").Uuid;
+    Uuid = require("mod/core/uuid").Uuid;
 
 /**
  * One of the tiles in a raster {@link Layer}.

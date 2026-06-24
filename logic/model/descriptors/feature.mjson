@@ -1,6 +1,6 @@
 {
     "root": {
-        "prototype": "montage/core/meta/module-object-descriptor",
+        "prototype": "mod/core/meta/module-object-descriptor",
         "values": {
             "name": "Feature",
             "propertyDescriptors": [
@@ -20,7 +20,7 @@
     },
 
     "id": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "values": {
             "name": "id",
             "valueType": "number"
@@ -28,7 +28,7 @@
     },
 
     "properties": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "values": {
             "name": "properties",
             "valueType": "object"
@@ -36,7 +36,7 @@
     },
 
     "geometry": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "values": {
             "name": "geometry",
             "valueType": "Geometry"
@@ -44,7 +44,7 @@
     },
 
     "style": {
-        "prototype": "montage/core/meta/property-descriptor",
+        "prototype": "mod/core/meta/property-descriptor",
         "properties": {
             "name": "style",
             "valueType": "Style"

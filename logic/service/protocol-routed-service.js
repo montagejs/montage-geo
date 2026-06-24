@@ -1,5 +1,5 @@
-var HttpService = require("montage/data/service/http-service").HttpService,
-    Map = require("montage/collections/map").Map,
+var HttpService = require("mod/data/service/http-service").HttpService,
+    Map = require("mod/core/collections/map").Map,
     Protocol = require("logic/model/protocol").Protocol;
 
 /**

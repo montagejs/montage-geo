@@ -1,6 +1,6 @@
 var IDENTIFIER_PREFIX = "R",
     DASH_REG_EX = /-/g,
-    Uuid = require("montage/core/uuid").Uuid;
+    Uuid = require("mod/core/uuid").Uuid;
 
 /**
  *
