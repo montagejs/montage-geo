@@ -1,5 +1,5 @@
 var LineString = require("montage-geo/logic/model/line-string").LineString,
-    Bindings = require("montage-geo/frb/bindings"),
+    Bindings = require("mod/core/frb/bindings"),
     BoundingBox = require("montage-geo/logic/model/bounding-box").BoundingBox,
     Deserializer = require("mod/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
     Position = require("montage-geo/logic/model/position").Position,

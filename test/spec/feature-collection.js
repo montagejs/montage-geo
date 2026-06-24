@@ -1,5 +1,5 @@
 var FeatureCollection = require("montage-geo/logic/model/feature-collection").FeatureCollection,
-    Bindings = require("montage-geo/frb/bindings"),
+    Bindings = require("mod/core/frb/bindings"),
     BoundingBox = require("montage-geo/logic/model/bounding-box").BoundingBox,
     Deserializer = require("mod/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
     Feature = require("montage-geo/logic/model/feature").Feature,

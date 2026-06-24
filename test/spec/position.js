@@ -1,5 +1,5 @@
 var Position = require("montage-geo/logic/model/position").Position,
-    Component = require("mod/ui/component").Component,
+    Montage = require("mod/core/core").Montage,
     Deserializer = require("mod/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
     Projection = require("montage-geo/logic/model/projection").Projection,
     Serializer = require("mod/core/serialization/serializer/montage-serializer").MontageSerializer,
@@ -85,7 +85,7 @@ describe("A Position", function () {
 
     it("can properly monitor a set", function () {
 
-        var MyComponent = Component.specialize({
+        var MyComponent = Montage.specialize({
                 inSet: {
                     value: false
                 },
@@ -107,7 +107,7 @@ describe("A Position", function () {
 
     it ("can use regex in an expression", function () {
 
-        var MyComponent = Component.specialize({
+        var MyComponent = Montage.specialize({
                 isImageFile: {
                     value: false
                 },

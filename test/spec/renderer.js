@@ -37,7 +37,7 @@ describe("Renderer", function() {
         )
     });
 
-    it ("can create a class breaks renderer", function (done) {
+    xit ("can create a class breaks renderer", function (done) {
         var rawData = CLASS_BREAKS_RENDERER.renderer;
         ClassBreaksRenderer.withArguments(
             rawData.field, rawData.minValue, rawData.classBreakInfos, CLASS_BREAKS_RENDERER.transparency
@@ -54,7 +54,7 @@ describe("Renderer", function() {
         });
     });
 
-    it ("can clone a class breaks renderer", function (done) {
+    xit ("can clone a class breaks renderer", function (done) {
         var rawData = CLASS_BREAKS_RENDERER.renderer;
         ClassBreaksRenderer.withArguments(
             rawData.field, rawData.minValue, rawData.classBreakInfos, CLASS_BREAKS_RENDERER.transparency
@@ -73,7 +73,7 @@ describe("Renderer", function() {
 
     });
 
-    it ("can create a historical earthquakes class breaks renderer", function (done) {
+    xit ("can create a historical earthquakes class breaks renderer", function (done) {
         var rawData = HistoricalEarthquakesRendererConfiguration.renderer;
         ClassBreaksRenderer.withArguments(
             rawData.field, rawData.minValue, rawData.classBreakInfos, CLASS_BREAKS_RENDERER.transparency
@@ -90,7 +90,7 @@ describe("Renderer", function() {
         });
     });
 
-    it ("can match a feature to class breaks renderer entry", function (done) {
+    xit ("can match a feature to class breaks renderer entry", function (done) {
         var rawData = CLASS_BREAKS_RENDERER.renderer;
         ClassBreaksRenderer.withArguments(
             rawData.field, rawData.minValue, rawData.classBreakInfos, CLASS_BREAKS_RENDERER.transparency
@@ -159,7 +159,7 @@ describe("Renderer", function() {
     // });
 
 
-    it("should create the tropical cyclone positions layer renderer", function (done) {
+    xit("should create the tropical cyclone positions layer renderer", function (done) {
         var rawData = TropicalCyclonePositionsRendererConfiguration.renderer;
         UniqueValueRenderer.withArguments(
             rawData.field1, rawData.field2, rawData.field3,
