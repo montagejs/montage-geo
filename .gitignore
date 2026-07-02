@@ -42,3 +42,7 @@ jspm_packages
 
 # VSCode files
 .vscode
+.claude
+
+package-lock.json
+test/package-lock.json
