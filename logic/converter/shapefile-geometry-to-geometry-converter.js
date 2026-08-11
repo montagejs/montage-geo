@@ -323,7 +323,6 @@ exports.ShapefileGeometryToGeometryConverter = Converter.specialize( /** @lends 
 
     init: {
         value: function (options) {
-            this.super();
             this.projection = options.projection || Projection.forSrid(3857);
             return this;
         }
