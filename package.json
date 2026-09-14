@@ -6,7 +6,7 @@
   "dependencies": {
     "collections": "~5.0.x",
     "d3-geo": "^1.6.3",
-    "frb": "~3.0.x",
+    "frb": "4.0.3",
     "leaflet": "~1.6.x",
     "mgrs": "1.0.0",
     "montage": "https://github.com/montagejs/montage.git#17.2.4",
