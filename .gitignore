@@ -42,3 +42,6 @@ jspm_packages
 
 # VSCode files
 .vscode
+
+# Local agent workspace
+.claude/
