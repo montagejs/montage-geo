@@ -1,4 +1,5 @@
-var Geometry = require("./geometry").Geometry,
+var signedRingArea = require("./ring").signedArea,
+    Geometry = require("./geometry").Geometry,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
     Circle = require("logic/model/circle").Circle,
     d3Geo = require("d3-geo"),
@@ -35,7 +36,24 @@ var Polygon = exports.Polygon = Geometry.specialize(/** @lends Polygon.prototype
         value: function () {
             var geojson = Polygon.GeoJsonConverter.revert(this),
                 inverted = this._invertRings(geojson),
+                rings = inverted.coordinates.filter(function (ring) {
+                    // Five-decimal position rounding can collapse tiny rings.
+                    return Math.abs(signedRingArea(ring)) > 1e-12;
+                }),
+                bounds;
+
+            if (!inverted.coordinates.length || !rings.length ||
+                    Math.abs(signedRingArea(inverted.coordinates[0])) <= 1e-12) {
+                // A collapsed outline still has a location, but no spherical
+                // interior. Bound its vertices instead of the globe's complement.
+                bounds = d3Geo.geoBounds({type: "MultiPoint", coordinates:
+                    inverted.coordinates.reduce(function (points, ring) {
+                        return points.concat(ring);
+                    }, [])});
+            } else {
+                inverted.coordinates = rings;
                 bounds = d3Geo.geoBounds(inverted);
+            }
             return BoundingBox.withCoordinates(bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]);
         }
     },
