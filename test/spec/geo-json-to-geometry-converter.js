@@ -477,6 +477,25 @@ describe("GeoJsonToGeometryConverter", function () {
 
     });
 
+    it("closes exported outlines and holes without mutating internal rings", function () {
+        var converter = new GeoJsonToGeometryConverter(),
+            raw = {type: "MultiPolygon", coordinates: [
+                [[[130,33], [131,33], [131,34], [130,34]],
+                 [[130.2,33.2], [130.4,33.2], [130.4,33.4], [130.2,33.4]]]
+            ]},
+            geometry = converter.convert(raw),
+            result = converter.revert(geometry);
+        result.coordinates[0].forEach(function (ring) {
+            expect(ring.length).toBe(5);
+            expect(ring[ring.length - 1]).toEqual(ring[0]);
+            expect(ring[ring.length - 1]).not.toBe(ring[0]);
+        });
+        geometry.coordinates[0].coordinates.forEach(function (ring) {
+            expect(ring.length).toBe(4);
+        });
+        expect(converter.revert(converter.convert(result))).toEqual(result);
+    });
+
     it ("can revert a Polygon to GeoJson Polygon", function () {
         var converter = new GeoJsonToGeometryConverter(),
             geometry = converter.convert(geoJsonPolygon),

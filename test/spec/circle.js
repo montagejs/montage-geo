@@ -166,7 +166,8 @@ describe("A Circle", function () {
         expect(json.type).toBe("Polygon");
         expect(Array.isArray(json.coordinates)).toBe(true);
         expect(json.coordinates.length).toBe(1);
-        expect(json.coordinates[0].length).toBe(72);
+        expect(json.coordinates[0].length).toBe(73);
+        expect(json.coordinates[0][72]).toEqual(json.coordinates[0][0]);
     });
 
     it("its area is observable", function () {

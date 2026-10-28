@@ -1,4 +1,5 @@
-var Converter = require("mod/core/converter/converter").Converter,
+var signedRingArea = require("logic/model/ring").signedArea,
+    Converter = require("mod/core/converter/converter").Converter,
     Enumeration = require("mod/data/model/enumeration").Enumeration,
     Feature = require("logic/model/feature").Feature,
     FeatureCollection = require("logic/model/feature-collection").FeatureCollection,
@@ -159,6 +160,12 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
             if (isWoundClockwise && isExterior || !isWoundClockwise && !isExterior) {
                 rawRing = rawRing.reverse();
             }
+            if (rawRing.length) {
+                var first = rawRing[0], last = rawRing[rawRing.length - 1];
+                if (first[0] !== last[0] || first[1] !== last[1]) {
+                    rawRing.push(first.slice());
+                }
+            }
             return rawRing;
         }
     },
@@ -182,24 +189,7 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
 
     _isWoundClockwise: {
         value: function (ring) {
-            var sum = 0,
-                shift = ring.filter(function (coordinate) {
-                    return coordinate[0] < 0;
-                }).length > 0 ? 360 : 0,
-                i, j, n, p1, p2, lon1, lon2;
-
-            for (i = 0, n = ring.length; i < n; i += 1) {
-                j = i + 1;
-                if (j === n) {
-                    j = 0;
-                }
-                p1 = ring[i];
-                p2 = ring[j];
-                lon1 = p1[0] + shift;
-                lon2 = p2[0] + shift;
-                sum += (lon2 - lon1) * (p2[1] + p1[1]);
-            }
-            return sum >= 0;
+            return signedRingArea(ring) <= 0;
         }
     }
 

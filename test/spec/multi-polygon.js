@@ -28,6 +28,15 @@ describe("A MultiPolygon", function () {
     });
 
 
+    it("does not let a collapsed island contaminate the combined envelope", function () {
+        var geometry = MultiPolygon.withCoordinates([
+            [[[130.774778,33.712692], [132.492154,33.712692],
+              [132.492154,34.799398], [130.774778,34.799398]]],
+            [[[130.877828,34.136252], [130.877804,34.136247], [130.877808,34.136255]]]
+        ]);
+        expect(geometry.bounds().bbox).toEqual(geometry.coordinates[0].bounds().bbox);
+    });
+
     it("can serialize", function () {
         var p1 = MultiPolygon.withCoordinates([
                 [[[0,0], [0,10], [10,10], [10,0], [0,0]]],
