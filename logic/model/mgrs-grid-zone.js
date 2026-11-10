@@ -1251,6 +1251,16 @@ exports.MGRS1KMSquareZone.prototype = Object.create(MGRSZone.prototype, {
      * Methods
      */
 
+    childZonesForBounds: {
+        value: function (bounds) {
+            var tenKM = this.parent,
+                hundredKM = tenKM.parent;
+            return subdivideSquare(bounds, this.clippedCoordinates, hundredKM,
+                hundredKM.easting + tenKM.easting + this.easting,
+                hundredKM.northing + tenKM.northing + this.northing, ONE_THOUSAND);
+        }
+    },
+
     toGeoJSON: {
         value: function () {
             return {
@@ -1329,6 +1339,83 @@ exports.MGRS1KMSquareZone.prototype = Object.create(MGRSZone.prototype, {
 
 
 });
+
+// Subdivide an existing clipped UTM square into its next decimal refinement.
+function subdivideSquare(bounds, parentPolygon, hundredKM, easting, northing, size) {
+    if (size === 1) { return []; }
+    // Ignore zero-length clip edges left by intersections at a parent vertex.
+    var parentPoints = parentPolygon.coordinates.filter(function (point, index, points) {
+        var previous = points[(index + points.length - 1) % points.length];
+        return Math.abs(point[0] - previous[0]) > INFINITESIMAL ||
+            Math.abs(point[1] - previous[1]) > INFINITESIMAL;
+    });
+    if (parentPoints.length < 3) { return []; }
+
+    var projection = hundredKM.utmZone.projection,
+        projectedBounds = [
+            [bounds.xMin, bounds.yMin], [bounds.xMax, bounds.yMin],
+            [bounds.xMin, bounds.yMax], [bounds.xMax, bounds.yMax]
+        ].map(function (corner) { return proj4(WGS84, projection, corner); }),
+        eastings = projectedBounds.map(function (corner) { return corner[0]; }),
+        northings = projectedBounds.map(function (corner) { return corner[1]; }),
+        step = size / 10,
+        xStart = Math.max(easting, Math.floor(Math.min.apply(Math, eastings) / step) * step),
+        xEnd = Math.min(easting + size, Math.max.apply(Math, eastings)),
+        yStart = Math.max(northing, Math.floor(Math.min.apply(Math, northings) / step) * step),
+        yEnd = Math.min(northing + size, Math.max.apply(Math, northings)),
+        zones = [];
+
+    for (var y = yStart; y < yEnd; y += step) {
+        for (var x = xStart; x < xEnd; x += step) {
+            // Clip relative to the cell origin to keep intersection arithmetic
+            // precise when a one-meter cell is millions of meters north.
+            var clipper = new CartesianPolygon().init({
+                    coordinates: parentPoints.map(function (point) {
+                        return [point[0] - x, point[1] - y];
+                    })
+                }),
+                cell = new CartesianPolygon().init({
+                    coordinates: [[0, 0], [0, step], [step, step], [step, 0]]
+                }).clip(clipper),
+                points = cell.coordinates;
+            if (points.length > 2 && Math.abs(points.reduce(function (area, point, index) {
+                var next = points[(index + 1) % points.length];
+                return area + point[0] * next[1] - next[0] * point[1];
+            }, 0)) > INFINITESIMAL) {
+                cell.coordinates = points.map(function (point) { return [point[0] + x, point[1] + y]; });
+                zones.push(new MGRSRefinedSquare(hundredKM, x, y, step, cell));
+            }
+        }
+    }
+    return zones;
+}
+
+function MGRSRefinedSquare(hundredKM, easting, northing, size, clippedCoordinates) {
+    this.hundredKM = hundredKM;
+    this.easting = easting;
+    this.northing = northing;
+    this.size = size;
+    this.clippedCoordinates = clippedCoordinates;
+    this.id = hundredKM.utmZone.id + "-" + size + "-" + easting + "-" + northing;
+}
+
+MGRSRefinedSquare.prototype.childZonesForBounds = function (bounds) {
+    return subdivideSquare(bounds, this.clippedCoordinates, this.hundredKM, this.easting, this.northing, this.size);
+};
+
+MGRSRefinedSquare.prototype.toGeoJSON = function () {
+    var projection = this.hundredKM.utmZone.projection,
+        ring = this.clippedCoordinates.coordinates.slice().reverse().map(function (point) {
+            return proj4(projection, WGS84, point);
+        });
+    ring.push(ring[0]);
+    return {
+        type: "Feature",
+        id: this.id,
+        geometry: {type: "Polygon", coordinates: [ring]},
+        properties: {easting: this.easting, northing: this.northing}
+    };
+};
 
 var MGRSGridZoneFactory = function (cache) {
     this.cache = cache || {};
