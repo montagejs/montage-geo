@@ -1,51 +1,51 @@
 {
-  "name": "montage-geo",
-  "version": "0.1.0",
-  "author": "Montage Studio, inc. (http://montagestudio.com/)",
-  "description": "Montage resources to build geospatial applications",
-  "dependencies": {
-    "d3-geo": "^1.6.3",
-    "leaflet": "~1.6.x",
-    "mgrs": "1.0.0",
-    "mod": "https://github.com/DisasterAWARE/mod.git#main",
-    "proj4": "~2.3.6",
-    "topojson-client": "^3.0.0"
-  },
-  "devDependencies": {
-    "concurrently": "^3.4.0",
-    "http-server": "^0.9.0",
-    "jasmine-console-reporter": "^1.2.7",
-    "jasmine-core": "^2.5.2",
-    "karma": "^1.5.0",
-    "karma-chrome-launcher": "^2.0.0",
-    "karma-coverage": "^1.1.1",
-    "karma-firefox-launcher": "^1.0.1",
-    "karma-jasmine": "^1.1.0",
-    "karma-phantomjs-launcher": "^1.0.2",
-    "open": "0.0.5"
-  },
-  "scripts": {
-    "test": "node test/run-node.js",
-    "test:karma": "karma start --no-auto-watch --single-run",
-    "test:karma-dev": "karma start --auto-watch --no-single-run",
-    "test:jasmine": "concurrently \"http-server -a localhost -p 8084\" \"open http://localhost:8084/test/run.html\""
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/montagejs/montage-geo.git"
-  },
-  "keywords": [
-    "Mod",
-    "Geospatial",
-    "Maps",
-    "GeoJSON",
-    "Functional",
-    "Reactive",
-    "Bindings"
-  ],
-  "license": "BSD-3-Clause",
-  "bugs": {
-    "url": "https://github.com/montagejs/montage-geo/issues"
-  },
-  "homepage": "https://github.com/montagejs/montage-geo#master"
+    "name": "montage-geo",
+    "version": "0.1.0",
+    "author": "Montage Studio, inc. (http://montagestudio.com/)",
+    "description": "Montage resources to build geospatial applications",
+    "dependencies": {
+        "d3-geo": "^1.6.3",
+        "leaflet": "~1.6.x",
+        "mgrs": "1.0.0",
+        "mod": "https://github.com/DisasterAWARE/mod.git#releases/11.0.0",
+        "proj4": "~2.3.6",
+        "topojson-client": "^3.0.0"
+    },
+    "devDependencies": {
+        "concurrently": "^3.4.0",
+        "http-server": "^0.9.0",
+        "jasmine-console-reporter": "^1.2.7",
+        "jasmine-core": "^2.5.2",
+        "karma": "^1.5.0",
+        "karma-chrome-launcher": "^2.0.0",
+        "karma-coverage": "^1.1.1",
+        "karma-firefox-launcher": "^1.0.1",
+        "karma-jasmine": "^1.1.0",
+        "karma-phantomjs-launcher": "^1.0.2",
+        "open": "0.0.5"
+    },
+    "scripts": {
+        "test": "node test/run-node.js",
+        "test:karma": "karma start --no-auto-watch --single-run",
+        "test:karma-dev": "karma start --auto-watch --no-single-run",
+        "test:jasmine": "concurrently \"http-server -a localhost -p 8084\" \"open http://localhost:8084/test/run.html\""
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/montagejs/montage-geo.git"
+    },
+    "keywords": [
+        "Mod",
+        "Geospatial",
+        "Maps",
+        "GeoJSON",
+        "Functional",
+        "Reactive",
+        "Bindings"
+    ],
+    "license": "BSD-3-Clause",
+    "bugs": {
+        "url": "https://github.com/montagejs/montage-geo/issues"
+    },
+    "homepage": "https://github.com/montagejs/montage-geo#master"
 }
