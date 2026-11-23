@@ -7,7 +7,7 @@
     "d3-geo": "^1.6.3",
     "leaflet": "~1.6.x",
     "mgrs": "1.0.0",
-    "mod": "https://github.com/DisasterAWARE/mod.git#fix/reel-loader-montage-geo-false-match",
+    "mod": "https://github.com/DisasterAWARE/mod.git#main",
     "proj4": "~2.3.6",
     "topojson-client": "^3.0.0"
   },
@@ -47,5 +47,5 @@
   "bugs": {
     "url": "https://github.com/montagejs/montage-geo/issues"
   },
-  "homepage": "https://github.com/montagejs/montage-geo#readme"
+  "homepage": "https://github.com/montagejs/montage-geo#master"
 }
