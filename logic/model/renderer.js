@@ -1,5 +1,5 @@
-var Converter = require("montage/core/converter/converter").Converter,
-    deprecate = require("montage/core/deprecate");
+var Converter = require("mod/core/converter/converter").Converter,
+    deprecate = require("mod/core/deprecate");
 
 /**
  * This super class contains logic and methods that are common to all renderers.
@@ -68,10 +68,26 @@ var Renderer = exports.Renderer = Converter.specialize( /** @lends Renderer.prot
         value: function (properties) {
             return properties;
         }
+    },
+    
+    /**
+     * Returns a copy of the renderer.
+     * @returns {Renderer}
+     */
+    clone: {
+        value: function () {
+            console.warn("Clone should be implemented by subclasses.");
+        }
     }
 
 }, {
 
-
+    withEntries: {
+        value: function (entries) {
+            var renderer = new this();
+            renderer.entries = entries;
+            return renderer;
+        }
+    }
 
 });

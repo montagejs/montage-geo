@@ -1,4 +1,4 @@
-var Montage = require("montage/core/core").Montage,
+var Montage = require("mod/core/core").Montage,
     LineString = require("./line-string").LineString,
     MultiLineString = require("./multi-line-string").MultiLineString,
     MultiPolygon = require("./multi-polygon").MultiPolygon,
@@ -115,13 +115,13 @@ exports.Feature = Montage.specialize(/** @lends Feature.prototype */ {
 
     _geometryWithTypeAndCoordinates: {
         value: function (type, coordinates) {
-            if (type === "LineString")      return LineString.withCoordinates(coordinates);
-            if (type === "MultiLineString") return MultiLineString.withCoordinates(coordinates);
-            if (type === "MultiPoint")      return MultiPoint.withCoordinates(coordinates);
-            if (type === "MultiPolygon")    return MultiPolygon.withCoordinates(coordinates);
-            if (type === "Point")           return Point.withCoordinates(coordinates);
-            if (type === "Polygon")         return Polygon.withCoordinates(coordinates);
-            return null;
+            return  type === "LineString"       ? LineString.withCoordinates(coordinates) :
+                    type === "MultiLineString"  ? MultiLineString.withCoordinates(coordinates) :
+                    type === "MultiPoint"       ? MultiPoint.withCoordinates(coordinates) :
+                    type === "MultiPolygon"     ? MultiPolygon.withCoordinates(coordinates) :
+                    type === "Point"            ? Point.withCoordinates(coordinates) :
+                    type === "Polygon"          ? Polygon.withCoordinates(coordinates) :
+                                                null;
         }
     },
 
@@ -152,7 +152,9 @@ exports.Feature = Montage.specialize(/** @lends Feature.prototype */ {
     withMembers: {
         value: function (id, properties, geometry, style) {
             var self = new this();
-            if (id) self.id = id;
+            if (id) {
+                self.id = id;
+            }
             self.properties = properties || null;
             self.geometry = geometry || null;
             self.style = style || null;

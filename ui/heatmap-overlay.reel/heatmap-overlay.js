@@ -18,7 +18,6 @@ exports.HeatmapOverlay = Overlay.specialize(/** @lends HeatmapOverlay.prototype 
                 redraw = function () {
                     self.needsDraw = true;
                 };
-            Overlay.call(this);
             this.addRangeAtPathChangeListener("collection.features", redraw);
         }
     },

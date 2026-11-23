@@ -1,10 +1,11 @@
 var BoundingBox = require("montage-geo/logic/model/bounding-box").BoundingBox,
-    Deserializer = require("montage/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
+    Deserializer = require("mod/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
+    Feature = require("montage-geo/logic/model/feature").Feature,
     Point = require("montage-geo/logic/model/point").Point,
     LineString = require("montage-geo/logic/model/line-string").LineString,
     MultiLineString = require("montage-geo/logic/model/multi-line-string").MultiLineString,
     MultiPoint = require("montage-geo/logic/model/multi-point").MultiPoint,
-    Serializer = require("montage/core/serialization/serializer/montage-serializer").MontageSerializer,
+    Serializer = require("mod/core/serialization/serializer/montage-serializer").MontageSerializer,
     Position = require("montage-geo/logic/model/position").Position;
 
 describe("A BoundingBox", function () {
@@ -78,6 +79,19 @@ describe("A BoundingBox", function () {
 
         expect(inBoundsPoint.intersects(bounds)).toBe(true);
         expect(outBoundsPoint.intersects(bounds)).toBe(false);
+    });
+
+    it("returns false for an intersection test of a feature with no geometry", function () {
+        var bounds = BoundingBox.withCoordinates(0, 0, 10, 10),
+            feature = Feature.withMembers(42, {}, null, null);
+        expect(bounds.containsFeature(feature)).toBe(false);
+    });
+
+    it("returns true if a feature is within a bounding box", function () {
+        var bounds = BoundingBox.withCoordinates(0, 0, 10, 10),
+            geometry = Point.withCoordinates([5, 5]),
+            feature = Feature.withMembers(42, {}, geometry, null);
+        expect(bounds.containsFeature(feature)).toBe(true);
     });
 
     it("can test if it contains or intersects line features", function () {
@@ -205,6 +219,30 @@ describe("A BoundingBox", function () {
 
     });
 
+    it ("can clip a bounding box", function () {
+        var bounds = BoundingBox.withCoordinates(0, 0, 15, 15),
+            clipBounds = BoundingBox.withCoordinates(10, 10, 20, 20),
+            clipped = bounds.clip(clipBounds);
+
+        expect(clipped.xMin).toBe(10);
+        expect(clipped.yMin).toBe(10);
+        expect(clipped.xMax).toBe(15);
+        expect(clipped.yMax).toBe(15);
+
+    });
+
+    it ("can clip a bounding box that spans the anti-meridian", function () {
+        var bounds = BoundingBox.withCoordinates(170, 0, -170, 15),
+            clipBounds = BoundingBox.withCoordinates(-179, 10, -175, 20),
+            clipped = bounds.clip(clipBounds);
+
+        expect(clipped.xMin).toBe(170);
+        expect(clipped.yMin).toBe(10);
+        expect(clipped.xMax).toBe(-175);
+        expect(clipped.yMax).toBe(15);
+
+    });
+
     it ("can be created with a rect", function () {
         var bounds = BoundingBox.withCoordinates(0, 0, 180, 85.05112877980659),
             rect = bounds.toRect(),
@@ -215,6 +253,15 @@ describe("A BoundingBox", function () {
         expect(reverted.xMax).toBe(-180);
         expect(reverted.yMin).toBe(0);
         expect(reverted.yMax).toBe(85.05113);
+
+    });
+
+    it ("can determine if a bounding box crosses the anti-meridian", function () {
+       var crosses = BoundingBox.withCoordinates(170, 0, -170, 15),
+           doesNotCross = BoundingBox.withCoordinates(0, 0, 180, 15);
+
+         expect(crosses.crossesAntiMeridian()).toBe(true);
+         expect(doesNotCross.crossesAntiMeridian()).toBe(false);
 
     });
 

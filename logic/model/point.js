@@ -12,6 +12,12 @@ var Geometry = require("./geometry").Geometry,
  */
 var Point = exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
 
+    constructor: {
+        value: function Point() {
+            this.super();
+        }
+    },
+
     /**
      * @type {Position}
      */
@@ -342,7 +348,6 @@ var Point = exports.Point = Geometry.specialize(/** @lends Point.prototype */ {
     }
 
 }, {
-
 
     /**
      * Returns a newly initialized point with the specified coordinates.

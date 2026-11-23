@@ -1,7 +1,7 @@
 var Renderer = require("logic/model/renderer").Renderer,
-    Criteria = require("montage/core/criteria").Criteria,
+    Criteria = require("mod/core/criteria").Criteria,
     EsriSymbolToStyleConverter = require("logic/converter/esri-symbol-to-style-converter").EsriSymbolToStyleConverter,
-    Promise = require("montage/core/promise").Promise,
+    Promise = require("mod/core/promise").Promise,
     StyleEntry = require("logic/model/style-entry").StyleEntry;
 
 /**
@@ -12,6 +12,42 @@ var Renderer = require("logic/model/renderer").Renderer,
  * provided that the feature layer is configured to use a "UniqueValueRenderer".
  */
 exports.UniqueValueRenderer = Renderer.specialize(/** @lends UniqueValueRenderer.prototype */ {
+
+    fieldDelimiter: {
+        get: function () {
+            return this._fieldDelimiter;
+        }
+    },
+
+    field1: {
+        get: function () {
+            return this._field1;
+        }
+    },
+
+    field2: {
+        get: function () {
+            return this._field2;
+        }
+    },
+
+    field3: {
+        get: function () {
+            return this._field3;
+        }
+    },
+
+    clone: {
+        value: function () {
+            var renderer = new this.constructor();
+            renderer.entries = this.entries;
+            renderer._fieldDelimiter = this._fieldDelimiter;
+            renderer._field1 = this._field1;
+            renderer._field2 = this._field2;
+            renderer._field3 = this._field3;
+            return renderer;
+        }
+    },
 
     _field1: {
         value: undefined
@@ -56,7 +92,7 @@ exports.UniqueValueRenderer = Renderer.specialize(/** @lends UniqueValueRenderer
             if (defaultSymbol) {
                 stylePromises.push(converter.convert(defaultSymbol));
             }
-
+            renderer._fieldDelimiter = fieldDelimiter;
             renderer._field1 = field1;
             renderer._field2 = field2;
             renderer._field3 = field3;
@@ -66,14 +102,15 @@ exports.UniqueValueRenderer = Renderer.specialize(/** @lends UniqueValueRenderer
                         return field;
                     }),
                     count = entries.length;
+
                 renderer.entries = values.map(function (style, index) {
-                    var symbol = index === count ? {label: defaultLabel} : entries[index],
-                        expression = "",
+
+                    var isDefault = index === count,
+                        symbol = isDefault ? {label: defaultLabel} : entries[index],
+                        expression = isDefault ? "true" : "",
                         criteria, field, values, i, n;
 
-                    if (index === count) {
-                        expression = "true";
-                    } else {
+                    if (!expression) {
                         values = symbol.value.split(fieldDelimiter);
                         for (i = 0, n = fields.length; i < n; i += 1) {
                             field = fields[i];
@@ -87,7 +124,12 @@ exports.UniqueValueRenderer = Renderer.specialize(/** @lends UniqueValueRenderer
                             expression += "'";
                         }
                     }
-                    criteria = new Criteria().initWithExpression(expression);
+
+                    criteria = new Criteria().initWithExpression(expression, {
+                        isDefault: isDefault,
+                        value: symbol.value
+                    });
+
                     return StyleEntry.withLabelCriteriaAndStyle(symbol.label, criteria, style);
                 });
                 return renderer;

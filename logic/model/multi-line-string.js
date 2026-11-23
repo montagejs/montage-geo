@@ -1,7 +1,7 @@
 var Geometry = require("./geometry").Geometry,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
     LineString = require("./line-string").LineString,
-    Map = require("collections/map");
+    Map = require("mod/core/collections/map");
 
 /**
  *
@@ -12,6 +12,12 @@ var Geometry = require("./geometry").Geometry,
  * @extends external:Geometry
  */
 var MultiLineString = exports.MultiLineString = Geometry.specialize(/** @lends MultiLineString.prototype */ {
+
+    constructor: {
+        value: function MultiLineString() {
+            this.super();
+        }
+    },
 
     /**
      * The coordinates member of a multi-line string is an array of line string
@@ -27,7 +33,7 @@ var MultiLineString = exports.MultiLineString = Geometry.specialize(/** @lends M
             return this.coordinates.map(function (lineString) {
                 return lineString.bounds();
             }).reduce(function (bounds, childBounds) {
-                bounds.extend(childBounds)
+                bounds.extend(childBounds);
                 return bounds;
             }, BoundingBox.withCoordinates(Infinity, Infinity, -Infinity, -Infinity));
         }

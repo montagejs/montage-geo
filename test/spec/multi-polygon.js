@@ -1,9 +1,9 @@
 var MultiPolygon = require("montage-geo/logic/model/multi-polygon").MultiPolygon,
-    Bindings = require("montage-geo/frb/bindings"),
-    Deserializer = require("montage/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
+    Bindings = require("mod/core/frb/bindings"),
+    Deserializer = require("mod/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
     Polygon = require("montage-geo/logic/model/polygon").Polygon,
     Position = require("montage-geo/logic/model/position").Position,
-    Serializer = require("montage/core/serialization/serializer/montage-serializer").MontageSerializer;
+    Serializer = require("mod/core/serialization/serializer/montage-serializer").MontageSerializer;
 
 describe("A MultiPolygon", function () {
 
@@ -16,7 +16,7 @@ describe("A MultiPolygon", function () {
     it("can be created", function () {
         var multipolygon = MultiPolygon.withCoordinates([
             [[[0,0], [0,10], [10,10], [10,0], [0,0]]],
-            [[[0,0], [0,-10], [-10,-10], [-10,0], [0,0]]]
+            [[[-10,-10], [-10,0], [0,0], [0,-10], [-10,-10]]]
         ]);
         expect(multipolygon).toBeDefined();
         expect(multipolygon.coordinates.length).toBe(2);
@@ -27,6 +27,15 @@ describe("A MultiPolygon", function () {
         expect(roundedBbox(multipolygon.bounds().bbox).join(",")).toBe("-10,-10,10,10");
     });
 
+
+    it("does not let a collapsed island contaminate the combined envelope", function () {
+        var geometry = MultiPolygon.withCoordinates([
+            [[[130.774778,33.712692], [132.492154,33.712692],
+              [132.492154,34.799398], [130.774778,34.799398]]],
+            [[[130.877828,34.136252], [130.877804,34.136247], [130.877808,34.136255]]]
+        ]);
+        expect(geometry.bounds().bbox).toEqual(geometry.coordinates[0].bounds().bbox);
+    });
 
     it("can serialize", function () {
         var p1 = MultiPolygon.withCoordinates([

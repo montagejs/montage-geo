@@ -175,7 +175,7 @@ exports.Point2D.prototype = Object.create({}, /** @lends Point2D.prototype */ {
      * @type {Point2D} coordinate
      */
     multiply: {
-        value: function (number){
+        value: function (number) {
             var point = this.clone();
             point.x *= number;
             point.y *= number;
@@ -192,11 +192,47 @@ exports.Point2D.prototype = Object.create({}, /** @lends Point2D.prototype */ {
      * @type {Point2D} coordinate
      */
     divide: {
-        value: function (number){
+        value: function (number) {
             var point = this.clone();
             point.x /= number;
             point.y /= number;
             return point;
+        }
+    },
+
+    /**
+     * Returns a new point that rounds the x and y coordinates up
+     * @public
+     * @method
+     * @returns {Point2D}
+     */
+    ceil: {
+        value: function () {
+            return exports.Point2D.withCoordinates(Math.ceil(this.x), Math.ceil(this.y));
+        }
+    },
+
+    /**
+     * Returns a new point that rounds the x and y coordinates down
+     * @public
+     * @method
+     * @returns {Point2D}
+     */
+    floor: {
+        value: function () {
+            return exports.Point2D.withCoordinates(Math.floor(this.x), Math.floor(this.y));
+        }
+    },
+
+    /**
+     * Returns a new point that rounds the x and y coordinates
+     * @public
+     * @method
+     * @returns {Point2D}
+     */
+    round: {
+        value: function () {
+            return exports.Point2D.withCoordinates(Math.round(this.x), Math.round(this.y));
         }
     },
 
@@ -230,7 +266,7 @@ exports.Point2D.prototype = Object.create({}, /** @lends Point2D.prototype */ {
      * @public
      * @method
      * @param {number} zoom level
-     * @type {Point} point
+     * @returns {Point} point
      */
     toPoint: {
         value: function (zoom) {
@@ -278,6 +314,7 @@ Object.defineProperties(exports.Point2D, /** @lends Point2D */ {
      */
     withPosition: {
         value: function (position, zoom) {
+
             var clip = exports.Point2D.clip,
                 max = exports.Point2D.MAX_LATITUDE,
                 mapSize = 256 << (zoom || 0),
@@ -286,9 +323,11 @@ Object.defineProperties(exports.Point2D, /** @lends Point2D */ {
                 x = (longitude + 180) / 360,
                 sinLatitude = Math.sin(latitude * Math.PI / 180),
                 y = 0.5 - Math.log((1 + sinLatitude) / (1 - sinLatitude)) / (4 * Math.PI),
-                pixelX = clip(Math.round(x * mapSize), 0, mapSize),
-                pixelY = clip(Math.round(y * mapSize), 0, mapSize);
+                pixelX = clip(x * mapSize, 0, mapSize),
+                pixelY = clip(y * mapSize, 0, mapSize);
+
             return exports.Point2D.withCoordinates(pixelX, pixelY);
+
         }
     },
 

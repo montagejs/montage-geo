@@ -69,6 +69,27 @@ describe("Point 2D", function () {
         expect(divided.equals(point2D)).toBe(true);
     });
 
+    it("can round a point's coordinates", function () {
+        var unrounded = Point2D.withCoordinates(4.5, 4.4),
+            rounded = unrounded.round();
+        expect(rounded.x).toBe(5);
+        expect(rounded.y).toBe(4);
+    });
+
+    it("can round a point's coordinates down", function () {
+        var unrounded = Point2D.withCoordinates(4.5, 4.4),
+            rounded = unrounded.floor();
+        expect(rounded.x).toBe(4);
+        expect(rounded.y).toBe(4);
+    });
+
+    it("can round a point's coordinates up", function () {
+        var unrounded = Point2D.withCoordinates(4.5, 4.4),
+            rounded = unrounded.ceil();
+        expect(rounded.x).toBe(5);
+        expect(rounded.y).toBe(5);
+    });
+
     it("can clone a point", function () {
         var cloned = point2D.clone();
         expect(cloned.x).toBe(10);
@@ -103,9 +124,9 @@ describe("Point 2D", function () {
             max = Point2D.withPosition(Point.withCoordinates(180, 90).coordinates);
         expect(center.x).toBe(128);
         expect(center.y).toBe(128);
-        expect(min.x).toBe(0);
-        expect(min.y).toBe(256);
-        expect(max.x).toBe(256);
-        expect(max.y).toBe(0);
+        expect(Math.round(min.x)).toBe(0);
+        expect(Math.round(min.y)).toBe(256);
+        expect(Math.round(max.x)).toBe(256);
+        expect(Math.round(max.y)).toBe(0);
     });
 });

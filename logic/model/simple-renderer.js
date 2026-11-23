@@ -1,7 +1,6 @@
 var Renderer = require("logic/model/renderer").Renderer,
-    Criteria = require("montage/core/criteria").Criteria,
+    Criteria = require("mod/core/criteria").Criteria,
     EsriSymbolToStyleConverter = require("logic/converter/esri-symbol-to-style-converter").EsriSymbolToStyleConverter,
-    Promise = require("montage/core/promise").Promise,
     StyleEntry = require("logic/model/style-entry").StyleEntry;
 
 /**
@@ -12,6 +11,14 @@ var Renderer = require("logic/model/renderer").Renderer,
  * provided that the feature layer is configured to use a "SimpleRenderer".
  */
 exports.SimpleRenderer = Renderer.specialize(/** @lends SimpleRenderer.prototype */ {
+
+    clone: {
+        value: function () {
+            var renderer = new this.constructor();
+            renderer.entries = this.entries;
+            return renderer;
+        }
+    }
 
 }, {
 
@@ -34,6 +41,15 @@ exports.SimpleRenderer = Renderer.specialize(/** @lends SimpleRenderer.prototype
             }
             return this.__styleConverter;
         }
+    },
+
+    withEntries: {
+        value: function (entries) {
+            var renderer = new this();
+            renderer.entries = entries;
+            return renderer;
+        }
     }
+
 
 });

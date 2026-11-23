@@ -1,0 +1,11 @@
+{
+    "name": "static-map",
+    "version": "0.1.0",
+    "description": "",
+    "mappings": {
+        "mod": "../../../../node_modules/mod",
+        "montage": "../../../../node_modules/mod",
+        "montage-geo": "../../../../"
+    },
+    "manifest": true
+}

@@ -1,0 +1,54 @@
+{
+    "root": {
+        "prototype": "mod/core/meta/module-object-descriptor",
+        "values": {
+            "name": "Feature",
+            "propertyDescriptors": [
+                {"@": "id"},
+                {"@": "properties"},
+                {"@": "geometry"},
+                {"@": "style"}
+            ],
+            "exportName": "Feature",
+            "module": {
+                "%": "logic/model/feature"
+            },
+            "objectDescriptorModule": {
+                "%": "logic/model/descriptors/feature.mjson"
+            }
+        }
+    },
+
+    "id": {
+        "prototype": "mod/core/meta/property-descriptor",
+        "values": {
+            "name": "id",
+            "valueType": "number"
+        }
+    },
+
+    "properties": {
+        "prototype": "mod/core/meta/property-descriptor",
+        "values": {
+            "name": "properties",
+            "valueType": "object"
+        }
+    },
+
+    "geometry": {
+        "prototype": "mod/core/meta/property-descriptor",
+        "values": {
+            "name": "geometry",
+            "valueType": "Geometry"
+        }
+    },
+
+    "style": {
+        "prototype": "mod/core/meta/property-descriptor",
+        "properties": {
+            "name": "style",
+            "valueType": "Style"
+        }
+    }
+
+}

@@ -102,7 +102,8 @@ describe("A Esri Symbol To Style Converter", function () {
         }
     };
 
-    var POLYLINE_SYMBOL = {type: "esriSLS",
+    var POLYLINE_SYMBOL = {
+        type: "esriSLS",
         style: "esriSLSSolid",
         color: [255, 0, 0, 255],
         width: 1.2
@@ -212,6 +213,7 @@ describe("A Esri Symbol To Style Converter", function () {
             expect(style.strokeColor).toBe("rgba(255,0,0,1)");
             expect(style.strokeOpacity).toBe(1.0);
             expect(style.strokeWeight).toBe(2);
+            expect(style.strokeStyle).toBe("esriSLSSolid");
             done();
         });
     });
@@ -222,9 +224,11 @@ describe("A Esri Symbol To Style Converter", function () {
             expect(style).toBeDefined();
             expect(style.fillColor).toBe("rgba(255,102,51,1)");
             expect(style.fillOpacity).toBe(1.0);
+            expect(style.fillStyle).toBe("esriSFSSolid");
             expect(style.strokeColor).toBe("rgba(0,0,0,0)");
             expect(style.strokeOpacity).toBe(0);
             expect(style.strokeWeight).toBe(1);
+            expect(style.strokeStyle).toBe("esriSLSSolid");
             done();
         });
     });

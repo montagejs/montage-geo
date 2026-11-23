@@ -1,7 +1,7 @@
 var Icon = require("montage-geo/logic/model/icon").Icon,
-    Deserializer = require("montage/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
+    Deserializer = require("mod/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
     Point2D = require("montage-geo/logic/model/point-2d").Point2D,
-    Serializer = require("montage/core/serialization/serializer/montage-serializer").MontageSerializer,
+    Serializer = require("mod/core/serialization/serializer/montage-serializer").MontageSerializer,
     Size = require("montage-geo/logic/model/size").Size;
     
 
@@ -51,6 +51,29 @@ describe("Icon", function () {
                     done();
                 }
             );
+    });
+
+    xit ("can create a circle icon", function () {
+
+        var circleIcon = Icon.circleIconWithOptions({
+                color: "red",
+                radius: 10,
+                strokeColor: "black",
+                strokeWidth: 2
+            }),
+            size = circleIcon && circleIcon.size,
+            anchor = circleIcon && circleIcon.anchor,
+            symbol = circleIcon&& circleIcon.symbol,
+            scaledSize = circleIcon && circleIcon.scaledSize;
+
+        expect(circleIcon).toBeDefined();
+        expect(size.width).toBe(24);
+        expect(size.height).toBe(24);
+        expect(size).toEqual(scaledSize);
+        expect(anchor.x).toBe(12);
+        expect(anchor.y).toBe(12);
+        expect(symbol).toBeDefined();
+
     });
     
     

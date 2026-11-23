@@ -1,7 +1,7 @@
 var Renderer = require("logic/model/renderer").Renderer,
-    Criteria = require("montage/core/criteria").Criteria,
+    Criteria = require("mod/core/criteria").Criteria,
     EsriSymbolToStyleConverter = require("logic/converter/esri-symbol-to-style-converter").EsriSymbolToStyleConverter,
-    Promise = require("montage/core/promise").Promise,
+    Promise = require("mod/core/promise").Promise,
     StyleEntry = require("logic/model/style-entry").StyleEntry;
 
 /**
@@ -29,6 +29,17 @@ exports.ClassBreaksRenderer = Renderer.specialize(/** @lends ClassBreaksRenderer
 
     transparency: {
         value: undefined
+    },
+
+    clone: {
+        value: function () {
+            var renderer = new this.constructor();
+            renderer.entries = this.entries;
+            renderer.field = this.field;
+            renderer.minValue = this.minValue;
+            renderer.transparency = this.transparency;
+            return renderer;
+        }
     }
 
 }, {
@@ -48,8 +59,11 @@ exports.ClassBreaksRenderer = Renderer.specialize(/** @lends ClassBreaksRenderer
             return Promise.all(stylePromises).then(function (values) {
                 renderer.entries = values.map(function (style, index) {
                     var symbol = entries[index],
-                        expression = field + " <= " + symbol["classMaxValue"],
-                        criteria = new Criteria().initWithExpression(expression);
+                        expression = field + " <= " + symbol.classMaxValue,
+                        criteria = new Criteria().initWithExpression(expression, {
+                            classMinValue: symbol.classMinValue,
+                            classMaxValue: symbol.classMaxValue
+                        });
                     return StyleEntry.withLabelCriteriaAndStyle(symbol.label, criteria, style);
                 });
                 return renderer;

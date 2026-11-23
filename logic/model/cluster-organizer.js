@@ -1,8 +1,8 @@
-var Montage = require("montage/core/core").Montage,
+var Montage = require("mod/core/core").Montage,
     FeatureCluster = require("logic/model/feature-cluster").FeatureCluster,
-    Map = require("montage/collections/map"),
+    Map = require("mod/core/collections/map"),
     Point2D = require("logic/model/point-2d").Point2D,
-    Set = require("montage/collections/set"),
+    Set = require("mod/core/collections/set"),
     DEFAULT_GRID_SIZE = 60,
     DEFAULT_ZOOM_LEVEL = 0;
 

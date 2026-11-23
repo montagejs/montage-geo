@@ -1,11 +1,12 @@
-var Converter = require("montage/core/converter/converter").Converter,
-    Enumeration = require("montage/data/model/enumeration").Enumeration,
+var signedRingArea = require("logic/model/ring").signedArea,
+    Converter = require("mod/core/converter/converter").Converter,
+    Enumeration = require("mod/data/model/enumeration").Enumeration,
     Feature = require("logic/model/feature").Feature,
     FeatureCollection = require("logic/model/feature-collection").FeatureCollection,
     GeometryCollection = require("logic/model/geometry-collection").GeometryCollection,
     Icon = require("logic/model/icon").Icon,
     LineString = require("logic/model/line-string").LineString,
-    Map = require("montage/collections/map"),
+    Map = require("mod/core/collections/map"),
     MultiLineString = require("logic/model/multi-line-string").MultiLineString,
     MultiPoint = require("logic/model/multi-point").MultiPoint,
     MultiPolygon = require("logic/model/multi-polygon").MultiPolygon,
@@ -44,7 +45,7 @@ exports.GeoJsonToGeometryConverter = Converter.specialize( /** @lends GeoJsonToG
      * Converts the specified value to a Montage-Geo Object.
      * @function
      * @param {object} v The value to format.
-     * @returns {MontageGeo} The value converted to a set.
+     * @returns {MontageGeo:Geometry} The value converted to a set.
      */
     convert: {
         value: function (value) {
@@ -59,12 +60,12 @@ exports.GeoJsonToGeometryConverter = Converter.specialize( /** @lends GeoJsonToG
     /**
      * Reverts a Montage-Geo object to GeoJson notation.
      * @function
-     * @param {MontageGeo} v The value to revert.
+     * @param {MontageGeo:Geometry} v The value to revert.
      * @returns {object} v
      */
     revert: {
         value: function (value) {
-            var type = MONTAGE_CONSTRUCTOR_TYPE_MAP.get(value.constructor),
+            var type = value && MONTAGE_CONSTRUCTOR_TYPE_MAP.get(value.constructor),
                 result = null;
 
             if (type) {
@@ -159,6 +160,12 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
             if (isWoundClockwise && isExterior || !isWoundClockwise && !isExterior) {
                 rawRing = rawRing.reverse();
             }
+            if (rawRing.length) {
+                var first = rawRing[0], last = rawRing[rawRing.length - 1];
+                if (first[0] !== last[0] || first[1] !== last[1]) {
+                    rawRing.push(first.slice());
+                }
+            }
             return rawRing;
         }
     },
@@ -182,18 +189,7 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
 
     _isWoundClockwise: {
         value: function (ring) {
-            var sum = 0,
-                i, j, n, p1, p2;
-            for (i = 0, n = ring.length; i < n; i += 1) {
-                j = i + 1;
-                if (j === n) {
-                    j = 0;
-                }
-                p1 = ring[i];
-                p2 = ring[j];
-                sum += (p2[0] - p1[0]) * (p2[1] + p1[1]);
-            }
-            return sum >= 0;
+            return signedRingArea(ring) <= 0;
         }
     }
 
@@ -217,7 +213,7 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
                     "features": value.features.map(function (feature) {
                         return GeoJson.FEATURE.revert(feature);
                     })
-                }
+                };
             }
         }
 
@@ -245,7 +241,7 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
                 if (value.hasOwnProperty("id")) {
                     reverted.id = value.id;
                 }
-                if (value.hasOwnProperty("properties")) {
+                if (value.hasOwnProperty("properties") || value.hasOwnProperty("_properties")) {
                     reverted.properties = value.properties;
                 }
                 if (value.hasOwnProperty("style")) {
@@ -327,7 +323,7 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
                 return {
                     "type": "LineString",
                     "coordinates": value.coordinates.map(this._revertPosition.bind(this))
-                }
+                };
             }
         }
     }],
@@ -345,7 +341,7 @@ var GeoJson = Enumeration.specialize(/** @lends GeoJSON */ "id", {
                     "coordinates": value.coordinates.map(function (lineString) {
                         return lineString.coordinates.map(this._revertPosition.bind(this));
                     }, this)
-                }
+                };
             }
         }
     }],

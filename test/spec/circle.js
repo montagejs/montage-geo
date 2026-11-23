@@ -1,9 +1,9 @@
 var Circle = require("montage-geo/logic/model/circle").Circle,
-    Bindings = require("montage-geo/frb/bindings"),
-    Deserializer = require("montage/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
+    Bindings = require("mod/core/frb/bindings"),
+    Deserializer = require("mod/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
     Point = require("montage-geo/logic/model/point").Point,
     Position = require("montage-geo/logic/model/position").Position,
-    Serializer = require("montage/core/serialization/serializer/montage-serializer").MontageSerializer;
+    Serializer = require("mod/core/serialization/serializer/montage-serializer").MontageSerializer;
 
 describe("A Circle", function () {
 
@@ -28,14 +28,16 @@ describe("A Circle", function () {
         var c1 = Circle.withCoordinates([-156.6825, 20.8783], 10042),
             serializer = new Serializer().initWithRequire(require),
             serializedCircle = serializer.serializeObject(c1);
+
         new Deserializer().init(serializedCircle, require).deserializeObject().then(function (circle) {
             var coordinates = circle.coordinates;
             expect(coordinates.longitude).toBe(-156.6825);
             expect(coordinates.latitude).toBe(20.8783);
-            expect(coordinates.altitude).toBe(undefined);
+            expect(coordinates.altitude).toBe(0);
             expect(circle.radius).toBe(10042);
             done();
         });
+
     });
 
     it("can test for equality", function () {
@@ -141,6 +143,20 @@ describe("A Circle", function () {
         expect(polygon.coordinates[0].length).toBe(72);
     });
 
+    it("can convert to polygon with a custom step count", function () {
+        var coordinates = [0, 20],
+            radius = 50000,
+            circle = Circle.withCoordinates(coordinates, radius),
+            polygon = circle.toPolygon(60);
+
+        expect(polygon.coordinates.length).toBe(1);
+        expect(polygon.coordinates[0].length).toBe(60);
+        polygon.coordinates[0].forEach(function (position) {
+            expect(position.longitude).toBeGreaterThan(-180);
+            expect(position.longitude).toBeLessThan(180);
+        });
+    });
+
     it("can convert to GeoJSON", function () {
         var coordinates = [-156.6825, 20.8783],
             radius = 10000,
@@ -150,7 +166,8 @@ describe("A Circle", function () {
         expect(json.type).toBe("Polygon");
         expect(Array.isArray(json.coordinates)).toBe(true);
         expect(json.coordinates.length).toBe(1);
-        expect(json.coordinates[0].length).toBe(72);
+        expect(json.coordinates[0].length).toBe(73);
+        expect(json.coordinates[0][72]).toEqual(json.coordinates[0][0]);
     });
 
     it("its area is observable", function () {

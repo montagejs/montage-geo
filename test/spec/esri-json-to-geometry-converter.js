@@ -51,7 +51,7 @@ describe("EsriJsonToGeometryConverter", function () {
         expect(point).toBeDefined();
         expect(point.coordinates.latitude).toBe(20.8783);
         expect(point.coordinates.longitude).toBe(-156.6825);
-        expect(point.coordinates.altitude).toBe(undefined);
+        expect(point.coordinates.altitude).toBe(0);
     });
 
     it ("can convert a Esri Polyline to a MultiLineString", function () {

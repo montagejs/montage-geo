@@ -1,7 +1,7 @@
 var IDENTIFIER_PREFIX = "S",
     DASH_REG_EX = /-/g,
-    Enum = require("montage/core/enum").Enum,
-    Uuid = require("montage/core/uuid").Uuid;
+    Enum = require("mod/core/enum").Enum,
+    Uuid = require("mod/core/uuid").Uuid;
 
 var StyleType = exports.StyleType = new Enum().initWithMembers("POINT", "LINE_STRING", "POLYGON");
 
@@ -13,7 +13,6 @@ var StyleType = exports.StyleType = new Enum().initWithMembers("POINT", "LINE_ST
  * @class
  * @extends Object
  */
-
 var Style = exports.Style = function Style(type) {
     this._type = type;
 };
@@ -68,6 +67,16 @@ exports.Style.prototype = Object.create({}, /** @lends Style.prototype */ {
     },
 
     /**
+     * The style to use for the fill of a polygon.
+     * @type {String}
+     */
+    fillStyle: {
+        enumerable: true,
+        writable: true,
+        value: undefined
+    },
+
+    /**
      * An object that defines the drawing instructions a place mark.
      * @type {Icon}
      */
@@ -99,6 +108,16 @@ exports.Style.prototype = Object.create({}, /** @lends Style.prototype */ {
     },
 
     /**
+     * The style to use for the outline of a polygon or the path of a line.
+     * @type {String}
+     */
+    strokeStyle: {
+        enumerable: true,
+        writable: true,
+        value: undefined
+    },
+
+    /**
      * The thickness of the stroke of a polygon or line.
      * @type {number}
      */
@@ -106,6 +125,12 @@ exports.Style.prototype = Object.create({}, /** @lends Style.prototype */ {
         enumerable: true,
         writable: true,
         value: 1
+    },
+
+    dataURL: {
+        enumerable: true,
+        writable: true,
+        value: undefined
     },
 
     /**
@@ -212,7 +237,10 @@ Object.defineProperties(exports.Style, /** @lends Style.prototype */ {
 
             return  count === 1 ?   exports.Style._makePointStyle(arguments[0]) :
                     count === 3 ?   exports.Style._makeLineStringStyle.apply(this, arguments) :
+                    count === 4 ?   exports.Style._makeLineStringStyle.apply(this, arguments) :
                     count === 5 ?   exports.Style._makePolygonStyle.apply(this, arguments) :
+                    count === 6 ?   exports.Style._makePolygonStyle.apply(this, arguments) :
+                    count === 7 ?   exports.Style._makePolygonStyle.apply(this, arguments) :
                                     null;
         }
     },
@@ -231,6 +259,7 @@ Object.defineProperties(exports.Style, /** @lends Style.prototype */ {
             style.strokeColor = arguments[0];
             style.strokeOpacity = arguments[1];
             style.strokeWeight = arguments[2];
+            style.strokeStyle = arguments.length === 4 ? arguments[3] : "esriSLSSolid";
             return style;
         }
     },
@@ -243,6 +272,8 @@ Object.defineProperties(exports.Style, /** @lends Style.prototype */ {
             style.strokeColor = arguments[2];
             style.strokeOpacity = arguments[3];
             style.strokeWeight = arguments[4];
+            style.fillStyle = arguments.length > 5 ? arguments[5] : "esriSFSSolid";
+            style.strokeStyle = arguments.length > 6 ? arguments[6] : "esriSLSSolid";
             return style;
         }
     }

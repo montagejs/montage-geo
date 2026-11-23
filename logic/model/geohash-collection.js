@@ -1,6 +1,6 @@
-var Montage = require("montage/core/core").Montage,
+var Montage = require("mod/core/core").Montage,
     Geohash = require("./geohash").Geohash,
-    Set = require("collections/set");
+    Set = require("mod/core/collections/set");
 
 var PRECISION_SCALE = [
     0.70924, 22.7529, 729.62, 23409, 744200, 23912100,

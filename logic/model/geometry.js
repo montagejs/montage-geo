@@ -1,6 +1,6 @@
-var Montage = require("montage/core/core").Montage,
+var Montage = require("mod/core/core").Montage,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
-    Uuid = require("montage/core/uuid").Uuid,
+    Uuid = require("mod/core/uuid").Uuid,
     DASH_REG_EX = /-/g,
     IDENTIFIER_PREFIX = "G",
     HALF_PI = Math.PI / 180.0;
@@ -100,14 +100,15 @@ exports.Geometry = Montage.specialize(/** @lends Geometry.prototype */ {
     toGeoJSON: {
         value: function () {}
     },
+
     forEach: {
         value: function (callback /*, thisp*/) {
 
-            var thisp = arguments[1]
+            var thisp = arguments[1],
                 coordinates = this.coordinates;
 
-            for(var i=0, countI = coordinates.length;(i < countI); i++) {
-                coordinates[i].forEach(callback,thisp);
+            for(var i=0, countI = coordinates.length; (i < countI); i++) {
+                coordinates[i].forEach(callback, thisp);
             }
         }
     }

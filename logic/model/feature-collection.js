@@ -1,7 +1,7 @@
-var Montage = require("montage/core/core").Montage,
+var Montage = require("mod/core/core").Montage,
     BoundingBox = require("logic/model/bounding-box").BoundingBox,
-    Map = require("collections/map"),
-    Set = require("collections/set");
+    Map = require("mod/core/collections/map"),
+    Set = require("mod/core/collections/set");
 
 /**
  * A feature collection represents a group of features.  Every
@@ -418,6 +418,15 @@ exports.FeatureCollection = Montage.specialize(/** @lends FeatureCollection.prot
     }
 
 }, {
+
+    empty: {
+        get: function () {
+            return {
+                "type": "FeatureCollection",
+                "features": []
+            };
+        }
+    },
 
     withGeoJSON: {
         value: function (json, projection) {

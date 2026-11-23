@@ -1,6 +1,6 @@
-var Montage = require("montage/core/core").Montage,
+var Montage = require("mod/core/core").Montage,
     GeohashCollection = require("logic/model/geohash-collection").GeohashCollection,
-    Uuid = require("montage/core/uuid").Uuid,
+    Uuid = require("mod/core/uuid").Uuid,
     DASH_REG_EX = /-/g,
     IDENTIFIER_PREFIX = "B";
 
@@ -103,6 +103,16 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
         value: function (value) {
             var isInfinity = value === Infinity || value === -Infinity;
             return isInfinity ? value : Number(value.toFixed(5));
+        }
+    },
+
+    /********************************************
+     * Projection
+     */
+
+    project: {
+        value: function (projection) {
+            return projection.projectBounds(this);
         }
     },
 
@@ -250,8 +260,38 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
     },
 
     /**
-     * Determines whether or not the bounds intersects,
-     * contains or is within the passed in feature.
+     * Returns a bounding box that is the intersecting portion of this
+     * bounding box and the passed in bounding box.
+     * @param {BoundingBox} bounds - the bounds to intersect with.
+     * @returns {BoundingBox}
+     */
+    clip: {
+        value: function (bounds) {
+
+            return this.splitAlongAntimeridian().
+                map(function (bbox) {
+
+                    var xMin = Math.max(bbox.xMin, bounds.xMin),
+                        yMin = Math.max(bbox.yMin, bounds.yMin),
+                        xMax = Math.min(bbox.xMax, bounds.xMax),
+                        yMax = Math.min(bbox.yMax, bounds.yMax);
+
+                    return exports.BoundingBox.withCoordinates(xMin, yMin, xMax, yMax);
+
+            }).reduce(function (aggregate, value) {
+
+                return aggregate ? exports.BoundingBox.withCoordinates(
+                    aggregate.xMin, aggregate.yMin, value.xMax, aggregate.yMax
+                ) : value;
+
+            });
+
+        }
+    },
+
+    /**
+     * Determines whether the bounds intersect, contains, or is within the
+     * passed in feature.
      *
      * @method
      * @param {Feature}
@@ -260,9 +300,15 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
     containsFeature: {
         value: function (feature) {
             var geometry = feature.geometry;
-            return this.splitAlongAntimeridian().some(function (bounds) {
-                return geometry.intersects(bounds)
+            return !!geometry && this.splitAlongAntimeridian().some(function (bounds) {
+                return geometry.intersects(bounds);
             });
+        }
+    },
+
+    crossesAntiMeridian: {
+        value: function () {
+            return this.xMax < this.xMin;
         }
     },
 
@@ -337,6 +383,19 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
                 area += height * width;
             });
             return area;
+        }
+    },
+
+    width: {
+        get: function () {
+            var Position = exports.BoundingBox.Position,
+                spheres = this._divideIfWiderThan180Degrees();
+
+            return spheres.reduce(function (width, bbox) {
+                var southWest = Position.withCoordinates(bbox[0], bbox[1]),
+                    southEast = Position.withCoordinates(bbox[2], bbox[1]);
+                return width + southWest.distance(southEast);
+            }, 0);
         }
     },
 
@@ -420,23 +479,46 @@ exports.BoundingBox = Montage.specialize(/** @lends BoundingBox.prototype */ {
 
     setWithPositions: {
         value: function (positions) {
+
             var xMin = Infinity,
                 yMin = Infinity,
                 xMax = -Infinity,
                 yMax = -Infinity;
+
             positions = positions || [];
             positions.forEach(function (position) {
                 var lng = position.longitude,
                     lat = position.latitude;
-                if (xMin > lng) xMin = lng;
-                if (xMax < lng) xMax = lng;
-                if (yMin > lat) yMin = lat;
-                if (yMax < lat) yMax = lat;
+                if (xMin > lng) {
+                    xMin = lng;
+                }
+                if (xMax < lng) {
+                    xMax = lng;
+                }
+                if (yMin > lat) {
+                    yMin = lat;
+                }
+                if (yMax < lat) {
+                    yMax = lat;
+                }
             });
-            if (this.xMin !== xMin) this.xMin = xMin;
-            if (this.yMin !== yMin) this.yMin = yMin;
-            if (this.xMax !== xMax) this.xMax = xMax;
-            if (this.yMax !== yMax) this.yMax = yMax;
+
+            if (this.xMin !== xMin) {
+                this.xMin = xMin;
+            }
+
+            if (this.yMin !== yMin) {
+                this.yMin = yMin;
+            }
+
+            if (this.xMax !== xMax) {
+                this.xMax = xMax;
+            }
+
+            if (this.yMax !== yMax) {
+                this.yMax = yMax;
+            }
+
         }
     },
 

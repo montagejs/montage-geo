@@ -1,8 +1,8 @@
 var Polygon = require("montage-geo/logic/model/polygon").Polygon,
-    Bindings = require("montage-geo/frb/bindings"),
-    Deserializer = require("montage/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
+    Bindings = require("mod/core/frb/bindings"),
+    Deserializer = require("mod/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
     Position = require("montage-geo/logic/model/position").Position,
-    Serializer = require("montage/core/serialization/serializer/montage-serializer").MontageSerializer;
+    Serializer = require("mod/core/serialization/serializer/montage-serializer").MontageSerializer;
 
 describe("A Polygon", function () {
 
@@ -41,11 +41,65 @@ describe("A Polygon", function () {
         });
     });
 
+    it("bounds an open JMA polygon without treating it as the globe", function () {
+        var ring = [[130.909981,33.987833], [130.910011,33.987841],
+            [130.910069,33.987856], [130.910032,33.987767]];
+        [ring, ring.slice().reverse()].forEach(function (coordinates) {
+            var polygon = Polygon.withCoordinates([coordinates]);
+            expect(polygon.bounds().bbox).toEqual([130.90998,33.98777,130.91007,33.98786]);
+            expect(polygon.coordinates[0].length).toBe(4);
+        });
+    });
+
+    it("bounds a JMA triangle collapsed by position rounding using its vertices", function () {
+        var polygon = Polygon.withCoordinates([[[130.877828,34.136252],
+            [130.877804,34.136247], [130.877808,34.136255]]]);
+        expect(polygon.bounds().bbox).toEqual([130.8778,34.13625,130.87783,34.13625]);
+    });
+
+    it("bounds a polygon collapsed to one point", function () {
+        var polygon = Polygon.withCoordinates([[[131,34], [131,34], [131,34]]]);
+        expect(polygon.bounds().bbox).toEqual([131,34,131,34]);
+    });
+
+    it("preserves a narrow envelope across the date line in either winding", function () {
+        var ring = [[179,10], [-179,10], [-179,12], [179,12]];
+        [ring, ring.slice().reverse()].forEach(function (coordinates) {
+            var bounds = Polygon.withCoordinates([coordinates]).bounds();
+            expect(bounds.xMin).toBe(179);
+            expect(bounds.xMax).toBe(-179);
+            expect(bounds.yMin).toBe(10);
+            expect(bounds.yMax).toBeGreaterThan(12);
+            expect(bounds.yMax).toBeLessThan(12.01);
+        });
+    });
+
+    it("ignores a collapsed hole without changing the outer envelope", function () {
+        var outer = [[130,33], [131,33], [131,34], [130,34]],
+            hole = [[130.2,33.5], [130.3,33.5], [130.4,33.5]];
+        expect(Polygon.withCoordinates([outer, hole]).bounds().bbox)
+            .toEqual(Polygon.withCoordinates([outer]).bounds().bbox);
+    });
+
     it("can properly create its bounds.", function () {
         var p1 = Polygon.withCoordinates([
             [[0,0], [0,10], [10,10], [10,0], [0,0]]
+        ]),
+        //Wound counter-clockwise
+        p2 = Polygon.withCoordinates([
+            [[14.38477,11.64536],[25.54687,20.17313],[17.19727,32.87369],[7.78906,30.17705],[0.0625,20.00804],[4.38477,11.64536]]
         ]);
+        //Wound counter-clockwise & crosses prime meridian
+        p3 = Polygon.withCoordinates([
+            [[4.38477,11.64536],[15.54687,20.17313],[7.19727,32.87369],[-3.78906,30.17705],[-9.0625,20.00804],[4.38477,11.64536]]
+        ]),
+        
+        
+        
         expect(roundedBbox(p1.bounds().bbox).join(",")).toBe("0,0,10,10");
+        expect(roundedBbox(p2.bounds().bbox).join(",")).toBe("0,12,26,33");
+        expect(roundedBbox(p3.bounds().bbox).join(",")).toBe("-9,12,16,33");
+
     });
 
     it("can properly calculate its area", function () {
@@ -295,6 +349,33 @@ describe("A Polygon", function () {
 
         expect(a.equals(b)).toBe(true);
     });
+
+    it("can calculate its edges", function () {
+        var polygon = Polygon.withCoordinates([
+            [[0,0], [0,40], [40,40], [40,0], [0,0]]
+        ]),
+        edges = polygon.edges(),
+        ringEdge = edges[0];
+        expect(edges.length).toBe(1);
+        expect(ringEdge[0].coordinates[0].longitude).toBe(0);
+        expect(ringEdge[0].coordinates[0].latitude).toBe(0);
+        expect(ringEdge[0].coordinates[1].longitude).toBe(0);
+        expect(ringEdge[0].coordinates[1].latitude).toBe(40);
+        expect(ringEdge[1].coordinates[0].longitude).toBe(0);
+        expect(ringEdge[1].coordinates[0].latitude).toBe(40);
+        expect(ringEdge[1].coordinates[1].longitude).toBe(40);
+        expect(ringEdge[1].coordinates[1].latitude).toBe(40);
+        expect(ringEdge[2].coordinates[0].longitude).toBe(40);
+        expect(ringEdge[2].coordinates[0].latitude).toBe(40);
+        expect(ringEdge[2].coordinates[1].longitude).toBe(40);
+        expect(ringEdge[2].coordinates[1].latitude).toBe(0);
+        expect(ringEdge[3].coordinates[0].longitude).toBe(40);
+        expect(ringEdge[3].coordinates[0].latitude).toBe(0);
+        expect(ringEdge[3].coordinates[1].longitude).toBe(0);
+        expect(ringEdge[3].coordinates[1].latitude).toBe(0);
+    });
+
+    
 
     xit("can split along the anti-meridian", function () {
         // var polygon = Polygon.withCoordinates([

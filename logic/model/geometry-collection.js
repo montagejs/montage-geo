@@ -1,4 +1,4 @@
-var Montage = require("montage/core/core").Montage;
+var Montage = require("mod/core/core").Montage;
 
 /**
  * A geometry collection represents a collection of geometries
@@ -6,6 +6,12 @@ var Montage = require("montage/core/core").Montage;
  * @extends external:Montage
  */
 var GeometryCollection = exports.GeometryCollection = Montage.specialize(/** @lends GeometryCollection.prototype */ {
+
+    constructor: {
+        value: function GeometryCollection() {
+            this.super();
+        }
+    },
 
     geometries: {
         get: function () {
@@ -39,9 +45,9 @@ var GeometryCollection = exports.GeometryCollection = Montage.specialize(/** @le
 
     /**
      * Tests whether this geometry collection's geometries are equal to the
-     * provided one.  The collection's are considered equal if the two coll-
-     * ections have the same number of children and each child is equal to the
-     * provide collection's child at the same position.
+     * provided one.  The collections are considered equal if the two collections
+     * have the same number of children and each child is equal to the
+     * provided collection's child at the same position.
      * @return {boolean}
      */
     equals: {
@@ -73,10 +79,11 @@ var GeometryCollection = exports.GeometryCollection = Montage.specialize(/** @le
             return isEqual;
         }
     },
+
     forEach: {
         value: function (callback /*, thisp*/) {
 
-            var thisp = arguments[1]
+            var thisp = arguments[1],
             geometries = this.geometries;
 
             for(var i=0, countI = geometries.length;(i < countI); i++) {

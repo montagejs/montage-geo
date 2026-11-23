@@ -1,6 +1,7 @@
 var HALF_PI = Math.PI / 180.0,
+    BoundingBox = require("logic/model/bounding-box").BoundingBox,
     Position,
-    Uuid = require("montage/core/uuid").Uuid,
+    Uuid = require("mod/core/uuid").Uuid,
     DASH_REG_EX = /-/g,
     IDENTIFIER_PREFIX = "P";
 
@@ -69,7 +70,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
         configurable: true,
         enumerable: true,
         writable: true,
-        value: undefined
+        value: 0
     },
 
     _latitude: {
@@ -180,7 +181,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
     },
 
     _setPropertyWithDefaults: {
-        value:function (serializer, propertyName, value) {
+        value: function (serializer, propertyName, value) {
             if (value !== Defaults[propertyName]) {
                 serializer.setProperty(propertyName, value);
             }
@@ -188,7 +189,7 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
     },
 
     _getPropertyWithDefaults: {
-        value:function (deserializer, propertyName) {
+        value: function (deserializer, propertyName) {
             var value = deserializer.getProperty(propertyName);
             return value === 0 || value ? value : Defaults[propertyName];
         }
@@ -217,6 +218,26 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
                 theta = Math.atan2(y, x);
 
             return (exports.Position.toDegrees(theta) + 360) % 360;
+        }
+    },
+
+    /**
+     * Returns a bounding box of this position buffered by the provided amount
+     * in meters.
+     * @method
+     * @param {Number}
+     * @returns {BoundingBox}
+     */
+    buffer: {
+        value: function (amount) {
+
+            var west = this.destination(amount, 270).longitude,
+                south = this.destination(amount, 180).latitude,
+                east = this.destination(amount, 90).longitude,
+                north = this.destination(amount, 0).latitude;
+
+            return BoundingBox.withCoordinates(west, south, east, north);
+
         }
     },
 
@@ -281,7 +302,6 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
                 c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
             return earthRadius * c;
-
         }
     },
 
@@ -384,9 +404,22 @@ exports.Position.prototype = Object.create({}, /** @lends Position.prototype */ 
         }
     },
 
+    toArray: {
+        value: function (latFirst) {
+            return !!latFirst ? [this.latitude, this.longitude, this.altitude] :
+                                [this.longitude, this.latitude, this.altitude];
+        }
+    },
+
     clone: {
         value: function () {
             return exports.Position.withCoordinates(this.longitude, this.latitude, this.altitude);
+        }
+    },
+
+    withAltitude: {
+        value: function (altitude) {
+            return exports.Position.withCoordinates(this.longitude, this.latitude, altitude);
         }
     },
 

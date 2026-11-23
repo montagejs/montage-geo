@@ -1,9 +1,9 @@
 var Position = require("montage-geo/logic/model/position").Position,
-    Component = require("montage/ui/component").Component,
-    Deserializer = require("montage/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
+    Montage = require("mod/core/core").Montage,
+    Deserializer = require("mod/core/serialization/deserializer/montage-deserializer").MontageDeserializer,
     Projection = require("montage-geo/logic/model/projection").Projection,
-    Serializer = require("montage/core/serialization/serializer/montage-serializer").MontageSerializer,
-    Set = require("montage/collections/set").Set;
+    Serializer = require("mod/core/serialization/serializer/montage-serializer").MontageSerializer,
+    Set = require("mod/core/collections/set").Set;
 
 describe("A Position", function () {
 
@@ -57,6 +57,13 @@ describe("A Position", function () {
         expect(isNaN(dest5.longitude)).toBe(false);
     });
 
+    it("can buffer a position in meters", function () {
+        var p1 = Position.withCoordinates([12.967, 55.597]),
+            boundingBox = p1.buffer(1);
+
+        expect(boundingBox).not.toBeNull();
+    });
+
     it("can serialize", function () {
         var p1 = Position.withCoordinates([-156.6825, 20.8783]),
             serializer = new Serializer().initWithRequire(require),
@@ -71,14 +78,14 @@ describe("A Position", function () {
             expect(position.constructor.name).toBe("Position");
             expect(position.longitude).toBe(-156.6825);
             expect(position.latitude).toBe(20.8783);
-            expect(position.altitude).toBe(undefined);
+            expect(position.altitude).toBe(0);
             done();
         });
     });
 
     it("can properly monitor a set", function () {
 
-        var MyComponent = Component.specialize({
+        var MyComponent = Montage.specialize({
                 inSet: {
                     value: false
                 },
@@ -100,7 +107,7 @@ describe("A Position", function () {
 
     it ("can use regex in an expression", function () {
 
-        var MyComponent = Component.specialize({
+        var MyComponent = Montage.specialize({
                 isImageFile: {
                     value: false
                 },
@@ -121,8 +128,5 @@ describe("A Position", function () {
         expect(c.isImageFile).toBe(true);
 
     });
-
-
-
 
 });

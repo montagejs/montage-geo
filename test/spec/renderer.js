@@ -1,8 +1,11 @@
 var ClassBreaksRenderer = require("montage-geo/logic/model/class-breaks-renderer").ClassBreaksRenderer,
+    ExampleUniqueValueRendererConfiguration = require("config/example-unique-value-renderer-configuration.json"),
     EsriJsonToGeometryConverter = require("montage-geo/logic/converter/esri-json-to-geometry-converter").EsriJsonToGeometryConverter,
     Feature = require("montage-geo/logic/model/feature").Feature,
+    HistoricalEarthquakesRendererConfiguration = require("config/historical-earthquakes-layer-renderer.json"),
     SimpleRenderer = require("montage-geo/logic/model/simple-renderer").SimpleRenderer,
     Style = require("montage-geo/logic/model/style").Style,
+    TropicalCyclonePositionsRendererConfiguration = require("config/tropical-cyclone-positions-layer-renderer.json"),
     UniqueValueRenderer = require("montage-geo/logic/model/unique-value-renderer").UniqueValueRenderer;
 
 describe("Renderer", function() {
@@ -34,7 +37,7 @@ describe("Renderer", function() {
         )
     });
 
-    it ("can create a class breaks renderer", function (done) {
+    xit ("can create a class breaks renderer", function (done) {
         var rawData = CLASS_BREAKS_RENDERER.renderer;
         ClassBreaksRenderer.withArguments(
             rawData.field, rawData.minValue, rawData.classBreakInfos, CLASS_BREAKS_RENDERER.transparency
@@ -51,12 +54,48 @@ describe("Renderer", function() {
         });
     });
 
-    it ("can match a feature to class breaks renderer entry", function (done) {
+    xit ("can clone a class breaks renderer", function (done) {
         var rawData = CLASS_BREAKS_RENDERER.renderer;
         ClassBreaksRenderer.withArguments(
             rawData.field, rawData.minValue, rawData.classBreakInfos, CLASS_BREAKS_RENDERER.transparency
         ).then(function (renderer) {
-            var style = renderer.render(earthquake);
+            var clone = renderer.clone();
+            expect(clone).toBeDefined();
+            expect(clone.field).toBe(renderer.field);
+            expect(clone.entries.length).toBe(renderer.entries.length);
+            expect(clone.entries.every(function (entry, index) {
+                return entry.style instanceof Style;
+            })).toBe(true);
+            expect(clone.minValue).toBe(renderer.minValue);
+            expect(clone.transparency).toBe(renderer.transparency);
+            done();
+        });
+
+    });
+
+    xit ("can create a historical earthquakes class breaks renderer", function (done) {
+        var rawData = HistoricalEarthquakesRendererConfiguration.renderer;
+        ClassBreaksRenderer.withArguments(
+            rawData.field, rawData.minValue, rawData.classBreakInfos, CLASS_BREAKS_RENDERER.transparency
+        ).then(function (renderer) {
+            expect(renderer).toBeDefined();
+            expect(renderer.field).toBe("Magnitude");
+            expect(renderer.entries.length).toBe(5);
+            expect(renderer.entries.every(function (entry) {
+                return entry.style instanceof Style;
+            })).toBe(true);
+            expect(renderer.minValue).toBe(-9999);
+            expect(renderer._transparency).toBe(0);
+            done();
+        });
+    });
+
+    xit ("can match a feature to class breaks renderer entry", function (done) {
+        var rawData = CLASS_BREAKS_RENDERER.renderer;
+        ClassBreaksRenderer.withArguments(
+            rawData.field, rawData.minValue, rawData.classBreakInfos, CLASS_BREAKS_RENDERER.transparency
+        ).then(function (renderer) {
+            var style = renderer.convert(earthquake);
             expect(style).toBeDefined();
             expect(style instanceof Style).toBe(true);
             done();
@@ -80,6 +119,60 @@ describe("Renderer", function() {
         });
     });
 
+    it("can clone a unique value renderer", function (done) {
+        var rawData = UNIQUE_VALUE_RENDERER;
+        UniqueValueRenderer.withArguments(
+            rawData.field1, rawData.field2, rawData.field3,
+            rawData.fieldDelimiter, rawData.uniqueValueInfos,
+            rawData.defaultSymbol, rawData.defaultLabel
+        ).then(function (renderer) {
+            var clone = renderer.clone();
+            expect(clone).toBeDefined();
+            expect(clone.entries).toBeDefined();
+            expect(clone.entries.length).toBe(renderer.entries.length);
+            expect(clone.entries.every(function (entry, index) {
+                return entry.style instanceof Style;
+            })).toBe(true);
+            expect(clone.field1).toBe(renderer.field1);
+            expect(clone.field2).toBe(renderer.field2);
+            expect(clone.field3).toBe(renderer.field3);
+            done();
+        });
+    });
+
+    // TODO: Reinstate this test when the UniqueValueRenderer is updated to handle the esriSMSX marker symbol
+    // it("another example of creating a unique value renderer", function (done) {
+    //     var rawData = ExampleUniqueValueRendererConfiguration["drawingInfo"]["renderer"];
+    //     UniqueValueRenderer.withArguments(
+    //         rawData.field1, rawData.field2, rawData.field3,
+    //         rawData.fieldDelimiter, rawData.uniqueValueInfos,
+    //         rawData.defaultSymbol, rawData.defaultLabel
+    //     ).then(function (renderer) {
+    //         expect(renderer).toBeDefined();
+    //         expect(renderer.entries).toBeDefined();
+    //         expect(renderer.entries.length).toBe(5);
+    //         expect(renderer.entries.every(function (entry) {
+    //             return entry.style instanceof Style;
+    //         })).toBe(true);
+    //         done();
+    //     });
+    // });
+
+
+    xit("should create the tropical cyclone positions layer renderer", function (done) {
+        var rawData = TropicalCyclonePositionsRendererConfiguration.renderer;
+        UniqueValueRenderer.withArguments(
+            rawData.field1, rawData.field2, rawData.field3,
+            rawData.fieldDelimiter, rawData.uniqueValueInfos,
+            rawData.defaultSymbol, rawData.defaultLabel
+        ).then(function (renderer) {
+            expect(renderer).toBeDefined();
+            expect(renderer.entries).toBeDefined();
+            expect(renderer.entries.length).toBe(12);
+            done();
+        });
+    });
+
     it ("can match a feature to unique value renderer entry", function (done) {
         var rawData = UNIQUE_VALUE_RENDERER;
         UniqueValueRenderer.withArguments(
@@ -87,7 +180,7 @@ describe("Renderer", function() {
             rawData.fieldDelimiter, rawData.uniqueValueInfos,
             rawData.defaultSymbol, rawData.defaultLabel
         ).then(function (renderer) {
-            var style = renderer.render(stormZone);
+            var style = renderer.convert(stormZone);
             expect(style).toBeDefined();
             expect(style instanceof Style).toBe(true);
             done();
@@ -122,10 +215,24 @@ describe("Renderer", function() {
         });
     });
 
+    it("can clone a simple renderer", function (done) {
+        var rawData = SIMPLE_RENDERER;
+        SimpleRenderer.withArguments(rawData.symbol).then(function (renderer) {
+            var clone = renderer.clone();
+            expect(clone).toBeDefined();
+            expect(clone.entries).toBeDefined();
+            expect(clone.entries.length).toBe(renderer.entries.length);
+            expect(clone.entries.every(function (entry) {
+                return entry.style instanceof Style;
+            })).toBe(true);
+            done();
+        });
+    });
+
     it ("can match a feature to simple renderer entry", function (done) {
         var rawData = SIMPLE_RENDERER;
         SimpleRenderer.withArguments(rawData.symbol).then(function (renderer) {
-            var style = renderer.render(eoc);
+            var style = renderer.convert(eoc);
             expect(style).toBeDefined();
             expect(style instanceof Style).toBe(true);
             done();

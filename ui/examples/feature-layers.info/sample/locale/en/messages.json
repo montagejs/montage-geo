@@ -1,0 +1,33 @@
+{
+    "en": "English",
+    "operating": "Operating EN",
+    "operation_done": "Operation Done EN",
+    "operation_failed": "Operation Failed EN",
+
+    "add_hazard": "Add Hazard EN",
+    "doing_something": "Doing Something EN",
+    "edit_hazard": "Edit Hazard EN",
+    "fail_to_launch": "Failure To Launch EN",
+    "fail_with_messages": "Fail With Messages EN",
+    "role_label": "Roles",
+    "FOUO": "FOUO",
+    "warning_message": "Warning: Blah Blah Blah EN",
+
+    "error_message": "Error Message EN",
+    "field_one": "Field 1 EN",
+    "field_two": "Field 2 EN",
+    "field_three": "Field 3 EN",
+    "field_four": "Field 4 EN",
+
+    "add": "Add EN",
+    "cancel": "Cancel",
+    "clear": "Clear EN",
+    "continue": "Continue EN",
+    "create": "Create EN",
+    "dismiss": "Dismiss EN",
+    "hide": "Hide EN",
+    "import": "Import EN",
+    "okay": "Okay EN",
+    "save": "Save EN",
+    "undo": "Undo EN"
+}
